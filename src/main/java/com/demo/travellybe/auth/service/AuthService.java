@@ -12,7 +12,9 @@ import org.springframework.core.env.Environment;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.util.Optional;
 
@@ -34,12 +36,15 @@ public class AuthService {
         // 토큰 이용해서 유저 정보 발급
         JsonNode userResourceNode = getUserResource(accessToken, registrationId);
 
-        String id = userResourceNode.get("id").asText();
+        if (registrationId.equals("naver")) {
+            userResourceNode = userResourceNode.get("response");
+        }
+
         String email = userResourceNode.get("email").asText();
-        String nickname = userResourceNode.get("name").asText();
+        String nickname = registrationId + "_" + userResourceNode.get("name").asText();
 
         // JWT 토큰 반환
-        return saveUser(id, email, nickname);
+        return saveUser(email, nickname);
     }
 
     private String getAccessToken(String authorizationCode, String registrationId) {
@@ -75,7 +80,7 @@ public class AuthService {
                 .block();
     }
 
-    private MemberTokenDto saveUser(String id, String username, String nickname) {
+    private MemberTokenDto saveUser(String username, String nickname) {
         Optional<Member> memberEntity = memberRepository.findByUsername(username);
         String password = "더미패스워드";
         MemberTokenDto memberTokenDto = new MemberTokenDto();
