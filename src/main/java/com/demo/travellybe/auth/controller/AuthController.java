@@ -1,25 +1,41 @@
 package com.demo.travellybe.auth.controller;
 
-import com.demo.travellybe.auth.dto.AuthRequestDto;
+import com.demo.travellybe.auth.dto.SocialRequestDto;
+import com.demo.travellybe.auth.dto.FormRequestDto;
 import com.demo.travellybe.auth.dto.MemberTokenDto;
+import com.demo.travellybe.auth.dto.SignupRequestDto;
 import com.demo.travellybe.auth.service.AuthService;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value="/auth")
+@RequestMapping(value = "/auth")
 public class AuthController {
 
     private final AuthService authService;
+
     @PostMapping("/login/{registrationId}")
-    public ResponseEntity<MemberTokenDto> googleLogin(@RequestBody AuthRequestDto authRequestDto, @PathVariable("registrationId") String registrationId) {
-        MemberTokenDto memberTokenDto = authService.socialLogin(authRequestDto.getCode(), registrationId);
+    public ResponseEntity<MemberTokenDto> googleLogin(@RequestBody SocialRequestDto socialRequestDto, @PathVariable("registrationId") String registrationId) {
+        MemberTokenDto memberTokenDto = authService.socialLogin(socialRequestDto.getCode(), registrationId);
 
         return ResponseEntity.ok().body(memberTokenDto);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<MemberTokenDto> formLogin(@RequestBody FormRequestDto formRequestDto) {
+        MemberTokenDto memberTokenDto = authService.formLogin(formRequestDto);
+
+        return ResponseEntity.ok().body(memberTokenDto);
+    }
+
+    @PostMapping("/signup")
+    public ResponseEntity<Void> register(@RequestBody @Valid SignupRequestDto signupRequestDto) {
+        authService.signup(signupRequestDto);
+
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

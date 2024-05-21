@@ -2,6 +2,7 @@ package com.demo.travellybe.member.domain;
 
 import com.demo.travellybe.member.domain.Role;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,7 +16,7 @@ public class Member {
     @Column(name = "member_id")
     private Long id;
 
-    private String username;
+    private String email;
 
     private String password;
 
@@ -24,8 +25,8 @@ public class Member {
     private Role role;
 
     @Builder
-    public Member(String username, String password, String nickname) {
-        this.username = username;
+    public Member(String email, String password, String nickname) {
+        this.email = email;
         this.password = password;
         this.nickname = nickname;
     }

@@ -1,23 +1,29 @@
 package com.demo.travellybe.auth.service;
 
 import com.demo.travellybe.auth.domain.MemberTokens;
+import com.demo.travellybe.auth.dto.FormRequestDto;
 import com.demo.travellybe.auth.dto.PrincipalDetails;
 import com.demo.travellybe.auth.dto.MemberTokenDto;
+import com.demo.travellybe.auth.dto.SignupRequestDto;
 import com.demo.travellybe.auth.jwt.JwtProvider;
+import com.demo.travellybe.exception.AuthException;
+import com.demo.travellybe.exception.ErrorCode;
 import com.demo.travellybe.member.domain.Member;
 import com.demo.travellybe.member.domain.MemberRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.Environment;
 import org.springframework.http.*;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -26,6 +32,58 @@ public class AuthService {
     private final WebClient webClient = WebClient.builder().build();
     private final MemberRepository memberRepository;
     private final JwtProvider jwtProvider;
+    private final AuthenticationManager authenticationManager;
+
+    // 회원 가입
+    public void signup(SignupRequestDto signupRequestDto) {
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
+        if (memberRepository.findByEmail(signupRequestDto.getEmail()).isPresent()) {
+            throw new AuthException(ErrorCode.MEMBER_EMAIL_DUPLICATION);
+        }
+
+        if (memberRepository.findByNickname(signupRequestDto.getNickname()).isPresent()) {
+            throw new AuthException(ErrorCode.MEMBER_NICKNAME_DUPLICATION);
+        }
+
+        // 비밀번호 암호화
+        String password = encoder.encode(signupRequestDto.getPassword());
+        signupRequestDto.setPassword(password);
+
+        memberRepository.save(signupRequestDto.toEntity());
+    }
+
+    // 자체 로그인
+    public MemberTokenDto formLogin(FormRequestDto loginData) {
+
+        String email = loginData.getEmail();
+        String password = loginData.getPassword();
+
+        if (memberRepository.findByEmail(email).isEmpty()) {
+            throw new AuthException(ErrorCode.MEMBER_NOT_FOUND);
+        }
+
+        MemberTokenDto memberTokenDto = new MemberTokenDto();
+
+        // 사용자 인증을 시도하기 위한 토큰 생성(아직 인증이 되지 않은 상태)
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
+
+        try{
+            Authentication authentication = authenticationManager.authenticate(authenticationToken);
+
+            // 인증 정보를 기반으로 JWT 토큰 생성
+            MemberTokens token = jwtProvider.generateLoginToken(authentication.getName());
+
+            memberTokenDto.setToken(token);
+            memberTokenDto.setNewUser(memberRepository.findRoleByEmail(authentication.getName()).isEmpty());
+
+        }catch (BadCredentialsException e) {
+            throw new AuthException(ErrorCode.MEMBER_PASSWORD_MISMATCH);
+        }
+
+        return memberTokenDto;
+    }
+
 
     // 소셜 로그인
     public MemberTokenDto socialLogin(String code, String registrationId) {
@@ -44,7 +102,7 @@ public class AuthService {
         String nickname = registrationId + "_" + userResourceNode.get("name").asText();
 
         // JWT 토큰 반환
-        return saveUser(email, nickname);
+        return socialUser(email, nickname);
     }
 
     private String getAccessToken(String authorizationCode, String registrationId) {
@@ -80,14 +138,14 @@ public class AuthService {
                 .block();
     }
 
-    private MemberTokenDto saveUser(String username, String nickname) {
-        Optional<Member> memberEntity = memberRepository.findByUsername(username);
+    private MemberTokenDto socialUser(String email, String nickname) {
+        Optional<Member> memberEntity = memberRepository.findByEmail(email);
         String password = "더미패스워드";
         MemberTokenDto memberTokenDto = new MemberTokenDto();
 
         if (memberEntity.isEmpty()) {  //  처음 로그인
             Member member = Member.builder()
-                    .username(username)
+                    .email(email)
                     .password(password)
                     .nickname(nickname)
                     .build();
@@ -113,4 +171,6 @@ public class AuthService {
 
         return token;
     }
+
+
 }
