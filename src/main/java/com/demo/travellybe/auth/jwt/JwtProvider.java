@@ -1,5 +1,6 @@
 package com.demo.travellybe.auth.jwt;
 
+import com.demo.travellybe.auth.domain.RefreshToken;
 import com.demo.travellybe.auth.domain.TokenRepository;
 import com.demo.travellybe.auth.domain.MemberTokens;
 import com.demo.travellybe.auth.service.PrincipalService;
@@ -34,6 +35,9 @@ public class JwtProvider {
     public MemberTokens generateLoginToken(String subject) {
         String refreshToken = generateToken(subject, refreshTokenValidTime);
         String accessToken = generateToken(subject, accessTokenValidTime);
+
+        // 리프레스 토큰 저장
+        tokenRepository.save(new RefreshToken(refreshToken));
 
         return new MemberTokens(refreshToken, accessToken);
     }
