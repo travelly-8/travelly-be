@@ -20,6 +20,9 @@ public class Product extends BaseTimeEntity {
     @Column(nullable = false)
     private int price;
 
+    @Column(nullable = false)
+    private String type;
+
     private String description;
 
     private String imageUrl;
@@ -47,12 +50,8 @@ public class Product extends BaseTimeEntity {
     private double longitude;
 
     @Column(nullable = false)
-    private String regionCode;
+    private String cityCode;
 
-    @Column(nullable = false)
-    private String operatingDay;
-
-    @Column(nullable = false)
-    private String operatingTime;
-
+//    @OneToMany(mappedBy = "product")
+//    private List<OperatingTimes> operatingTimes;
 }
