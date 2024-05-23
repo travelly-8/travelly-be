@@ -1,5 +1,7 @@
 package com.demo.travellybe.product.domain;
 
+import com.demo.travellybe.member.domain.Member;
+import com.demo.travellybe.product.dto.ProductFormDto;
 import com.demo.travellybe.util.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -55,6 +57,36 @@ public class Product extends BaseTimeEntity {
     @Column(nullable = false)
     private boolean enabled;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    private Member member;
+
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OperationDay> operationDays = new ArrayList<>();
+
+    public static Product of(ProductFormDto productFormDto) {
+        Product product = new Product();
+        product.name = productFormDto.getName();
+        product.price = productFormDto.getPrice();
+        product.type = productFormDto.getType();
+        product.description = productFormDto.getDescription();
+        product.imageUrl = productFormDto.getImageUrl();
+        product.address = productFormDto.getAddress();
+        product.detailAddress = productFormDto.getDetailAddress();
+        product.phoneNumber = productFormDto.getPhoneNumber();
+        product.homepage = productFormDto.getHomepage();
+        product.cityCode = productFormDto.getCityCode();
+        product.ticketCount = productFormDto.getTicketCount();
+        product.ticketPrice = productFormDto.getTicketPrice();
+        product.rating = 0.0;
+        product.enabled = true;
+
+        product.operationDays = productFormDto.getOperationDays().stream().map(operationDayDto ->
+                OperationDay.of(operationDayDto, product)).toList();
+        return product;
+    }
+
+    // TODO: update 메서드 구현
+    public void update(ProductFormDto productFormDto) {
+    }
 }

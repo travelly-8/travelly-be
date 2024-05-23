@@ -1,18 +1,19 @@
 package com.demo.travellybe.product.service;
 
-import com.demo.travellybe.product.domain.Product;
+import com.demo.travellybe.product.dto.ProductDto;
+import com.demo.travellybe.product.dto.ProductFormDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.List;
 
 public interface ProductService {
-    public void addProduct(Product product);
+    public ProductDto addProduct(ProductFormDto productFormDto);
     public void deleteProduct(Long id);
-    public void updateProduct(Product product);
-    public Product getProductById(Long id);
+    public ProductDto updateProduct(Long id, ProductFormDto productFormDto);
+    public ProductDto getProductById(Long id);
 
-    // TODO DTO로 변경
-    public List<Product> getAllProducts();
-    List<Product> getProductList(String cityCode, String keyword, String contentType, String sortType, LocalDate date, LocalTime startTime, LocalTime endTime, Integer minPrice, Integer maxPrice);
+    public Page<ProductDto> getAllProducts(Pageable pageable);
+    public Page<ProductDto> getProductList(String cityCode, String keyword, String contentType, String sortType, LocalDate date, LocalTime startTime, LocalTime endTime, Integer minPrice, Integer maxPrice);
 }
