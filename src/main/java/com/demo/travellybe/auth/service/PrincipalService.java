@@ -18,9 +18,9 @@ public class PrincipalService implements UserDetailsService {
     private final MemberRepository memberRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
-        Optional<Member> findUser = memberRepository.findByUsername(username);
+        Optional<Member> findUser = memberRepository.findByEmail(email);
 
         //예외 처리 필요
         if (findUser.isPresent()) {

@@ -11,4 +11,8 @@ public class RefreshToken {
     @Id
     @Column(nullable = false)
     private String refreshToken;
+
+    public RefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
 }
