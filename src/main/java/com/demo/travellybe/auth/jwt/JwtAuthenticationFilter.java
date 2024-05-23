@@ -29,45 +29,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // 토큰 확인
         String accessToken = jwtProvider.resolveAccessToken(request);
-        String refreshToken = jwtProvider.resolveRefreshToken(request);
 
-        if(accessToken != null){
+        if (accessToken != null) {
             // 토큰 값이 유효하면 검증
             if (jwtProvider.validToken(accessToken)) {
-
                 // 토큰 검증 (인증객체 생성)
                 Authentication authentication = jwtProvider.getAuthentication(accessToken);
 
                 // SecurityContext 에 인증 객체 등록
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-
-            } else if (!jwtProvider.validToken(accessToken) && refreshToken != null) {
-
-                /// 리프레시 토큰 검증
-                boolean validateRefreshToken = jwtProvider.validToken(refreshToken);
-
-                /// 리프레시 토큰 저장소 존재유무 확인
-                boolean isRefreshToken = jwtProvider.existsRefreshToken(refreshToken);
-
-                if (validateRefreshToken && isRefreshToken) {
-
-                    /// 리프레시 토큰으로 이메일 정보 가져오기
-                    String email = jwtProvider.getUserEmail(refreshToken);
-
-                    /// 토큰 발급
-                    String newAccessToken = jwtProvider.generateToken(email, 20 * 60 * 1000L);
-
-                    /// 컨텍스트에 넣기
-                    Authentication authentication = jwtProvider.getAuthentication(accessToken);
-
-                    // 헤더에 토큰 설정
-                    response.setHeader(HttpHeaders.AUTHORIZATION, newAccessToken);
-
-                    // SecurityContext 에 인증 객체 등록
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-                }
+            }else{
+                // accessToken 값 만료
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "AccessToken Expired");
             }
         }
+
         filterChain.doFilter(request, response);
     }
 }

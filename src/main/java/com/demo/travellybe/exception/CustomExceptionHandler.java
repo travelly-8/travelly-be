@@ -14,7 +14,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<ExceptionResponse> handleAuthException(final AuthException e) {
         log.warn(e.getMessage(), e);
 
-        return ResponseEntity.badRequest()
+        return ResponseEntity.status(e.getStatus())
                 .body(new ExceptionResponse(e.getCode(), e.getMessage()));
     }
 }
