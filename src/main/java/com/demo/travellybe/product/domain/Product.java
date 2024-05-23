@@ -5,6 +5,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @NoArgsConstructor
@@ -28,15 +31,9 @@ public class Product extends BaseTimeEntity {
     private String imageUrl;
 
     @Column(nullable = false)
-    private double rating;
-
-    @Column(nullable = false)
-    private boolean status;
-
-    private int maxPeople;
-
-    @Column(nullable = false)
     private String address;
+
+    private String detailAddress;
 
     @Column(nullable = false)
     private String phoneNumber;
@@ -44,14 +41,20 @@ public class Product extends BaseTimeEntity {
     private String homepage;
 
     @Column(nullable = false)
-    private double latitude;
-
-    @Column(nullable = false)
-    private double longitude;
-
-    @Column(nullable = false)
     private String cityCode;
 
-//    @OneToMany(mappedBy = "product")
-//    private List<OperatingTimes> operatingTimes;
+    @Column(nullable = false)
+    private int ticketCount;
+
+    @Embedded
+    private TicketPrice ticketPrice;
+
+    @Column(nullable = false)
+    private double rating;
+
+    @Column(nullable = false)
+    private boolean enabled;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OperationDay> operationDays = new ArrayList<>();
 }
