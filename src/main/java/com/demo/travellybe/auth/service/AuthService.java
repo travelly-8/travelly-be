@@ -1,10 +1,7 @@
 package com.demo.travellybe.auth.service;
 
 import com.demo.travellybe.auth.domain.MemberTokens;
-import com.demo.travellybe.auth.dto.FormRequestDto;
-import com.demo.travellybe.auth.dto.PrincipalDetails;
-import com.demo.travellybe.auth.dto.MemberTokenDto;
-import com.demo.travellybe.auth.dto.SignupRequestDto;
+import com.demo.travellybe.auth.dto.*;
 import com.demo.travellybe.auth.jwt.JwtProvider;
 import com.demo.travellybe.exception.CustomException;
 import com.demo.travellybe.exception.ErrorCode;
@@ -18,6 +15,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -33,10 +31,10 @@ public class AuthService {
     private final MemberRepository memberRepository;
     private final JwtProvider jwtProvider;
     private final AuthenticationManager authenticationManager;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     // 회원 가입
     public void signup(SignupRequestDto signupRequestDto) {
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
         if (memberRepository.findByEmail(signupRequestDto.getEmail()).isPresent()) {
             throw new CustomException(ErrorCode.MEMBER_EMAIL_DUPLICATION);
@@ -47,7 +45,7 @@ public class AuthService {
         }
 
         // 비밀번호 암호화
-        String password = encoder.encode(signupRequestDto.getPassword());
+        String password = bCryptPasswordEncoder.encode(signupRequestDto.getPassword());
         signupRequestDto.setPassword(password);
 
         memberRepository.save(signupRequestDto.toEntity());
@@ -172,5 +170,34 @@ public class AuthService {
         return token;
     }
 
+    public TokenResponseDto reissueToken(TokenRequestDto tokenRequestDto) {
+        String refreshToken = tokenRequestDto.getRefreshToken();
 
+        // refresh 토큰 검증
+        boolean validateRefreshToken = jwtProvider.validToken(refreshToken);
+
+        // refresh 토큰 저장소 존재유무 확인
+        boolean isRefreshToken = jwtProvider.existsRefreshToken(refreshToken);
+
+        if (validateRefreshToken && isRefreshToken) {
+
+            // 리프레시 토큰으로 이메일 정보 가져오기
+            String email = jwtProvider.getUserEmail(refreshToken);
+
+            // 토큰 발급
+            String newAccessToken = jwtProvider.generateToken(email, 20 * 60 * 1000L);
+
+            // 컨텍스트에 넣기
+            Authentication authentication = jwtProvider.getAuthentication(newAccessToken);
+
+            // SecurityContext 에 인증 객체 등록
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            // 새로운 access 토큰 반환
+            return new TokenResponseDto(newAccessToken);
+        }else{
+            // refreshToken 도 유효하지 않을 경우
+            throw new AuthException(ErrorCode.INVALID_REFRESH_TOKEN);
+        }
+    }
 }
