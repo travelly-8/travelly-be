@@ -6,8 +6,8 @@ import com.demo.travellybe.exception.ErrorCode;
 import com.demo.travellybe.product.domain.Product;
 import com.demo.travellybe.product.domain.ProductRepository;
 import com.demo.travellybe.product.domain.QProduct;
-import com.demo.travellybe.product.dto.ProductDto;
-import com.demo.travellybe.product.dto.ProductFormDto;
+import com.demo.travellybe.product.dto.ProductResponseDto;
+import com.demo.travellybe.product.dto.ProductCreateRequestDto;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.transaction.Transactional;
@@ -28,12 +28,11 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final JPAQueryFactory queryFactory;
 
-    // TODO DTO
     @Override
-    public ProductDto addProduct(ProductFormDto productFormDto) {
-        Product product = Product.of(productFormDto);
+    public ProductResponseDto addProduct(ProductCreateRequestDto productCreateRequestDto) {
+        Product product = Product.of(productCreateRequestDto);
         productRepository.save(product);
-        return new ProductDto(product);
+        return new ProductResponseDto(product);
     }
 
     @Override
@@ -43,29 +42,28 @@ public class ProductServiceImpl implements ProductService {
         productRepository.deleteById(id);
     }
 
-    // TODO DTO
     @Override
-    public ProductDto updateProduct(Long id, ProductFormDto productFormDto) {
+    public ProductResponseDto updateProduct(Long id, ProductCreateRequestDto productCreateRequestDto) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
-        product.update(productFormDto);
-        return new ProductDto(product);
+        product.update(productCreateRequestDto);
+        return new ProductResponseDto(product);
     }
 
     @Override
-    public ProductDto getProductById(Long id) {
+    public ProductResponseDto getProductById(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
-        return new ProductDto(product);
+        return new ProductResponseDto(product);
     }
 
     @Override
-    public Page<ProductDto> getAllProducts(Pageable pageable) {
-        return productRepository.findAll(pageable).map(ProductDto::new);
+    public Page<ProductResponseDto> getAllProducts(Pageable pageable) {
+        return productRepository.findAll(pageable).map(ProductResponseDto::new);
     }
 
     @Override
-    public Page<ProductDto> getProductList(String cityCode, String keyword, String contentType, String sortType, LocalDate date, LocalTime startTime, LocalTime endTime, Integer minPrice, Integer maxPrice) {
+    public Page<ProductResponseDto> getProductList(String cityCode, String keyword, String contentType, String sortType, LocalDate date, LocalTime startTime, LocalTime endTime, Integer minPrice, Integer maxPrice) {
         QProduct product = QProduct.product;
 
         BooleanBuilder builder = new BooleanBuilder();

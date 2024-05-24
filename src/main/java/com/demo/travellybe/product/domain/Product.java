@@ -1,7 +1,7 @@
 package com.demo.travellybe.product.domain;
 
 import com.demo.travellybe.member.domain.Member;
-import com.demo.travellybe.product.dto.ProductFormDto;
+import com.demo.travellybe.product.dto.ProductCreateRequestDto;
 import com.demo.travellybe.util.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -64,29 +64,29 @@ public class Product extends BaseTimeEntity {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OperationDay> operationDays = new ArrayList<>();
 
-    public static Product of(ProductFormDto productFormDto) {
+    public static Product of(ProductCreateRequestDto productCreateRequestDto) {
         Product product = new Product();
-        product.name = productFormDto.getName();
-        product.price = productFormDto.getPrice();
-        product.type = productFormDto.getType();
-        product.description = productFormDto.getDescription();
-        product.imageUrl = productFormDto.getImageUrl();
-        product.address = productFormDto.getAddress();
-        product.detailAddress = productFormDto.getDetailAddress();
-        product.phoneNumber = productFormDto.getPhoneNumber();
-        product.homepage = productFormDto.getHomepage();
-        product.cityCode = productFormDto.getCityCode();
-        product.ticketCount = productFormDto.getTicketCount();
-        product.ticketPrice = productFormDto.getTicketPrice();
+        product.name = productCreateRequestDto.getName();
+        product.price = productCreateRequestDto.getPrice();
+        product.type = productCreateRequestDto.getType();
+        product.description = productCreateRequestDto.getDescription();
+        product.imageUrl = productCreateRequestDto.getImageUrl();
+        product.address = productCreateRequestDto.getAddress();
+        product.detailAddress = productCreateRequestDto.getDetailAddress();
+        product.phoneNumber = productCreateRequestDto.getPhoneNumber();
+        product.homepage = productCreateRequestDto.getHomepage();
+        product.cityCode = productCreateRequestDto.getCityCode();
+        product.ticketCount = productCreateRequestDto.getTicketCount();
+        product.ticketPrice = productCreateRequestDto.getTicketPrice();
         product.rating = 0.0;
         product.enabled = true;
 
-        product.operationDays = productFormDto.getOperationDays().stream().map(operationDayDto ->
+        product.operationDays = productCreateRequestDto.getOperationDays().stream().map(operationDayDto ->
                 OperationDay.of(operationDayDto, product)).toList();
         return product;
     }
 
     // TODO: update 메서드 구현
-    public void update(ProductFormDto productFormDto) {
+    public void update(ProductCreateRequestDto productCreateRequestDto) {
     }
 }
