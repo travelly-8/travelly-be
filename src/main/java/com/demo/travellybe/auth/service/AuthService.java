@@ -3,7 +3,7 @@ package com.demo.travellybe.auth.service;
 import com.demo.travellybe.auth.domain.MemberTokens;
 import com.demo.travellybe.auth.dto.*;
 import com.demo.travellybe.auth.jwt.JwtProvider;
-import com.demo.travellybe.exception.AuthException;
+import com.demo.travellybe.exception.CustomException;
 import com.demo.travellybe.exception.ErrorCode;
 import com.demo.travellybe.member.domain.Member;
 import com.demo.travellybe.member.domain.MemberRepository;
@@ -37,11 +37,11 @@ public class AuthService {
     public void signup(SignupRequestDto signupRequestDto) {
 
         if (memberRepository.findByEmail(signupRequestDto.getEmail()).isPresent()) {
-            throw new AuthException(ErrorCode.MEMBER_EMAIL_DUPLICATION);
+            throw new CustomException(ErrorCode.MEMBER_EMAIL_DUPLICATION);
         }
 
         if (memberRepository.findByNickname(signupRequestDto.getNickname()).isPresent()) {
-            throw new AuthException(ErrorCode.MEMBER_NICKNAME_DUPLICATION);
+            throw new CustomException(ErrorCode.MEMBER_NICKNAME_DUPLICATION);
         }
 
         // 비밀번호 암호화
@@ -58,7 +58,7 @@ public class AuthService {
         String password = loginData.getPassword();
 
         if (memberRepository.findByEmail(email).isEmpty()) {
-            throw new AuthException(ErrorCode.MEMBER_NOT_FOUND);
+            throw new CustomException(ErrorCode.MEMBER_NOT_FOUND);
         }
 
         MemberTokenDto memberTokenDto = new MemberTokenDto();
@@ -76,7 +76,7 @@ public class AuthService {
             memberTokenDto.setNewUser(memberRepository.findRoleByEmail(authentication.getName()).isEmpty());
 
         }catch (BadCredentialsException e) {
-            throw new AuthException(ErrorCode.MEMBER_PASSWORD_MISMATCH);
+            throw new CustomException(ErrorCode.MEMBER_PASSWORD_MISMATCH);
         }
 
         return memberTokenDto;
@@ -197,7 +197,7 @@ public class AuthService {
             return new TokenResponseDto(newAccessToken);
         }else{
             // refreshToken 도 유효하지 않을 경우
-            throw new AuthException(ErrorCode.INVALID_REFRESH_TOKEN);
+            throw new CustomException(ErrorCode.INVALID_REFRESH_TOKEN);
         }
     }
 }

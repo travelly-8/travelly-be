@@ -1,4 +1,4 @@
-package com.demo.travellybe.auth.config;
+package com.demo.travellybe.config;
 
 import com.demo.travellybe.auth.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;

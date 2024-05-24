@@ -10,11 +10,11 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @Slf4j
 public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(AuthException.class)
-    public ResponseEntity<ExceptionResponse> handleAuthException(final AuthException e) {
-        log.warn(e.getMessage(), e);
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<ErrorResponse> handleCustomException(CustomException ex) {
+        log.error("CustomException: code={}, message={}", ex.getCode(), ex.getMessage());
 
-        return ResponseEntity.status(e.getStatus())
-                .body(new ExceptionResponse(e.getCode(), e.getMessage()));
+        return ResponseEntity.status(ex.getStatus())
+                .body(new ErrorResponse(ex.getCode(), ex.getMessage()));
     }
 }
