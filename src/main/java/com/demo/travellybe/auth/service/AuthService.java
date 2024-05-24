@@ -7,6 +7,7 @@ import com.demo.travellybe.exception.CustomException;
 import com.demo.travellybe.exception.ErrorCode;
 import com.demo.travellybe.member.domain.Member;
 import com.demo.travellybe.member.domain.MemberRepository;
+import com.demo.travellybe.member.domain.Role;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.Environment;
@@ -199,5 +200,13 @@ public class AuthService {
             // refreshToken 도 유효하지 않을 경우
             throw new CustomException(ErrorCode.INVALID_REFRESH_TOKEN);
         }
+    }
+
+    public void registerRole(String email, String role) {
+        // 사용자를 찾고 권한을 설정
+        Member member = memberRepository.findByEmail(email).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        member.setRole(Role.valueOf(role.toUpperCase()));
+        memberRepository.save(member);
     }
 }
