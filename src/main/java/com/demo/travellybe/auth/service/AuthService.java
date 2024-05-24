@@ -209,4 +209,8 @@ public class AuthService {
         member.setRole(Role.valueOf(role.toUpperCase()));
         memberRepository.save(member);
     }
+
+    public String findEmail(String nickname) {
+        return memberRepository.findByNickname(nickname).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)).getEmail();
+    }
 }

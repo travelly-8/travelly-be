@@ -31,7 +31,7 @@ public class AuthController {
     }
 
     @PutMapping("/login/{role}")
-    public ResponseEntity<Void> sdn(@PathVariable("role") String role, @AuthenticationPrincipal PrincipalDetails userInfo) {
+    public ResponseEntity<Void> registerRole(@PathVariable("role") String role, @AuthenticationPrincipal PrincipalDetails userInfo) {
         authService.registerRole(userInfo.getUsername(), role);
 
         return ResponseEntity.ok().build();
@@ -42,6 +42,13 @@ public class AuthController {
         TokenResponseDto tokenResponseDto = authService.reissueToken(tokenRequestDto);
 
         return ResponseEntity.ok().body(tokenResponseDto);
+    }
+
+    @GetMapping("/login/find")
+    public ResponseEntity<EmailResponseDto> findEmail(@RequestParam("nickname") String nickname) {
+        String email = authService.findEmail(nickname);
+
+        return ResponseEntity.ok().body(new EmailResponseDto(email));
     }
 
     @PostMapping("/signup")
