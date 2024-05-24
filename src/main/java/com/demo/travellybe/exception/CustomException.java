@@ -1,11 +1,17 @@
 package com.demo.travellybe.exception;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 
 @Getter
-@AllArgsConstructor
 public class CustomException extends RuntimeException {
+    private final HttpStatus status;
+    private final String code;
+    private final String message;
 
-    private final ErrorCode errorCode;
+    public CustomException(final ErrorCode errorCode) {
+        this.code = errorCode.getCode();
+        this.message = errorCode.getMessage();
+        this.status = errorCode.getStatus();
+    }
 }

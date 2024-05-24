@@ -197,7 +197,7 @@ public class AuthService {
             return new TokenResponseDto(newAccessToken);
         }else{
             // refreshToken 도 유효하지 않을 경우
-            throw new AuthException(ErrorCode.INVALID_REFRESH_TOKEN);
+            throw new CustomException(ErrorCode.INVALID_REFRESH_TOKEN);
         }
     }
 }
