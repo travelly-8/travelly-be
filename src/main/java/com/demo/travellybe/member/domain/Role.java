@@ -1,5 +1,5 @@
 package com.demo.travellybe.member.domain;
 
 public enum Role {
-    TRAVELER, TRAVELLY
+    TRAVELER, TRAVELLY, ADMIN
 }

@@ -43,11 +43,10 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductResponseDto updateProduct(Long id, ProductCreateRequestDto productCreateRequestDto) {
+    public void updateProduct(Long id, ProductCreateRequestDto productCreateRequestDto) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
         product.update(productCreateRequestDto);
-        return new ProductResponseDto(product);
     }
 
     @Override
@@ -55,6 +54,15 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
         return new ProductResponseDto(product);
+    }
+
+    @Override
+    public void checkProductOwner(Long productId, Long memberId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
+        if (!product.getMember().getId().equals(memberId)) {
+                    throw new CustomException(ErrorCode.PRODUCT_NOT_OWNER);
+        }
     }
 
     @Override
