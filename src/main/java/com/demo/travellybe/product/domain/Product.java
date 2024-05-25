@@ -2,6 +2,7 @@ package com.demo.travellybe.product.domain;
 
 import com.demo.travellybe.member.domain.Member;
 import com.demo.travellybe.product.dto.ProductFormDto;
+import com.demo.travellybe.review.domain.Review;
 import com.demo.travellybe.util.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -63,6 +64,9 @@ public class Product extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OperationDay> operationDays = new ArrayList<>();
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Review> reviews = new ArrayList<>();
 
     public static Product of(ProductFormDto productFormDto) {
         Product product = new Product();
