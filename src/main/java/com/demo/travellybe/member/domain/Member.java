@@ -4,7 +4,6 @@ import com.demo.travellybe.member.domain.Role;
 import com.demo.travellybe.review.domain.Review;
 import com.demo.travellybe.util.BaseTimeEntity;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -48,5 +47,10 @@ public class Member extends BaseTimeEntity {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public void setReview(Review review) {
+        reviews.add(review);
+        review.setMember(this);
     }
 }

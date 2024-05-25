@@ -1,9 +1,7 @@
 package com.demo.travellybe.member.service;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import com.demo.travellybe.member.dto.MemberDto;
 
-@Service
-@RequiredArgsConstructor
-public class MemberService {
+public interface MemberService {
+    public MemberDto getUser(String email);
 }
