@@ -37,4 +37,8 @@ public class Review extends BaseTimeEntity {
     @JoinColumn(name = "product_id")
     private Product product;
 
+    public void setMember(Member member) {
+        this.member = member;
+    }
+
 }
