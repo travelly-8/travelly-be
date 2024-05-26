@@ -3,6 +3,7 @@ package com.demo.travellybe.product.controller;
 import com.demo.travellybe.auth.dto.PrincipalDetails;
 import com.demo.travellybe.member.domain.Role;
 import com.demo.travellybe.product.dto.ProductCreateRequestDto;
+import com.demo.travellybe.product.dto.ProductPageRequestDto;
 import com.demo.travellybe.product.dto.ProductResponseDto;
 import com.demo.travellybe.product.service.ProductService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -56,16 +57,17 @@ public class ProductController {
         return ResponseEntity.ok(productResponseDto);
     }
 
-    // TODO 페이징
+    // 최신순 평점순 가격순 등등
     @GetMapping("/")
-    public ResponseEntity<Page<ProductResponseDto>> getAllProducts(Pageable pageable) {
+    public ResponseEntity<Page<ProductResponseDto>> getAllProducts(@ModelAttribute ProductPageRequestDto productPageRequestDto) {
+        Pageable pageable = productPageRequestDto.toPageable();
         Page<ProductResponseDto> products = productService.getAllProducts(pageable);
         return ResponseEntity.ok(products);
     }
 
     // TODO 페이징
     @GetMapping("/list")
-    public ResponseEntity<Page<ProductResponseDto>> getProductList(
+    public ResponseEntity<Page<ProductResponseDto>> getFilteredProducts(
             @RequestParam(required = false) String cityCode,
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) String contentType,
