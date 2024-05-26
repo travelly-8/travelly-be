@@ -1,7 +1,6 @@
 package com.demo.travellybe.member.dto;
 
 import com.demo.travellybe.member.domain.Member;
-import com.demo.travellybe.review.domain.Review;
 import com.demo.travellybe.review.dto.ReviewDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

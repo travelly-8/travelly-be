@@ -1,6 +1,5 @@
 package com.demo.travellybe.member.domain;
 
-import com.demo.travellybe.member.domain.Role;
 import com.demo.travellybe.review.domain.Review;
 import com.demo.travellybe.util.BaseTimeEntity;
 import jakarta.persistence.*;

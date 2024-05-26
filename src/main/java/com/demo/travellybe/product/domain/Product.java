@@ -2,6 +2,7 @@ package com.demo.travellybe.product.domain;
 
 import com.demo.travellybe.member.domain.Member;
 import com.demo.travellybe.product.dto.ProductCreateRequestDto;
+import com.demo.travellybe.review.domain.Review;
 import com.demo.travellybe.util.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.Getter;

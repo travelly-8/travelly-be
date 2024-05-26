@@ -3,7 +3,6 @@ package com.demo.travellybe.member.controller;
 import com.demo.travellybe.auth.dto.PrincipalDetails;
 import com.demo.travellybe.member.dto.MemberDto;
 import com.demo.travellybe.member.service.MemberService;
-import com.demo.travellybe.member.service.MemberServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
