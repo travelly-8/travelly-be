@@ -64,6 +64,9 @@ public class Product extends BaseTimeEntity {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OperationDay> operationDays = new ArrayList<>();
 
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Review> reviews = new ArrayList<>();
+
     public static Product of(ProductCreateRequestDto productCreateRequestDto) {
         Product product = new Product();
         product.name = productCreateRequestDto.getName();

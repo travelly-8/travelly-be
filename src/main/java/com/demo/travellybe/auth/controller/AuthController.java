@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -29,11 +30,25 @@ public class AuthController {
         return ResponseEntity.ok().body(memberTokenDto);
     }
 
+    @PutMapping("/login/{role}")
+    public ResponseEntity<Void> registerRole(@PathVariable("role") String role, @AuthenticationPrincipal PrincipalDetails userInfo) {
+        authService.registerRole(userInfo.getUsername(), role);
+
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("/login/reissue")
     public ResponseEntity<TokenResponseDto> refreshToken(@RequestBody TokenRequestDto tokenRequestDto) {
         TokenResponseDto tokenResponseDto = authService.reissueToken(tokenRequestDto);
 
         return ResponseEntity.ok().body(tokenResponseDto);
+    }
+
+    @GetMapping("/login/find")
+    public ResponseEntity<EmailResponseDto> findEmail(@RequestParam("nickname") String nickname) {
+        String email = authService.findEmail(nickname);
+
+        return ResponseEntity.ok().body(new EmailResponseDto(email));
     }
 
     @PostMapping("/signup")
