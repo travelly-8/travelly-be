@@ -16,12 +16,16 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.util.Collection;
 import java.util.Optional;
 @Service
 @RequiredArgsConstructor
@@ -208,6 +212,18 @@ public class AuthService {
 
         member.setRole(Role.valueOf(role.toUpperCase()));
         memberRepository.save(member);
+
+        // 현재 인증된 사용자 정보
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        // 새로운 권한 설정
+        Collection<? extends GrantedAuthority> updatedAuthorities = AuthorityUtils.createAuthorityList(role.toUpperCase());
+
+        // 새로운 인증 객체 생성
+        Authentication newAuth = new UsernamePasswordAuthenticationToken(authentication.getPrincipal(), authentication.getCredentials(), updatedAuthorities);
+
+        // SecurityContext에 새로운 인증 객체 설정
+        SecurityContextHolder.getContext().setAuthentication(newAuth);
     }
 
     public String findEmail(String nickname) {
