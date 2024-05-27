@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +19,7 @@ public class OperationDay {
     private Long id;
 
     @Column(nullable = false)
-    private String date;
+    private LocalDate date;
 
     @OneToMany(mappedBy = "operationDay", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OperationDayHour> operationDayHours = new ArrayList<>();

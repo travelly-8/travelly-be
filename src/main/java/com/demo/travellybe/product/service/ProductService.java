@@ -2,6 +2,7 @@ package com.demo.travellybe.product.service;
 
 import com.demo.travellybe.product.dto.ProductCreateRequestDto;
 import com.demo.travellybe.product.dto.ProductResponseDto;
+import com.demo.travellybe.product.dto.ProductsSearchRequestDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -16,5 +17,5 @@ public interface ProductService {
     void checkProductOwner(Long productId, Long memberId);
 
     Page<ProductResponseDto> getAllProducts(Pageable pageable);
-    Page<ProductResponseDto> getProductList(String cityCode, String keyword, String contentType, String sortType, LocalDate date, LocalTime startTime, LocalTime endTime, Integer minPrice, Integer maxPrice);
+    Page<ProductResponseDto> getFilteredProducts(ProductsSearchRequestDto productsSearchRequestDto);
 }

@@ -4,13 +4,15 @@ import com.demo.travellybe.product.domain.OperationDayHour;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalTime;
+
 @Getter @Setter
 public class OperationDayHourDto {
-    private String startHour;
-    private String endHour;
+    private LocalTime startTime;
+    private LocalTime endTime;
 
     public OperationDayHourDto(OperationDayHour operationDayHour) {
-        this.startHour = operationDayHour.getStartHour();
-        this.endHour = operationDayHour.getEndHour();
+        this.startTime = operationDayHour.getStartTime();
+        this.endTime = operationDayHour.getEndTime();
     }
 }

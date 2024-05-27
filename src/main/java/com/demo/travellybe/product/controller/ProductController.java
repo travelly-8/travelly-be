@@ -2,23 +2,21 @@ package com.demo.travellybe.product.controller;
 
 import com.demo.travellybe.auth.dto.PrincipalDetails;
 import com.demo.travellybe.member.domain.Role;
+import com.demo.travellybe.product.dto.ProductsSearchRequestDto;
 import com.demo.travellybe.product.dto.ProductCreateRequestDto;
-import com.demo.travellybe.product.dto.ProductPageRequestDto;
+import com.demo.travellybe.product.dto.ProductsRequestDto;
 import com.demo.travellybe.product.dto.ProductResponseDto;
 import com.demo.travellybe.product.service.ProductService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDate;
-import java.time.LocalTime;
 
 @RestController
 @RequestMapping("/products")
@@ -59,26 +57,16 @@ public class ProductController {
 
     // 최신순 평점순 가격순 등등
     @GetMapping("/")
-    public ResponseEntity<Page<ProductResponseDto>> getAllProducts(@ModelAttribute ProductPageRequestDto productPageRequestDto) {
-        Pageable pageable = productPageRequestDto.toPageable();
+    public ResponseEntity<Page<ProductResponseDto>> getAllProducts(@ModelAttribute ProductsRequestDto productsRequestDto) {
+        Pageable pageable = productsRequestDto.toPageable();
         Page<ProductResponseDto> products = productService.getAllProducts(pageable);
         return ResponseEntity.ok(products);
     }
 
-    // TODO 페이징
     @GetMapping("/list")
-    public ResponseEntity<Page<ProductResponseDto>> getFilteredProducts(
-            @RequestParam(required = false) String cityCode,
-            @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) String contentType,
-            @RequestParam(required = false) String sortType,
-            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
-            @RequestParam(required = false) LocalTime startTime,
-            @RequestParam(required = false) LocalTime endTime,
-            @RequestParam(required = false) Integer minPrice,
-            @RequestParam(required = false) Integer maxPrice
+    public ResponseEntity<Page<ProductResponseDto>> getFilteredProducts(@ModelAttribute ProductsSearchRequestDto requestDto
     ) {
-        Page<ProductResponseDto> products = productService.getProductList(cityCode, keyword, contentType, sortType, date, startTime, endTime, minPrice, maxPrice);
+        Page<ProductResponseDto> products = productService.getFilteredProducts(requestDto);
         return ResponseEntity.ok(products);
     }
 

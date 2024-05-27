@@ -8,7 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 @Data
-public class ProductPageRequestDto {
+public class ProductsRequestDto {
     @NotNull
     private int page;
     @NotNull
@@ -17,7 +17,7 @@ public class ProductPageRequestDto {
     private String sortType;
 
     @Builder
-    public ProductPageRequestDto(int page, int size, String sort, String sortType) {
+    public ProductsRequestDto(int page, int size, String sort, String sortType) {
         this.page = page;
         this.size = size;
         this.sort = sort == null ? "modifiedDate" : sort;

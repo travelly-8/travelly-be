@@ -4,11 +4,12 @@ import com.demo.travellybe.product.domain.OperationDay;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Getter @Setter
 public class OperationDayDto {
-    private String date;
+    private LocalDate date;
     private List<OperationDayHourDto> operationDayHours;
 
     public OperationDayDto(OperationDay operationDay) {
