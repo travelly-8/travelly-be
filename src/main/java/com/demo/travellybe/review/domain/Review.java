@@ -5,7 +5,6 @@ import com.demo.travellybe.product.domain.Product;
 import com.demo.travellybe.util.BaseTimeEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

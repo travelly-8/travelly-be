@@ -6,19 +6,26 @@ import com.demo.travellybe.exception.ErrorCode;
 import com.demo.travellybe.product.domain.Product;
 import com.demo.travellybe.product.domain.ProductRepository;
 import com.demo.travellybe.product.domain.QProduct;
-import com.demo.travellybe.product.dto.ProductDto;
-import com.demo.travellybe.product.dto.ProductFormDto;
+import com.demo.travellybe.product.dto.ProductCreateRequestDto;
+import com.demo.travellybe.product.dto.ProductResponseDto;
+import com.demo.travellybe.product.dto.ProductsSearchRequestDto;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.demo.travellybe.product.domain.QProduct.product;
 
 @Service
 @Transactional
@@ -28,12 +35,11 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final JPAQueryFactory queryFactory;
 
-    // TODO DTO
     @Override
-    public ProductDto addProduct(ProductFormDto productFormDto) {
-        Product product = Product.of(productFormDto);
+    public ProductResponseDto addProduct(ProductCreateRequestDto productCreateRequestDto) {
+        Product product = Product.of(productCreateRequestDto);
         productRepository.save(product);
-        return new ProductDto(product);
+        return new ProductResponseDto(product);
     }
 
     @Override
@@ -43,53 +49,76 @@ public class ProductServiceImpl implements ProductService {
         productRepository.deleteById(id);
     }
 
-    // TODO DTO
     @Override
-    public ProductDto updateProduct(Long id, ProductFormDto productFormDto) {
+    public void updateProduct(Long id, ProductCreateRequestDto productCreateRequestDto) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
-        product.update(productFormDto);
-        return new ProductDto(product);
+        product.update(productCreateRequestDto);
     }
 
     @Override
-    public ProductDto getProductById(Long id) {
+    public ProductResponseDto getProductById(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
-        return new ProductDto(product);
+        return new ProductResponseDto(product);
     }
 
     @Override
-    public Page<ProductDto> getAllProducts(Pageable pageable) {
-        return productRepository.findAll(pageable).map(ProductDto::new);
+    public void checkProductOwner(Long productId, Long memberId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
+        if (!product.getMember().getId().equals(memberId)) {
+                    throw new CustomException(ErrorCode.PRODUCT_NOT_OWNER);
+        }
     }
 
     @Override
-    public Page<ProductDto> getProductList(String cityCode, String keyword, String contentType, String sortType, LocalDate date, LocalTime startTime, LocalTime endTime, Integer minPrice, Integer maxPrice) {
-        QProduct product = QProduct.product;
+    public Page<ProductResponseDto> getAllProducts(Pageable pageable) {
+        return productRepository.findAll(pageable).map(ProductResponseDto::new);
+    }
+
+    // TODO 성능최적화 필요
+    @Override
+    public Page<ProductResponseDto> getFilteredProducts(ProductsSearchRequestDto requestDto) {
+        Pageable pageRequest = PageRequest.of(requestDto.getPage(), requestDto.getSize());
 
         BooleanBuilder builder = new BooleanBuilder();
-        if (cityCode != null) {
-            builder.and(product.cityCode.eq(cityCode));
+        if (requestDto.getCityCode() != null) {
+            builder.and(product.cityCode.eq(requestDto.getCityCode()));
         }
-        if (keyword != null) {
-            builder.and(product.name.containsIgnoreCase(keyword));
+        if (requestDto.getKeyword() != null) {
+            builder.and(product.name.containsIgnoreCase(requestDto.getKeyword()));
         }
-        if (contentType != null) {
-            builder.and(product.type.eq(contentType));
+        if (requestDto.getContentType() != null) {
+            builder.and(product.type.eq(requestDto.getContentType()));
         }
-        // TODO 시간 관련 조건 추가
-        if (minPrice != null) {
-            builder.and(product.price.goe(minPrice));
+        if (requestDto.getDate() != null) {
+            builder.and(product.operationDays.any().date.eq(requestDto.getDate()));
         }
-        if (maxPrice != null) {
-            builder.and(product.price.loe(maxPrice));
+        if (requestDto.getStartTime() != null) {
+            builder.and(product.operationDays.any().operationDayHours.any().startTime.goe(requestDto.getStartTime()));
+        }
+        if (requestDto.getEndTime() != null) {
+            builder.and(product.operationDays.any().operationDayHours.any().endTime.loe(requestDto.getEndTime()));
+        }
+        if (requestDto.getMinPrice() != null) {
+            builder.and(product.price.goe(requestDto.getMinPrice()));
+        }
+        if (requestDto.getMaxPrice() != null) {
+            builder.and(product.price.loe(requestDto.getMaxPrice()));
         }
 
         List<Product> fetch = queryFactory.selectFrom(product)
                 .where(builder)
+                .offset(pageRequest.getOffset())
+                .limit(pageRequest.getPageSize())
                 .fetch();
 
-        return null;
+
+        List<ProductResponseDto> responseDtos = fetch.stream()
+                .map(ProductResponseDto::new)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(responseDtos, pageRequest, fetch.size());
     }
 }

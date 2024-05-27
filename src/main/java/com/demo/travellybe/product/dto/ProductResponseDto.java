@@ -10,7 +10,7 @@ import java.util.List;
 
 @Getter @Setter
 @NoArgsConstructor
-public class ProductDto {
+public class ProductResponseDto {
     private Long id;
     private String name;
     private int price;
@@ -28,7 +28,7 @@ public class ProductDto {
     private Long memberId;
     private List<OperationDayDto> operationDays;
 
-    public ProductDto(Product product) {
+    public ProductResponseDto(Product product) {
         this.id = product.getId();
         this.name = product.getName();
         this.price = product.getPrice();

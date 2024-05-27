@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalTime;
+
 @Entity
 @Getter
 @NoArgsConstructor
@@ -15,10 +17,10 @@ public class OperationDayHour {
     private Long id;
 
     @Column(nullable = false)
-    private String startHour;
+    private LocalTime startTime;
 
     @Column(nullable = false)
-    private String endHour;
+    private LocalTime endTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "operation_day_id")
@@ -26,8 +28,8 @@ public class OperationDayHour {
 
     public static OperationDayHour of(OperationDayHourDto operationDayHourDto, OperationDay operationDay) {
         OperationDayHour operationDayHour = new OperationDayHour();
-        operationDayHour.startHour = operationDayHourDto.getStartHour();
-        operationDayHour.endHour = operationDayHourDto.getEndHour();
+        operationDayHour.startTime = operationDayHourDto.getStartTime();
+        operationDayHour.endTime = operationDayHourDto.getEndTime();
         operationDayHour.operationDay = operationDay;
         return operationDayHour;
     }

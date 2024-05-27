@@ -8,7 +8,7 @@ import lombok.Setter;
 import java.util.List;
 
 @Getter @Setter
-public class ProductFormDto {
+public class ProductCreateRequestDto {
     @NotNull
     private String name;
 

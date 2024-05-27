@@ -1,7 +1,6 @@
 package com.demo.travellybe.auth.dto;
 
 import com.demo.travellybe.member.domain.Member;
-import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
