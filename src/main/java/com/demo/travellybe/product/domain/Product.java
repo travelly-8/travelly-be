@@ -90,7 +90,21 @@ public class Product extends BaseTimeEntity {
         return product;
     }
 
-    // TODO: update 메서드 구현
     public void update(ProductCreateRequestDto productCreateRequestDto) {
+        this.name = productCreateRequestDto.getName();
+        this.price = productCreateRequestDto.getPrice();
+        this.type = productCreateRequestDto.getType();
+        this.description = productCreateRequestDto.getDescription();
+        this.imageUrl = productCreateRequestDto.getImageUrl();
+        this.address = productCreateRequestDto.getAddress();
+        this.detailAddress = productCreateRequestDto.getDetailAddress();
+        this.phoneNumber = productCreateRequestDto.getPhoneNumber();
+        this.homepage = productCreateRequestDto.getHomepage();
+        this.cityCode = productCreateRequestDto.getCityCode();
+        this.ticketCount = productCreateRequestDto.getTicketCount();
+        this.ticketPrice = productCreateRequestDto.getTicketPrice();
+        // rating은 리뷰를 통해 업데이트되는 값이므로 업데이트하지 않음
+        this.operationDays = productCreateRequestDto.getOperationDays().stream().map(operationDayDto ->
+                OperationDay.of(operationDayDto, this)).toList();
     }
 }
