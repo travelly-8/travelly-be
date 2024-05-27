@@ -1,16 +1,19 @@
 package com.demo.travellybe.product.domain;
 
 import jakarta.persistence.Embeddable;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Embeddable
+@Data
 @NoArgsConstructor
-@Getter
-@Setter
 public class TicketPrice {
     private int adult;
     private int child;
     private int teen;
+
+    public TicketPrice(int adult, int child, int teen) {
+        this.adult = adult;
+        this.child = child;
+        this.teen = teen;
+    }
 }

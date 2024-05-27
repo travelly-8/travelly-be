@@ -23,7 +23,7 @@ public class ProductResponseDto {
     private String homepage;
     private String cityCode;
     private int ticketCount;
-    private TicketPrice ticketPrices;
+    private TicketPrice ticketPrice;
     private double rating;
     private Long memberId;
     private List<OperationDayDto> operationDays;
@@ -41,7 +41,7 @@ public class ProductResponseDto {
         this.homepage = product.getHomepage();
         this.cityCode = product.getCityCode();
         this.ticketCount = product.getTicketCount();
-        this.ticketPrices = product.getTicketPrice();
+        this.ticketPrice = product.getTicketPrice();
         this.rating = product.getRating();
         this.memberId = product.getMember().getId();
         this.operationDays = product.getOperationDays().stream().map(OperationDayDto::new).toList();
