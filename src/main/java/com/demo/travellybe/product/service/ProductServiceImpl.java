@@ -3,6 +3,9 @@ package com.demo.travellybe.product.service;
 
 import com.demo.travellybe.exception.CustomException;
 import com.demo.travellybe.exception.ErrorCode;
+import com.demo.travellybe.member.domain.Member;
+import com.demo.travellybe.member.domain.MemberRepository;
+import com.demo.travellybe.member.domain.Role;
 import com.demo.travellybe.product.domain.Product;
 import com.demo.travellybe.product.domain.ProductRepository;
 import com.demo.travellybe.product.domain.QProduct;
@@ -33,11 +36,15 @@ import static com.demo.travellybe.product.domain.QProduct.product;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
+    private final MemberRepository memberRepository;
     private final JPAQueryFactory queryFactory;
 
     @Override
     public ProductResponseDto addProduct(ProductCreateRequestDto productCreateRequestDto) {
         Product product = Product.of(productCreateRequestDto);
+        Member member = memberRepository.findById(productCreateRequestDto.getMemberId())
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        product.setMember(member);
         productRepository.save(product);
         return new ProductResponseDto(product);
     }
@@ -67,9 +74,10 @@ public class ProductServiceImpl implements ProductService {
     public void checkProductOwner(Long productId, Long memberId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
-        if (!product.getMember().getId().equals(memberId)) {
-                    throw new CustomException(ErrorCode.PRODUCT_NOT_OWNER);
-        }
+        Member member = product.getMember();
+        // 상품 소유자가 아니거나 관리자가 아닌 경우 예외 발생
+        if (!(member.getId().equals(memberId) || member.getRole().equals(Role.ADMIN)))
+            throw new CustomException(ErrorCode.PRODUCT_NOT_OWNER);
     }
 
     @Override

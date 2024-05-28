@@ -2,13 +2,17 @@ package com.demo.travellybe.product.dto;
 
 import com.demo.travellybe.product.domain.TicketPrice;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Builder;
+import lombok.Data;
 
 import java.util.List;
 
-@Getter @Setter
+@Data
+@Builder
 public class ProductCreateRequestDto {
+
+    private Long memberId;
+
     @NotNull
     private String name;
 
@@ -38,8 +42,6 @@ public class ProductCreateRequestDto {
     @NotNull
     private int ticketCount;
     private TicketPrice ticketPrice;
-
-    private Long memberId;
 
     @NotNull
     private List<OperationDayDto> operationDays;

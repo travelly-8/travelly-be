@@ -107,4 +107,8 @@ public class Product extends BaseTimeEntity {
         this.operationDays = productCreateRequestDto.getOperationDays().stream().map(operationDayDto ->
                 OperationDay.of(operationDayDto, this)).toList();
     }
+
+    public void setMember(Member member) {
+        this.member = member;
+    }
 }

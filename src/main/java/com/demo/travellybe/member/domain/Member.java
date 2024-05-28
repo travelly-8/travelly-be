@@ -1,5 +1,6 @@
 package com.demo.travellybe.member.domain;
 
+import com.demo.travellybe.product.domain.Product;
 import com.demo.travellybe.review.domain.Review;
 import com.demo.travellybe.util.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -35,6 +36,9 @@ public class Member extends BaseTimeEntity {
     private Role role;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Product> products = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> reviews = new ArrayList<>();
 
     @Builder
@@ -51,5 +55,10 @@ public class Member extends BaseTimeEntity {
     public void setReview(Review review) {
         reviews.add(review);
         review.setMember(this);
+    }
+
+    public void setProduct(Product product) {
+        products.add(product);
+        product.setMember(this);
     }
 }
