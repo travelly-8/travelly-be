@@ -32,8 +32,10 @@ public class OperationDay {
         OperationDay operationDay = new OperationDay();
         operationDay.date = operationDayDto.getDate();
         operationDay.product = product;
-        operationDay.operationDayHours = operationDayDto.getOperationDayHours().stream().map(operationDayHourDto ->
-                OperationDayHour.of(operationDayHourDto, operationDay)).toList();
+        if (operationDayDto.getOperationDayHours() != null) {
+            operationDay.operationDayHours = operationDayDto.getOperationDayHours().stream().map(operationDayHourDto ->
+                    OperationDayHour.of(operationDayHourDto, operationDay)).toList();
+        }
         return operationDay;
     }
 }

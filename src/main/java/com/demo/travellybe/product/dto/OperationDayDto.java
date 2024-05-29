@@ -1,6 +1,7 @@
 package com.demo.travellybe.product.dto;
 
 import com.demo.travellybe.product.domain.OperationDay;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,6 +11,7 @@ import java.util.List;
 
 @Getter @Setter
 public class OperationDayDto {
+    @Schema(description = "운영 날짜", examples = "2024-05-29")
     private LocalDate date;
     private List<OperationDayHourDto> operationDayHours;
 

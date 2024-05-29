@@ -16,7 +16,8 @@ public class ProductCreateRequestDto {
     private String name;
 
     @NotNull
-    @Schema(description = "12:관광지, 14:문화시설, 15:축제공연행사, 25:여행코스, 28:레포츠, 38:쇼핑, 39:음식점", example = "25")
+    @Schema(description = "12:관광지, 14:문화시설, 15:축제공연행사, 25:여행코스, 28:레포츠, 38:쇼핑, 39:음식점",
+            example = "12")
     private String type;
 
     @NotNull
@@ -43,14 +44,15 @@ public class ProductCreateRequestDto {
     @NotNull
     @Schema(description = "1:서울, 2:인천, 3:대전, 4:대구, 5:광주, 6:부산, 7:울산, 8:세종, " +
             "9:경기, 10:강원, 11:충북, 12:충남, 13:경북, 14:경남, 15:전북, 16:전남, " +
-            "17:제주", example = "11")
+            "17:제주", example = "1")
     private String cityCode;
 
     @NotNull
     @Schema(description = "상품 수량", example = "100")
     private int quantity;
 
-    @Schema(description = "티켓 가격")
+    @NotNull
+    @Schema(description = "티켓 가격", example = "{\"성인\": 10000, \"청소년\": 8000}")
     private Map<String, Integer> ticketPrice;
 
     @NotNull
