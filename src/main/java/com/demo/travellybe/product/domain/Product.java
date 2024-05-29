@@ -9,7 +9,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 @Getter
@@ -22,9 +24,6 @@ public class Product extends BaseTimeEntity {
 
     @Column(nullable = false)
     private String name;
-
-    @Column(nullable = false)
-    private int price;
 
     @Column(nullable = false)
     private String type;
@@ -47,10 +46,10 @@ public class Product extends BaseTimeEntity {
     private String cityCode;
 
     @Column(nullable = false)
-    private int ticketCount;
+    private int quantity;
 
-    @Embedded
-    private TicketPrice ticketPrice;
+    @ElementCollection
+    private Map<String, Integer> ticketPrice = new HashMap<>();
 
     @Column(nullable = false)
     private double rating;
@@ -71,7 +70,6 @@ public class Product extends BaseTimeEntity {
     public static Product of(ProductCreateRequestDto productCreateRequestDto) {
         Product product = new Product();
         product.name = productCreateRequestDto.getName();
-        product.price = productCreateRequestDto.getPrice();
         product.type = productCreateRequestDto.getType();
         product.description = productCreateRequestDto.getDescription();
         product.imageUrl = productCreateRequestDto.getImageUrl();
@@ -80,7 +78,7 @@ public class Product extends BaseTimeEntity {
         product.phoneNumber = productCreateRequestDto.getPhoneNumber();
         product.homepage = productCreateRequestDto.getHomepage();
         product.cityCode = productCreateRequestDto.getCityCode();
-        product.ticketCount = productCreateRequestDto.getTicketCount();
+        product.quantity = productCreateRequestDto.getQuantity();
         product.ticketPrice = productCreateRequestDto.getTicketPrice();
         product.rating = 0.0;
         product.enabled = true;
@@ -92,7 +90,6 @@ public class Product extends BaseTimeEntity {
 
     public void update(ProductCreateRequestDto productCreateRequestDto) {
         this.name = productCreateRequestDto.getName();
-        this.price = productCreateRequestDto.getPrice();
         this.type = productCreateRequestDto.getType();
         this.description = productCreateRequestDto.getDescription();
         this.imageUrl = productCreateRequestDto.getImageUrl();
@@ -101,7 +98,7 @@ public class Product extends BaseTimeEntity {
         this.phoneNumber = productCreateRequestDto.getPhoneNumber();
         this.homepage = productCreateRequestDto.getHomepage();
         this.cityCode = productCreateRequestDto.getCityCode();
-        this.ticketCount = productCreateRequestDto.getTicketCount();
+        this.quantity = productCreateRequestDto.getQuantity();
         this.ticketPrice = productCreateRequestDto.getTicketPrice();
         // rating은 리뷰를 통해 업데이트되는 값이므로 업데이트하지 않음
         this.operationDays = productCreateRequestDto.getOperationDays().stream().map(operationDayDto ->

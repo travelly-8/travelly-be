@@ -1,12 +1,12 @@
 package com.demo.travellybe.product.dto;
 
-import com.demo.travellybe.product.domain.TicketPrice;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Map;
 
 @Data
 @Builder
@@ -14,10 +14,6 @@ public class ProductCreateRequestDto {
     @NotNull
     @Schema(description = "상품명", example = "여행 상품 A")
     private String name;
-
-    @NotNull
-    @Schema(description = "가격", example = "7000")
-    private int price;
 
     @NotNull
     @Schema(description = "12:관광지, 14:문화시설, 15:축제공연행사, 25:여행코스, 28:레포츠, 38:쇼핑, 39:음식점", example = "25")
@@ -52,10 +48,10 @@ public class ProductCreateRequestDto {
 
     @NotNull
     @Schema(description = "상품 수량", example = "100")
-    private int ticketCount;
+    private int quantity;
 
-    @Schema(description = "연령별 티켓 가격")
-    private TicketPrice ticketPrice;
+    @Schema(description = "티켓 가격")
+    private Map<String, Integer> ticketPrice;
 
     @NotNull
     @Schema(description = "운영 요일 및 시간")

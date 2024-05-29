@@ -7,7 +7,6 @@ import com.demo.travellybe.member.domain.MemberRepository;
 import com.demo.travellybe.member.domain.Role;
 import com.demo.travellybe.product.domain.Product;
 import com.demo.travellybe.product.domain.ProductRepository;
-import com.demo.travellybe.product.domain.TicketPrice;
 import com.demo.travellybe.product.dto.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -16,15 +15,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -35,7 +30,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class ProductServiceImplTest {
 
-    private static final Logger log = LoggerFactory.getLogger(ProductServiceImplTest.class);
     @Mock private ProductRepository productRepository;
     @Mock private MemberRepository memberRepository;
     @InjectMocks private ProductServiceImpl postService;
@@ -77,13 +71,18 @@ class ProductServiceImplTest {
                 .operationDayHours(operationDayHourDtos)
                 .build());
 
+        Map<String, Integer> ticketPrice = new HashMap<>();
+        ticketPrice.put("성인", 10000);
+        ticketPrice.put("학생", 7000);
+        ticketPrice.put("어린이", 5000);
+
         createRequestDto = ProductCreateRequestDto.builder()
-                .name("product1").price(10000).type("type1")
+                .name("product1").type("type1")
                 .description("description1").imageUrl("imageUrl1")
                 .address("address1").detailAddress("detailAddress1")
                 .phoneNumber("phoneNumber1").homepage("homepage1")
-                .cityCode("cityCode1").ticketCount(100)
-                .ticketPrice(new TicketPrice(10000, 5000, 3000))
+                .cityCode("cityCode1").quantity(100)
+                .ticketPrice(ticketPrice)
                 .operationDays(operationDayDtos)
                 .build();
 
@@ -109,7 +108,6 @@ class ProductServiceImplTest {
 
         // Then
         assertThat(responseDto.getName()).isEqualTo(createRequestDto.getName());
-        assertThat(responseDto.getPrice()).isEqualTo(createRequestDto.getPrice());
         assertThat(responseDto.getType()).isEqualTo(createRequestDto.getType());
         assertThat(responseDto.getDescription()).isEqualTo(createRequestDto.getDescription());
         assertThat(responseDto.getImageUrl()).isEqualTo(createRequestDto.getImageUrl());
@@ -118,7 +116,7 @@ class ProductServiceImplTest {
         assertThat(responseDto.getPhoneNumber()).isEqualTo(createRequestDto.getPhoneNumber());
         assertThat(responseDto.getHomepage()).isEqualTo(createRequestDto.getHomepage());
         assertThat(responseDto.getCityCode()).isEqualTo(createRequestDto.getCityCode());
-        assertThat(responseDto.getTicketCount()).isEqualTo(createRequestDto.getTicketCount());
+        assertThat(responseDto.getQuantity()).isEqualTo(createRequestDto.getQuantity());
         assertThat(responseDto.getTicketPrice()).isEqualTo(createRequestDto.getTicketPrice());
 
         verify(memberRepository, times(1)).findById(anyLong());
@@ -171,13 +169,17 @@ class ProductServiceImplTest {
     @DisplayName("상품 수정 - 성공")
     void updateProduct_success() {
         // given
+        Map<String, Integer> newTicketPrice = new HashMap<>();
+        newTicketPrice.put("성인", 20000);
+        newTicketPrice.put("학생", 14000);
+
         ProductCreateRequestDto updateRequestDto = ProductCreateRequestDto.builder()
-                .name("product2").price(20000).type("type2")
+                .name("product2").type("type2")
                 .description("description2").imageUrl("imageUrl2")
                 .address("address2").detailAddress("detailAddress2")
                 .phoneNumber("phoneNumber2").homepage("homepage2")
-                .cityCode("cityCode2").ticketCount(200)
-                .ticketPrice(new TicketPrice(20000, 10000, 5000))
+                .cityCode("cityCode2").quantity(200)
+                .ticketPrice(newTicketPrice)
                 .operationDays(createRequestDto.getOperationDays())
                 .build();
 
@@ -189,7 +191,7 @@ class ProductServiceImplTest {
 
         // then
         assertThat(product.getName()).isEqualTo(updateRequestDto.getName());
-        assertThat(product.getPrice()).isEqualTo(updateRequestDto.getPrice());
+        assertThat(product.getTicketPrice()).isEqualTo(updateRequestDto.getTicketPrice());
         assertThat(product.getType()).isEqualTo(updateRequestDto.getType());
 
         verify(productRepository, times(1)).findById(1L);
@@ -224,7 +226,7 @@ class ProductServiceImplTest {
         // then
         assertThat(responseDto.getId()).isEqualTo(product.getId());
         assertThat(responseDto.getName()).isEqualTo(product.getName());
-        assertThat(responseDto.getPrice()).isEqualTo(product.getPrice());
+        assertThat(responseDto.getTicketPrice()).isEqualTo(product.getTicketPrice());
 
         verify(productRepository, times(1)).findById(product.getId());
     }

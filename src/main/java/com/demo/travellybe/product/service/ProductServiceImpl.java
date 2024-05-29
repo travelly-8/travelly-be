@@ -8,12 +8,10 @@ import com.demo.travellybe.member.domain.MemberRepository;
 import com.demo.travellybe.member.domain.Role;
 import com.demo.travellybe.product.domain.Product;
 import com.demo.travellybe.product.domain.ProductRepository;
-import com.demo.travellybe.product.domain.QProduct;
 import com.demo.travellybe.product.dto.ProductCreateRequestDto;
 import com.demo.travellybe.product.dto.ProductResponseDto;
 import com.demo.travellybe.product.dto.ProductsSearchRequestDto;
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -23,8 +21,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -109,12 +105,13 @@ public class ProductServiceImpl implements ProductService {
         if (requestDto.getEndTime() != null) {
             builder.and(product.operationDays.any().operationDayHours.any().endTime.loe(requestDto.getEndTime()));
         }
-        if (requestDto.getMinPrice() != null) {
-            builder.and(product.price.goe(requestDto.getMinPrice()));
-        }
-        if (requestDto.getMaxPrice() != null) {
-            builder.and(product.price.loe(requestDto.getMaxPrice()));
-        }
+        // TODO 가격 관련 필터링
+//        if (requestDto.getMinPrice() != null) {
+//            builder.and(product.price.goe(requestDto.getMinPrice()));
+//        }
+//        if (requestDto.getMaxPrice() != null) {
+//            builder.and(product.price.loe(requestDto.getMaxPrice()));
+//        }
 
         List<Product> fetch = queryFactory.selectFrom(product)
                 .where(builder)

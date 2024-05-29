@@ -1,20 +1,18 @@
 package com.demo.travellybe.product.dto;
 
 import com.demo.travellybe.product.domain.Product;
-import com.demo.travellybe.product.domain.TicketPrice;
-import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Map;
 
 @Getter @Setter
 @NoArgsConstructor
 public class ProductResponseDto {
     private Long id;
     private String name;
-    private int price;
     private String type;
     private String description;
     private String imageUrl;
@@ -23,15 +21,14 @@ public class ProductResponseDto {
     private String phoneNumber;
     private String homepage;
     private String cityCode;
-    private int ticketCount;
-    private TicketPrice ticketPrice;
+    private int quantity;
+    private Map<String, Integer> ticketPrice;
     private double rating;
     private List<OperationDayDto> operationDays;
 
     public ProductResponseDto(Product product) {
         this.id = product.getId();
         this.name = product.getName();
-        this.price = product.getPrice();
         this.type = product.getType();
         this.description = product.getDescription();
         this.imageUrl = product.getImageUrl();
@@ -40,7 +37,7 @@ public class ProductResponseDto {
         this.phoneNumber = product.getPhoneNumber();
         this.homepage = product.getHomepage();
         this.cityCode = product.getCityCode();
-        this.ticketCount = product.getTicketCount();
+        this.quantity = product.getQuantity();
         this.ticketPrice = product.getTicketPrice();
         this.rating = product.getRating();
         this.operationDays = product.getOperationDays().stream().map(OperationDayDto::new).toList();

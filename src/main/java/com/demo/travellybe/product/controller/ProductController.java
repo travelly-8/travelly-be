@@ -8,6 +8,7 @@ import com.demo.travellybe.product.dto.ProductCreateRequestDto;
 import com.demo.travellybe.product.dto.ProductsRequestDto;
 import com.demo.travellybe.product.dto.ProductResponseDto;
 import com.demo.travellybe.product.service.ProductService;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -35,11 +36,9 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping("/{productId}")
-    @Operation(summary = "단일 상품 상세 조회")
+    @Operation(summary = "상품 상세 조회")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "성공",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ProductResponseDto.class))),
+            @ApiResponse(responseCode = "200", description = "성공"),
             @ApiResponse(responseCode = "404", description = "해당 상품을 찾을 수 없습니다.")
     })
     public ResponseEntity<ProductResponseDto> getProductById(@PathVariable Long productId) {
@@ -49,6 +48,12 @@ public class ProductController {
 
     @PostMapping("/")
 //    @PreAuthorize("hasAnyAuthority('TRAVELLY', 'ADMIN')")
+    @Operation(summary = "상품 등록")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content(schema = @Schema(implementation = ErrorCode.class)))
+
+    })
     public ResponseEntity<ProductResponseDto> addProduct(
             @RequestBody @Valid ProductCreateRequestDto productCreateRequestDto,
             @AuthenticationPrincipal PrincipalDetails principalDetails) {
@@ -80,6 +85,7 @@ public class ProductController {
     }
 
     @GetMapping("/list")
+    @Hidden
     public ResponseEntity<Page<ProductResponseDto>> getFilteredProducts(@ModelAttribute ProductsSearchRequestDto requestDto
     ) {
         Page<ProductResponseDto> products = productService.getFilteredProducts(requestDto);
