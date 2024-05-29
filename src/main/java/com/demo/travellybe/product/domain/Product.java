@@ -83,6 +83,7 @@ public class Product extends BaseTimeEntity {
         product.rating = 0.0;
         product.enabled = true;
 
+
         product.operationDays = productCreateRequestDto.getOperationDays().stream().map(operationDayDto ->
                 OperationDay.of(operationDayDto, product)).toList();
         return product;
@@ -101,8 +102,11 @@ public class Product extends BaseTimeEntity {
         this.quantity = productCreateRequestDto.getQuantity();
         this.ticketPrice = productCreateRequestDto.getTicketPrice();
         // rating은 리뷰를 통해 업데이트되는 값이므로 업데이트하지 않음
-        this.operationDays = productCreateRequestDto.getOperationDays().stream().map(operationDayDto ->
-                OperationDay.of(operationDayDto, this)).toList();
+
+        // 기존 operationDays 리스트를 업데이트
+        this.operationDays.clear();
+        this.operationDays.addAll(productCreateRequestDto.getOperationDays().stream().map(operationDayDto ->
+                OperationDay.of(operationDayDto, this)).toList());
     }
 
     public void setMember(Member member) {
