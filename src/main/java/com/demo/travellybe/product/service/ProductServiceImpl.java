@@ -40,9 +40,9 @@ public class ProductServiceImpl implements ProductService {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public ProductResponseDto addProduct(ProductCreateRequestDto productCreateRequestDto) {
+    public ProductResponseDto addProduct(Long memberId, ProductCreateRequestDto productCreateRequestDto) {
         Product product = Product.of(productCreateRequestDto);
-        Member member = memberRepository.findById(productCreateRequestDto.getMemberId())
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         product.setMember(member);
         productRepository.save(product);

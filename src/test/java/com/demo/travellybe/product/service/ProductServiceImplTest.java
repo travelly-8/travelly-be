@@ -77,7 +77,7 @@ class ProductServiceImplTest {
                 .operationDayHours(operationDayHourDtos)
                 .build());
 
-        createRequestDto = ProductCreateRequestDto.builder().memberId(1L)
+        createRequestDto = ProductCreateRequestDto.builder()
                 .name("product1").price(10000).type("type1")
                 .description("description1").imageUrl("imageUrl1")
                 .address("address1").detailAddress("detailAddress1")
@@ -105,7 +105,7 @@ class ProductServiceImplTest {
         when(productRepository.save(any(Product.class))).thenAnswer(i -> i.getArgument(0));
 
         // When
-        ProductResponseDto responseDto = postService.addProduct(createRequestDto);
+        ProductResponseDto responseDto = postService.addProduct(1L, createRequestDto);
 
         // Then
         assertThat(responseDto.getName()).isEqualTo(createRequestDto.getName());
@@ -133,10 +133,10 @@ class ProductServiceImplTest {
 
         // when
         // then
-        CustomException exception = assertThrows(CustomException.class, () -> postService.addProduct(createRequestDto));
+        CustomException exception = assertThrows(CustomException.class, () -> postService.addProduct(1L, createRequestDto));
         assertThat(exception.getCode()).isEqualTo(ErrorCode.MEMBER_NOT_FOUND.getCode());
 
-        verify(memberRepository, times(1)).findById(createRequestDto.getMemberId());
+        verify(memberRepository, times(1)).findById(1L);
     }
 
     @Test

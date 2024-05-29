@@ -10,7 +10,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 public interface ProductService {
-    ProductResponseDto addProduct(ProductCreateRequestDto productCreateRequestDto);
+    ProductResponseDto addProduct(Long memberId, ProductCreateRequestDto productCreateRequestDto);
     void deleteProduct(Long id);
     void updateProduct(Long id, ProductCreateRequestDto productCreateRequestDto);
     ProductResponseDto getProductById(Long id);

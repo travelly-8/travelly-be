@@ -1,6 +1,7 @@
 package com.demo.travellybe.product.dto;
 
 import com.demo.travellybe.product.domain.OperationDayHour;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,6 +10,7 @@ import java.time.LocalTime;
 
 @Getter @Setter
 public class OperationDayHourDto {
+
     private LocalTime startTime;
     private LocalTime endTime;
 

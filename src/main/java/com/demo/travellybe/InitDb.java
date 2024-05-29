@@ -1,5 +1,9 @@
 package com.demo.travellybe;
 
+import com.demo.travellybe.auth.dto.SignupRequestDto;
+import com.demo.travellybe.auth.service.AuthService;
+import com.demo.travellybe.member.domain.Member;
+import com.demo.travellybe.member.service.MemberService;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
@@ -23,9 +27,15 @@ public class InitDb {
     static class InitService {
 
         private final EntityManager em;
+        private final AuthService authService;
 
         public void init() {
-            System.out.println("init db");
+            SignupRequestDto signupRequestDto = new SignupRequestDto();
+            signupRequestDto.setEmail("test1234@gmail.com");
+            signupRequestDto.setPassword("test1234!");
+            signupRequestDto.setNickname("test1234");
+
+            authService.signup(signupRequestDto);
         }
     }
 }

@@ -2,6 +2,7 @@ package com.demo.travellybe.product.dto;
 
 import com.demo.travellybe.product.domain.Product;
 import com.demo.travellybe.product.domain.TicketPrice;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -25,7 +26,6 @@ public class ProductResponseDto {
     private int ticketCount;
     private TicketPrice ticketPrice;
     private double rating;
-    private Long memberId;
     private List<OperationDayDto> operationDays;
 
     public ProductResponseDto(Product product) {
@@ -43,7 +43,6 @@ public class ProductResponseDto {
         this.ticketCount = product.getTicketCount();
         this.ticketPrice = product.getTicketPrice();
         this.rating = product.getRating();
-        this.memberId = product.getMember().getId();
         this.operationDays = product.getOperationDays().stream().map(OperationDayDto::new).toList();
     }
 }
