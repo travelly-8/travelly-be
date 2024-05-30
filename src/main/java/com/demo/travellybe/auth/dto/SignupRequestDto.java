@@ -1,6 +1,7 @@
 package com.demo.travellybe.auth.dto;
 
 import com.demo.travellybe.member.domain.Member;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -26,11 +27,15 @@ public class SignupRequestDto {
     @NotNull
     private String nickname;
 
+    @Schema(hidden = true)
+    private String type;
+
     public Member toEntity() {
         return Member.builder()
                 .email(email)
                 .password(password)
                 .nickname(nickname)
+                .type(type)
                 .build();
     }
 }
