@@ -33,6 +33,8 @@ public class Member extends BaseTimeEntity {
 
     private String imageUrl;
 
+    private String type;
+
     private Role role;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -42,14 +44,23 @@ public class Member extends BaseTimeEntity {
     private List<Review> reviews = new ArrayList<>();
 
     @Builder
-    public Member(String email, String password, String nickname) {
+    public Member(String email, String password, String nickname, String type) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
+        this.type = type;
     }
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public void setReview(Review review) {
@@ -61,4 +72,6 @@ public class Member extends BaseTimeEntity {
         products.add(product);
         product.setMember(this);
     }
+
+
 }
