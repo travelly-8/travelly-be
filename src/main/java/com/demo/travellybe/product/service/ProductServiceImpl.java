@@ -8,12 +8,10 @@ import com.demo.travellybe.member.domain.MemberRepository;
 import com.demo.travellybe.member.domain.Role;
 import com.demo.travellybe.product.domain.Product;
 import com.demo.travellybe.product.domain.ProductRepository;
-import com.demo.travellybe.product.domain.QProduct;
 import com.demo.travellybe.product.dto.ProductCreateRequestDto;
 import com.demo.travellybe.product.dto.ProductResponseDto;
 import com.demo.travellybe.product.dto.ProductsSearchRequestDto;
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -23,8 +21,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,13 +36,13 @@ public class ProductServiceImpl implements ProductService {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public ProductResponseDto addProduct(ProductCreateRequestDto productCreateRequestDto) {
+    public ProductResponseDto addProduct(Long memberId, ProductCreateRequestDto productCreateRequestDto) {
         Product product = Product.of(productCreateRequestDto);
-        Member member = memberRepository.findById(productCreateRequestDto.getMemberId())
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         product.setMember(member);
         productRepository.save(product);
-        return new ProductResponseDto(product);
+        return new ProductResponseDto(product, 0);
     }
 
     @Override
@@ -67,7 +63,8 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponseDto getProductById(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
-        return new ProductResponseDto(product);
+        int reviewCount = productRepository.countReviewsByProductId(id);
+        return new ProductResponseDto(product, reviewCount);
     }
 
     @Override
@@ -82,8 +79,13 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Page<ProductResponseDto> getAllProducts(Pageable pageable) {
-        return productRepository.findAll(pageable).map(ProductResponseDto::new);
+        Page<Product> products = productRepository.findAll(pageable);
+        List<ProductResponseDto> productDtos = products.stream()
+                .map(product -> new ProductResponseDto(product, productRepository.countReviewsByProductId(product.getId())))
+                .collect(Collectors.toList());
+        return new PageImpl<>(productDtos, pageable, products.getTotalElements());
     }
+
 
     // TODO 성능최적화 필요
     @Override
@@ -109,12 +111,13 @@ public class ProductServiceImpl implements ProductService {
         if (requestDto.getEndTime() != null) {
             builder.and(product.operationDays.any().operationDayHours.any().endTime.loe(requestDto.getEndTime()));
         }
-        if (requestDto.getMinPrice() != null) {
-            builder.and(product.price.goe(requestDto.getMinPrice()));
-        }
-        if (requestDto.getMaxPrice() != null) {
-            builder.and(product.price.loe(requestDto.getMaxPrice()));
-        }
+        // TODO 가격 관련 필터링
+//        if (requestDto.getMinPrice() != null) {
+//            builder.and(product.price.goe(requestDto.getMinPrice()));
+//        }
+//        if (requestDto.getMaxPrice() != null) {
+//            builder.and(product.price.loe(requestDto.getMaxPrice()));
+//        }
 
         List<Product> fetch = queryFactory.selectFrom(product)
                 .where(builder)
@@ -124,7 +127,7 @@ public class ProductServiceImpl implements ProductService {
 
 
         List<ProductResponseDto> responseDtos = fetch.stream()
-                .map(ProductResponseDto::new)
+                .map(product -> new ProductResponseDto(product, productRepository.countReviewsByProductId(product.getId())))
                 .collect(Collectors.toList());
 
         return new PageImpl<>(responseDtos, pageRequest, fetch.size());
