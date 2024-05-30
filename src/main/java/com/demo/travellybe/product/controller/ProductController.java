@@ -104,9 +104,6 @@ public class ProductController {
     @GetMapping("/")
     @Operation(summary = "상품 목록 조회",
             description = "페이징 처리된 상품 목록을 조회합니다.",
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    content = @Content(schema = @Schema(implementation = ProductsRequestDto.class))
-            ),
             responses = {
                     @ApiResponse(responseCode = "200", description = "성공")
             })
@@ -117,9 +114,13 @@ public class ProductController {
     }
 
     @GetMapping("/list")
-    @Hidden
-    public ResponseEntity<Page<ProductResponseDto>> getFilteredProducts(@ModelAttribute ProductsSearchRequestDto requestDto
-    ) {
+    @Operation(summary = "상품 목록 조회",
+            description = "필터링된 상품 목록을 조회합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "성공")
+            })
+    public ResponseEntity<Page<ProductResponseDto>> getFilteredProducts(
+            @ModelAttribute ProductsSearchRequestDto requestDto) {
         Page<ProductResponseDto> products = productService.getFilteredProducts(requestDto);
         return ResponseEntity.ok(products);
     }

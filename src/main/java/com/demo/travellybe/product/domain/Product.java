@@ -51,6 +51,8 @@ public class Product extends BaseTimeEntity {
     @ElementCollection
     private Map<String, Integer> ticketPrice = new HashMap<>();
 
+    private int minPrice;
+
     @Column(nullable = false)
     private double rating;
 
@@ -80,6 +82,7 @@ public class Product extends BaseTimeEntity {
         product.cityCode = productCreateRequestDto.getCityCode();
         product.quantity = productCreateRequestDto.getQuantity();
         product.ticketPrice = productCreateRequestDto.getTicketPrice();
+        product.minPrice = productCreateRequestDto.getTicketPrice().values().stream().min(Integer::compareTo).orElse(0);
         product.rating = 0.0;
         product.enabled = true;
 
@@ -101,12 +104,11 @@ public class Product extends BaseTimeEntity {
         this.cityCode = productCreateRequestDto.getCityCode();
         this.quantity = productCreateRequestDto.getQuantity();
         this.ticketPrice = productCreateRequestDto.getTicketPrice();
+        this.minPrice = productCreateRequestDto.getTicketPrice().values().stream().min(Integer::compareTo).orElse(0);
         // rating은 리뷰를 통해 업데이트되는 값이므로 업데이트하지 않음
 
-        // 기존 operationDays 리스트를 업데이트
-        this.operationDays.clear();
-        this.operationDays.addAll(productCreateRequestDto.getOperationDays().stream().map(operationDayDto ->
-                OperationDay.of(operationDayDto, this)).toList());
+        this.operationDays = productCreateRequestDto.getOperationDays().stream().map(operationDayDto ->
+                OperationDay.of(operationDayDto, this)).toList();
     }
 
     public void setMember(Member member) {

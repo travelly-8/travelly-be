@@ -125,7 +125,7 @@ class ProductServiceImplTest {
 
     @Test
     @DisplayName("상품 등록 - 실패: MEMBER_NOT_FOUND")
-    public void addProduct_fail() throws Exception {
+    public void addProduct_fail() {
         // given
         when(memberRepository.findById(anyLong())).thenReturn(Optional.empty());
 
