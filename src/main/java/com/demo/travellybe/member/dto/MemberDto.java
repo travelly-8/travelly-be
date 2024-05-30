@@ -16,7 +16,7 @@ public class MemberDto {
 
     private String nickname;
 
-    private int coin;
+    private int point;
 
     private String imageUrl;
 
@@ -27,7 +27,7 @@ public class MemberDto {
     public MemberDto(Member member) {
         this.email = member.getEmail();
         this.nickname = member.getNickname();
-        this.coin = member.getCoin();
+        this.point = member.getPoint();
         this.imageUrl = member.getImageUrl();
         this.role = member.getRole().toString().toLowerCase();
         this.reviews = member.getReviews().stream().map(ReviewDto::new).toList();

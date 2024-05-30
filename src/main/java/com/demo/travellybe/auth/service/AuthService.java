@@ -9,6 +9,7 @@ import com.demo.travellybe.member.domain.Member;
 import com.demo.travellybe.member.domain.MemberRepository;
 import com.demo.travellybe.member.domain.Role;
 import com.fasterxml.jackson.databind.JsonNode;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
@@ -28,6 +29,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.util.Collection;
 import java.util.Optional;
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class AuthService {
 
@@ -52,6 +54,7 @@ public class AuthService {
         // 비밀번호 암호화
         String password = bCryptPasswordEncoder.encode(signupRequestDto.getPassword());
         signupRequestDto.setPassword(password);
+        signupRequestDto.setType("local");
 
         memberRepository.save(signupRequestDto.toEntity());
     }
@@ -151,6 +154,7 @@ public class AuthService {
                     .email(email)
                     .password(password)
                     .nickname(nickname)
+                    .type("social")
                     .build();
 
             // DB 에 저장
