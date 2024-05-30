@@ -29,7 +29,7 @@ public class Member extends BaseTimeEntity {
     @Column(nullable = false)
     private String nickname;
 
-    private int coin = 0;
+    private int point = 0;
 
     private String imageUrl;
 
