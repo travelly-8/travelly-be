@@ -51,6 +51,9 @@ public class Product extends BaseTimeEntity {
     @ElementCollection
     private Map<String, Integer> ticketPrice = new HashMap<>();
 
+    private int minPrice;
+    private int maxPrice;
+
     @Column(nullable = false)
     private double rating;
 
@@ -80,8 +83,11 @@ public class Product extends BaseTimeEntity {
         product.cityCode = productCreateRequestDto.getCityCode();
         product.quantity = productCreateRequestDto.getQuantity();
         product.ticketPrice = productCreateRequestDto.getTicketPrice();
+        product.minPrice = productCreateRequestDto.getTicketPrice().values().stream().min(Integer::compareTo).orElse(0);
+        product.maxPrice = productCreateRequestDto.getTicketPrice().values().stream().max(Integer::compareTo).orElse(0);
         product.rating = 0.0;
         product.enabled = true;
+
 
         product.operationDays = productCreateRequestDto.getOperationDays().stream().map(operationDayDto ->
                 OperationDay.of(operationDayDto, product)).toList();
@@ -100,9 +106,20 @@ public class Product extends BaseTimeEntity {
         this.cityCode = productCreateRequestDto.getCityCode();
         this.quantity = productCreateRequestDto.getQuantity();
         this.ticketPrice = productCreateRequestDto.getTicketPrice();
+        this.minPrice = productCreateRequestDto.getTicketPrice().values().stream().min(Integer::compareTo).orElse(0);
+        this.maxPrice = productCreateRequestDto.getTicketPrice().values().stream().max(Integer::compareTo).orElse(0);
         // rating은 리뷰를 통해 업데이트되는 값이므로 업데이트하지 않음
-        this.operationDays = productCreateRequestDto.getOperationDays().stream().map(operationDayDto ->
-                OperationDay.of(operationDayDto, this)).toList();
+
+        // operationDays 컬렉션 업데이트
+        List<OperationDay> newOperationDays = productCreateRequestDto.getOperationDays().stream()
+                .map(operationDayDto -> OperationDay.of(operationDayDto, this))
+                .toList();
+
+        // 기존 항목 제거
+        this.operationDays.clear();
+
+        // 새 항목 추가
+        this.operationDays.addAll(newOperationDays);
     }
 
     public void setMember(Member member) {

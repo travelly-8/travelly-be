@@ -14,8 +14,11 @@ public enum ErrorCode {
 
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "T001", "refresh 토큰값이 유효하지 않습니다."),
 
+    LOGIN_REQUIRED(HttpStatus.UNAUTHORIZED, "A001", "로그인이 필요합니다."),
+
     PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "P001", "해당 상품을 찾을 수 없습니다."),
     PRODUCT_NOT_OWNER(HttpStatus.FORBIDDEN, "P002", "해당 상품의 소유자가 아닙니다.");
+
 
     private final HttpStatus status;
     private final String code;

@@ -1,11 +1,13 @@
 package com.demo.travellybe.product.dto;
 
 import com.demo.travellybe.product.domain.Product;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -35,17 +37,29 @@ public class ProductResponseDto {
             "9:경기, 10:강원, 11:충북, 12:충남, 13:경북, 14:경남, 15:전북, 16:전남, " +
             "17:제주", example = "1")
     private String cityCode;
+
     @Schema(description = "상품 수량", example = "100")
     private int quantity;
+
     @Schema(description = "티켓 가격", example = "{\"성인\": 10000, \"청소년\": 8000}")
     private Map<String, Integer> ticketPrice;
+
     @Schema(description = "평점", example = "4.5")
     private double rating;
+
     @Schema(description = "운영 요일 및 시간")
     private List<OperationDayDto> operationDays;
 
     @Schema(description = "리뷰 개수", example = "10")
     private int reviewCount;
+
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @Schema(description = "생성일", example = "2024-05-29")
+    private LocalDateTime createdDate;
+
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @Schema(description = "수정일", example = "2024-05-29")
+    private LocalDateTime modifiedDate;
 
     public ProductResponseDto(Product product, int reviewCount) {
         this.id = product.getId();
@@ -64,5 +78,7 @@ public class ProductResponseDto {
         this.operationDays = product.getOperationDays().stream().map(OperationDayDto::new).toList();
 
         this.reviewCount = reviewCount;
+        this.createdDate = product.getCreatedDate();
+        this.modifiedDate = product.getModifiedDate();
     }
 }

@@ -5,23 +5,23 @@ import com.demo.travellybe.exception.CustomException;
 import com.demo.travellybe.exception.ErrorCode;
 import com.demo.travellybe.member.domain.Member;
 import com.demo.travellybe.member.domain.MemberRepository;
-import com.demo.travellybe.member.domain.Role;
 import com.demo.travellybe.product.domain.Product;
 import com.demo.travellybe.product.domain.ProductRepository;
 import com.demo.travellybe.product.dto.ProductCreateRequestDto;
 import com.demo.travellybe.product.dto.ProductResponseDto;
 import com.demo.travellybe.product.dto.ProductsSearchRequestDto;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.QueryResults;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.demo.travellybe.product.domain.QProduct.product;
@@ -73,7 +73,9 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
         Member member = product.getMember();
         // 상품 소유자가 아니거나 관리자가 아닌 경우 예외 발생
-        if (!(member.getId().equals(memberId) || member.getRole().equals(Role.ADMIN)))
+//        if (!(member.getId().equals(memberId) || member.getRole().equals(Role.ADMIN)))
+//            throw new CustomException(ErrorCode.PRODUCT_NOT_OWNER);
+        if (!(member.getId().equals(memberId)))
             throw new CustomException(ErrorCode.PRODUCT_NOT_OWNER);
     }
 
@@ -87,49 +89,53 @@ public class ProductServiceImpl implements ProductService {
     }
 
 
-    // TODO 성능최적화 필요
     @Override
     public Page<ProductResponseDto> getFilteredProducts(ProductsSearchRequestDto requestDto) {
-        Pageable pageRequest = PageRequest.of(requestDto.getPage(), requestDto.getSize());
+        BooleanBuilder builder = buildQuery(requestDto);
 
-        BooleanBuilder builder = new BooleanBuilder();
-        if (requestDto.getCityCode() != null) {
-            builder.and(product.cityCode.eq(requestDto.getCityCode()));
-        }
-        if (requestDto.getKeyword() != null) {
-            builder.and(product.name.containsIgnoreCase(requestDto.getKeyword()));
-        }
-        if (requestDto.getContentType() != null) {
-            builder.and(product.type.eq(requestDto.getContentType()));
-        }
-        if (requestDto.getDate() != null) {
-            builder.and(product.operationDays.any().date.eq(requestDto.getDate()));
-        }
-        if (requestDto.getStartTime() != null) {
-            builder.and(product.operationDays.any().operationDayHours.any().startTime.goe(requestDto.getStartTime()));
-        }
-        if (requestDto.getEndTime() != null) {
-            builder.and(product.operationDays.any().operationDayHours.any().endTime.loe(requestDto.getEndTime()));
-        }
-        // TODO 가격 관련 필터링
-//        if (requestDto.getMinPrice() != null) {
-//            builder.and(product.price.goe(requestDto.getMinPrice()));
-//        }
-//        if (requestDto.getMaxPrice() != null) {
-//            builder.and(product.price.loe(requestDto.getMaxPrice()));
-//        }
+        Pageable pageable = requestDto.toPageable();
 
-        List<Product> fetch = queryFactory.selectFrom(product)
+        QueryResults<Product> results = queryFactory.selectFrom(product)
                 .where(builder)
-                .offset(pageRequest.getOffset())
-                .limit(pageRequest.getPageSize())
-                .fetch();
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetchResults();
 
-
-        List<ProductResponseDto> responseDtos = fetch.stream()
+        List<ProductResponseDto> productDtos = results.getResults().stream()
                 .map(product -> new ProductResponseDto(product, productRepository.countReviewsByProductId(product.getId())))
-                .collect(Collectors.toList());
+                .toList();
 
-        return new PageImpl<>(responseDtos, pageRequest, fetch.size());
+        return new PageImpl<>(productDtos, pageable, results.getTotal());
+    }
+
+    private BooleanBuilder buildQuery(ProductsSearchRequestDto requestDto) {
+        BooleanBuilder builder = new BooleanBuilder();
+
+        Optional.ofNullable(requestDto.getKeyword()).ifPresent(keyword ->
+                builder.and(product.name.contains(keyword)
+                        .or(product.description.contains(keyword))));
+
+        Optional.ofNullable(requestDto.getCityCode()).ifPresent(cityCode ->
+                builder.and(product.cityCode.eq(cityCode)));
+
+        Optional.ofNullable(requestDto.getContentType()).ifPresent(contentType ->
+                builder.and(product.type.eq(contentType)));
+
+        Optional.ofNullable(requestDto.getMinPrice()).ifPresent(minPrice ->
+                builder.and(product.minPrice.goe(minPrice)));
+
+        Optional.ofNullable(requestDto.getMaxPrice()).ifPresent(maxPrice ->
+                builder.and(product.maxPrice.loe(maxPrice)));
+
+        if (requestDto.getStartDate() != null && requestDto.getEndDate() != null) {
+            builder.and(product.operationDays.any().date.between(requestDto.getStartDate(), requestDto.getEndDate()));
+        }
+
+        if (requestDto.getStartTime() != null && requestDto.getEndTime() != null) {
+            builder.and(product.operationDays.any().operationDayHours.any().startTime.loe(requestDto.getEndTime())
+                    .and(product.operationDays.any().operationDayHours.any().endTime.goe(requestDto.getStartTime())));
+        }
+
+        return builder;
     }
 }
