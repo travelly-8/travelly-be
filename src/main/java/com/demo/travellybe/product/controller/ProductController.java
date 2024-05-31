@@ -9,13 +9,11 @@ import com.demo.travellybe.product.dto.ProductResponseDto;
 import com.demo.travellybe.product.dto.ProductsRequestDto;
 import com.demo.travellybe.product.dto.ProductsSearchRequestDto;
 import com.demo.travellybe.product.service.ProductService;
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -103,7 +101,8 @@ public class ProductController {
 
     @GetMapping("/")
     @Operation(summary = "상품 목록 조회",
-            description = "페이징 처리된 상품 목록을 조회합니다.",
+            description = "페이징 처리된 상품 목록을 조회합니다.\n" +
+                    "page, size 필수",
             responses = {
                     @ApiResponse(responseCode = "200", description = "성공")
             })
@@ -113,15 +112,16 @@ public class ProductController {
         return ResponseEntity.ok(products);
     }
 
-    @GetMapping("/list")
-    @Operation(summary = "상품 목록 조회",
-            description = "필터링된 상품 목록을 조회합니다.",
+    @GetMapping("/search")
+    @Operation(summary = "상품 검색 - startTime, endTime 오류로 작동 안하니 참고",
+            description = "검색 조건에 맞는 상품 목록을 조회합니다.\n" +
+                    "page, size 필수 / startDate가 있으면 endDate도 필수 / startTime가 있으면 endTime도 필수",
             responses = {
                     @ApiResponse(responseCode = "200", description = "성공")
             })
     public ResponseEntity<Page<ProductResponseDto>> getFilteredProducts(
-            @ModelAttribute ProductsSearchRequestDto requestDto) {
-        Page<ProductResponseDto> products = productService.getFilteredProducts(requestDto);
+            @ModelAttribute ProductsSearchRequestDto searchDto) {
+        Page<ProductResponseDto> products = productService.getFilteredProducts(searchDto);
         return ResponseEntity.ok(products);
     }
 

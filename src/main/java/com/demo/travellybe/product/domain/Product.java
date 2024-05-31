@@ -52,6 +52,7 @@ public class Product extends BaseTimeEntity {
     private Map<String, Integer> ticketPrice = new HashMap<>();
 
     private int minPrice;
+    private int maxPrice;
 
     @Column(nullable = false)
     private double rating;
@@ -83,6 +84,7 @@ public class Product extends BaseTimeEntity {
         product.quantity = productCreateRequestDto.getQuantity();
         product.ticketPrice = productCreateRequestDto.getTicketPrice();
         product.minPrice = productCreateRequestDto.getTicketPrice().values().stream().min(Integer::compareTo).orElse(0);
+        product.maxPrice = productCreateRequestDto.getTicketPrice().values().stream().max(Integer::compareTo).orElse(0);
         product.rating = 0.0;
         product.enabled = true;
 
@@ -105,6 +107,7 @@ public class Product extends BaseTimeEntity {
         this.quantity = productCreateRequestDto.getQuantity();
         this.ticketPrice = productCreateRequestDto.getTicketPrice();
         this.minPrice = productCreateRequestDto.getTicketPrice().values().stream().min(Integer::compareTo).orElse(0);
+        this.maxPrice = productCreateRequestDto.getTicketPrice().values().stream().max(Integer::compareTo).orElse(0);
         // rating은 리뷰를 통해 업데이트되는 값이므로 업데이트하지 않음
 
         this.operationDays = productCreateRequestDto.getOperationDays().stream().map(operationDayDto ->
