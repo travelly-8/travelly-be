@@ -1,11 +1,13 @@
 package com.demo.travellybe.product.domain;
 
 import com.demo.travellybe.product.dto.OperationDayDto;
+import com.demo.travellybe.product.dto.OperationDayHourDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +37,12 @@ public class OperationDay {
         if (operationDayDto.getOperationDayHours() != null) {
             operationDay.operationDayHours = operationDayDto.getOperationDayHours().stream().map(operationDayHourDto ->
                     OperationDayHour.of(operationDayHourDto, operationDay)).toList();
+        } else {
+            OperationDayHourDto operationDayHourDto = OperationDayHourDto.builder()
+                    .startTime(LocalTime.of(0, 1))
+                    .endTime(LocalTime.of(23, 59))
+                    .build();
+            operationDay.operationDayHours.add(OperationDayHour.of(operationDayHourDto, operationDay));
         }
         return operationDay;
     }

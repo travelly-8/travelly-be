@@ -20,6 +20,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -91,7 +92,6 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Page<ProductResponseDto> getFilteredProducts(ProductsSearchRequestDto requestDto) {
         BooleanBuilder builder = buildQuery(requestDto);
-
         Pageable pageable = requestDto.toPageable();
 
         QueryResults<Product> results = queryFactory.selectFrom(product)
@@ -131,9 +131,13 @@ public class ProductServiceImpl implements ProductService {
         }
 
         if (requestDto.getStartTime() != null && requestDto.getEndTime() != null) {
-            builder.and(product.operationDays.any().operationDayHours.any().startTime.loe(requestDto.getEndTime())
-                    .and(product.operationDays.any().operationDayHours.any().endTime.goe(requestDto.getStartTime())));
+            LocalTime startTime = LocalTime.parse(requestDto.getStartTime());
+            LocalTime endTime = LocalTime.parse(requestDto.getEndTime());
+            // startTime, endTime 사이의 범위가 opeartionDayHour의 startTime, endTime 사이의 범위에 포함되는 경우
+            builder.and(product.operationDays.any().operationDayHours.any().startTime.goe(startTime)
+                    .and(product.operationDays.any().operationDayHours.any().endTime.loe(endTime)));
         }
+
 
         return builder;
     }

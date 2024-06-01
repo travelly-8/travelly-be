@@ -113,7 +113,7 @@ public class ProductController {
     }
 
     @GetMapping("/search")
-    @Operation(summary = "상품 검색 - startTime, endTime 오류로 작동 안하니 참고",
+    @Operation(summary = "상품 검색",
             description = "검색 조건에 맞는 상품 목록을 조회합니다.\n" +
                     "page, size 필수 / startDate가 있으면 endDate도 필수 / startTime가 있으면 endTime도 필수",
             responses = {

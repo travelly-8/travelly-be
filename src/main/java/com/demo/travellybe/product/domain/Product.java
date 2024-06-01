@@ -110,9 +110,6 @@ public class Product extends BaseTimeEntity {
         this.homepage = productCreateRequestDto.getHomepage();
         this.cityCode = productCreateRequestDto.getCityCode();
         this.quantity = productCreateRequestDto.getQuantity();
-        this.tickets = productCreateRequestDto.getTickets().stream()
-                .map(ticketDto -> Ticket.of(ticketDto, this))
-                .toList();
         this.minPrice = productCreateRequestDto.getTickets().stream()
                 .map(TicketDto::getPrice).min(Integer::compareTo).orElse(0);
         this.maxPrice = productCreateRequestDto.getTickets().stream()
@@ -125,6 +122,13 @@ public class Product extends BaseTimeEntity {
                 .toList();
         this.operationDays.clear();
         this.operationDays.addAll(newOperationDays);
+
+        // tickets 컬렉션 업데이트
+        List<Ticket> newTickets = productCreateRequestDto.getTickets().stream()
+                .map(ticketDto -> Ticket.of(ticketDto, this))
+                .toList();
+        this.tickets.clear();
+        this.tickets.addAll(newTickets);
     }
 
     public void addReview(Review review) {

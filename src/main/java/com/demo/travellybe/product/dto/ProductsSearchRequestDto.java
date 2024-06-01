@@ -30,10 +30,10 @@ public class ProductsSearchRequestDto extends ProductsRequestDto {
 
     // TODO : 시간 검색이 안되는 오류 있음. example도 12:00으로 보임
     @Schema(example = "09:00")
-    private LocalTime startTime;
+    private String startTime;
 
     @Schema(example = "18:00")
-    private LocalTime endTime;
+    private String endTime;
 
     @Schema(example = "10000")
     private Integer minPrice;
@@ -42,7 +42,7 @@ public class ProductsSearchRequestDto extends ProductsRequestDto {
     private Integer maxPrice;
 
     @Builder(builderMethodName = "searchBuilder")
-    public ProductsSearchRequestDto(String keyword, String cityCode, String contentType, LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime, Integer minPrice, Integer maxPrice, int page, int size, String sortField, String sortType) {
+    public ProductsSearchRequestDto(String keyword, String cityCode, String contentType, LocalDate startDate, LocalDate endDate, String startTime, String endTime, Integer minPrice, Integer maxPrice, int page, int size, String sortField, String sortType) {
         super(page, size, sortField, sortType);
         this.keyword = keyword;
         this.cityCode = cityCode;
