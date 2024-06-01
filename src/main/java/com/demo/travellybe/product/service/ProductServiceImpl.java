@@ -20,6 +20,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -42,7 +43,7 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         product.setMember(member);
         productRepository.save(product);
-        return new ProductResponseDto(product, 0);
+        return new ProductResponseDto(product);
     }
 
     @Override
@@ -63,8 +64,7 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponseDto getProductById(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
-        int reviewCount = productRepository.countReviewsByProductId(id);
-        return new ProductResponseDto(product, reviewCount);
+        return new ProductResponseDto(product);
     }
 
     @Override
@@ -83,7 +83,7 @@ public class ProductServiceImpl implements ProductService {
     public Page<ProductResponseDto> getAllProducts(Pageable pageable) {
         Page<Product> products = productRepository.findAll(pageable);
         List<ProductResponseDto> productDtos = products.stream()
-                .map(product -> new ProductResponseDto(product, productRepository.countReviewsByProductId(product.getId())))
+                .map(ProductResponseDto::new)
                 .collect(Collectors.toList());
         return new PageImpl<>(productDtos, pageable, products.getTotalElements());
     }
@@ -92,7 +92,6 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Page<ProductResponseDto> getFilteredProducts(ProductsSearchRequestDto requestDto) {
         BooleanBuilder builder = buildQuery(requestDto);
-
         Pageable pageable = requestDto.toPageable();
 
         QueryResults<Product> results = queryFactory.selectFrom(product)
@@ -102,7 +101,7 @@ public class ProductServiceImpl implements ProductService {
                 .fetchResults();
 
         List<ProductResponseDto> productDtos = results.getResults().stream()
-                .map(product -> new ProductResponseDto(product, productRepository.countReviewsByProductId(product.getId())))
+                .map(ProductResponseDto::new)
                 .toList();
 
         return new PageImpl<>(productDtos, pageable, results.getTotal());
@@ -132,9 +131,13 @@ public class ProductServiceImpl implements ProductService {
         }
 
         if (requestDto.getStartTime() != null && requestDto.getEndTime() != null) {
-            builder.and(product.operationDays.any().operationDayHours.any().startTime.loe(requestDto.getEndTime())
-                    .and(product.operationDays.any().operationDayHours.any().endTime.goe(requestDto.getStartTime())));
+            LocalTime startTime = LocalTime.parse(requestDto.getStartTime());
+            LocalTime endTime = LocalTime.parse(requestDto.getEndTime());
+            // startTime, endTime 사이의 범위가 opeartionDayHour의 startTime, endTime 사이의 범위에 포함되는 경우
+            builder.and(product.operationDays.any().operationDayHours.any().startTime.goe(startTime)
+                    .and(product.operationDays.any().operationDayHours.any().endTime.loe(endTime)));
         }
+
 
         return builder;
     }

@@ -71,10 +71,16 @@ class ProductServiceImplTest {
                 .operationDayHours(operationDayHourDtos)
                 .build());
 
-        Map<String, Integer> ticketPrice = new HashMap<>();
-        ticketPrice.put("성인", 10000);
-        ticketPrice.put("학생", 7000);
-        ticketPrice.put("어린이", 5000);
+        List<TicketDto> ticketDtos = new ArrayList<>();
+        ticketDtos.add(TicketDto.builder()
+                .name("성인").price(10000)
+                .build());
+        ticketDtos.add(TicketDto.builder()
+                .name("학생").price(7000)
+                .build());
+        ticketDtos.add(TicketDto.builder()
+                .name("어린이").price(5000)
+                .build());
 
         createRequestDto = ProductCreateRequestDto.builder()
                 .name("product1").type("type1")
@@ -82,7 +88,7 @@ class ProductServiceImplTest {
                 .address("address1").detailAddress("detailAddress1")
                 .phoneNumber("phoneNumber1").homepage("homepage1")
                 .cityCode("cityCode1").quantity(100)
-                .ticketPrice(ticketPrice)
+                .tickets(ticketDtos)
                 .operationDays(operationDayDtos)
                 .build();
 
@@ -117,7 +123,7 @@ class ProductServiceImplTest {
         assertThat(responseDto.getHomepage()).isEqualTo(createRequestDto.getHomepage());
         assertThat(responseDto.getCityCode()).isEqualTo(createRequestDto.getCityCode());
         assertThat(responseDto.getQuantity()).isEqualTo(createRequestDto.getQuantity());
-        assertThat(responseDto.getTicketPrice()).isEqualTo(createRequestDto.getTicketPrice());
+        assertThat(responseDto.getTicketDto()).isEqualTo(createRequestDto.getTickets());
 
         verify(memberRepository, times(1)).findById(anyLong());
         verify(productRepository, times(1)).save(any(Product.class));
@@ -227,7 +233,7 @@ class ProductServiceImplTest {
         // then
         assertThat(responseDto.getId()).isEqualTo(product.getId());
         assertThat(responseDto.getName()).isEqualTo(product.getName());
-        assertThat(responseDto.getTicketPrice()).isEqualTo(product.getTicketPrice());
+        assertThat(responseDto.getTicketDto()).isEqualTo(product.getTickets());
 
         verify(productRepository, times(1)).findById(product.getId());
     }

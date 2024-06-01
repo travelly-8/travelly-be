@@ -2,6 +2,7 @@ package com.demo.travellybe.product.domain;
 
 import com.demo.travellybe.member.domain.Member;
 import com.demo.travellybe.product.dto.ProductCreateRequestDto;
+import com.demo.travellybe.product.dto.TicketDto;
 import com.demo.travellybe.review.domain.Review;
 import com.demo.travellybe.util.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -22,12 +23,26 @@ public class Product extends BaseTimeEntity {
     @Column(name = "product_id")
     private Long id;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    private Member member;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OperationDay> operationDays = new ArrayList<>();
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Review> reviews = new ArrayList<>();
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Ticket> tickets = new ArrayList<>();
+
     @Column(nullable = false)
     private String name;
 
     @Column(nullable = false)
     private String type;
 
+    @Column(nullable = false)
     private String description;
 
     private String imageUrl;
@@ -48,9 +63,6 @@ public class Product extends BaseTimeEntity {
     @Column(nullable = false)
     private int quantity;
 
-    @ElementCollection
-    private Map<String, Integer> ticketPrice = new HashMap<>();
-
     private int minPrice;
     private int maxPrice;
 
@@ -58,17 +70,7 @@ public class Product extends BaseTimeEntity {
     private double rating;
 
     @Column(nullable = false)
-    private boolean enabled;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member member;
-
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<OperationDay> operationDays = new ArrayList<>();
-
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Review> reviews = new ArrayList<>();
+    private int reviewCount = 0;
 
     public static Product of(ProductCreateRequestDto productCreateRequestDto) {
         Product product = new Product();
@@ -82,12 +84,15 @@ public class Product extends BaseTimeEntity {
         product.homepage = productCreateRequestDto.getHomepage();
         product.cityCode = productCreateRequestDto.getCityCode();
         product.quantity = productCreateRequestDto.getQuantity();
-        product.ticketPrice = productCreateRequestDto.getTicketPrice();
-        product.minPrice = productCreateRequestDto.getTicketPrice().values().stream().min(Integer::compareTo).orElse(0);
-        product.maxPrice = productCreateRequestDto.getTicketPrice().values().stream().max(Integer::compareTo).orElse(0);
         product.rating = 0.0;
-        product.enabled = true;
 
+        product.tickets = productCreateRequestDto.getTickets().stream()
+                .map(ticketDto -> Ticket.of(ticketDto, product))
+                .toList();
+        product.minPrice = productCreateRequestDto.getTickets().stream()
+                .map(TicketDto::getPrice).min(Integer::compareTo).orElse(0);
+        product.maxPrice = productCreateRequestDto.getTickets().stream()
+                .map(TicketDto::getPrice).max(Integer::compareTo).orElse(0);
 
         product.operationDays = productCreateRequestDto.getOperationDays().stream().map(operationDayDto ->
                 OperationDay.of(operationDayDto, product)).toList();
@@ -105,21 +110,37 @@ public class Product extends BaseTimeEntity {
         this.homepage = productCreateRequestDto.getHomepage();
         this.cityCode = productCreateRequestDto.getCityCode();
         this.quantity = productCreateRequestDto.getQuantity();
-        this.ticketPrice = productCreateRequestDto.getTicketPrice();
-        this.minPrice = productCreateRequestDto.getTicketPrice().values().stream().min(Integer::compareTo).orElse(0);
-        this.maxPrice = productCreateRequestDto.getTicketPrice().values().stream().max(Integer::compareTo).orElse(0);
-        // rating은 리뷰를 통해 업데이트되는 값이므로 업데이트하지 않음
+        this.minPrice = productCreateRequestDto.getTickets().stream()
+                .map(TicketDto::getPrice).min(Integer::compareTo).orElse(0);
+        this.maxPrice = productCreateRequestDto.getTickets().stream()
+                .map(TicketDto::getPrice).max(Integer::compareTo).orElse(0);
+        // rating, reviewCount는 리뷰를 통해 업데이트되는 값이므로 업데이트하지 않음
 
         // operationDays 컬렉션 업데이트
         List<OperationDay> newOperationDays = productCreateRequestDto.getOperationDays().stream()
                 .map(operationDayDto -> OperationDay.of(operationDayDto, this))
                 .toList();
-
-        // 기존 항목 제거
         this.operationDays.clear();
-
-        // 새 항목 추가
         this.operationDays.addAll(newOperationDays);
+
+        // tickets 컬렉션 업데이트
+        List<Ticket> newTickets = productCreateRequestDto.getTickets().stream()
+                .map(ticketDto -> Ticket.of(ticketDto, this))
+                .toList();
+        this.tickets.clear();
+        this.tickets.addAll(newTickets);
+    }
+
+    public void addReview(Review review) {
+        this.reviews.add(review);
+//        this.rating = calculateRating();
+        this.reviewCount++;
+    }
+
+    public void removeReview(Review review) {
+        this.reviews.remove(review);
+//        this.rating = calculateRating();
+        this.reviewCount--;
     }
 
     public void setMember(Member member) {
