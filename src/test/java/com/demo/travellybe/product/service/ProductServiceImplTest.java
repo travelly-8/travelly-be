@@ -55,7 +55,7 @@ class ProductServiceImplTest {
                 .password("travelerPW")
                 .nickname("traveler")
                 .build();
-        member2.setRole(Role.TRAVELER);
+        member2.setRole(Role.TRAVELLER);
         ReflectionTestUtils.setField(member2, "id", 2L);
         memberRepository.save(member2);
 

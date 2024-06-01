@@ -10,9 +10,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -46,6 +48,13 @@ public class MemberController {
     })
     public ResponseEntity<ProfileDto> updateNickname(@AuthenticationPrincipal PrincipalDetails userInfo, @RequestParam("nickname") String nickname) {
         return ResponseEntity.ok().body(memberService.updateNickname(userInfo.getUsername(), nickname));
+    }
+
+    @PutMapping(value = "/my/profile/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "프로필 이미지 수정")
+    public ResponseEntity<Void> updateImage(@AuthenticationPrincipal PrincipalDetails userInfo, @RequestPart(value = "file") MultipartFile multipartFile) {
+        memberService.updateImage(multipartFile);
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/my/profile/password")
