@@ -42,7 +42,7 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         product.setMember(member);
         productRepository.save(product);
-        return new ProductResponseDto(product, 0);
+        return new ProductResponseDto(product);
     }
 
     @Override
@@ -63,8 +63,7 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponseDto getProductById(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
-        int reviewCount = productRepository.countReviewsByProductId(id);
-        return new ProductResponseDto(product, reviewCount);
+        return new ProductResponseDto(product);
     }
 
     @Override
@@ -83,7 +82,7 @@ public class ProductServiceImpl implements ProductService {
     public Page<ProductResponseDto> getAllProducts(Pageable pageable) {
         Page<Product> products = productRepository.findAll(pageable);
         List<ProductResponseDto> productDtos = products.stream()
-                .map(product -> new ProductResponseDto(product, productRepository.countReviewsByProductId(product.getId())))
+                .map(ProductResponseDto::new)
                 .collect(Collectors.toList());
         return new PageImpl<>(productDtos, pageable, products.getTotalElements());
     }
@@ -102,7 +101,7 @@ public class ProductServiceImpl implements ProductService {
                 .fetchResults();
 
         List<ProductResponseDto> productDtos = results.getResults().stream()
-                .map(product -> new ProductResponseDto(product, productRepository.countReviewsByProductId(product.getId())))
+                .map(ProductResponseDto::new)
                 .toList();
 
         return new PageImpl<>(productDtos, pageable, results.getTotal());

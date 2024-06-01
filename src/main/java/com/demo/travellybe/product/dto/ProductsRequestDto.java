@@ -16,7 +16,7 @@ public class ProductsRequestDto {
     @NotNull
     @Schema(description = "페이지 크기", example = "10")
     private int size;
-    @Schema(example = "정렬 기준(modifiedDate, name, rating, price) - 기본값 modifiedDate")
+    @Schema(example = "정렬 기준(modifiedDate, reviewCount, rating, price) - 기본값 modifiedDate")
     private String sortField;
     @Schema(example = "정렬 방식(asc, desc) - 기본값 desc")
     private String sortType;
@@ -25,8 +25,8 @@ public class ProductsRequestDto {
     public ProductsRequestDto(int page, int size, String sortField, String sortType) {
         this.page = page;
         this.size = size;
-        // modifiedDate, name, rating, price 중 하나가 아니면 modifiedDate로 설정
-        this.sortField = sortField == null || !sortField.equals("name") && !sortField.equals("rating") && !sortField.equals("price") ? "modifiedDate" : sortField;
+        // modifiedDate, reviewCount, rating, price 중 하나가 아니면 modifiedDate로 설정
+        this.sortField = sortField == null || !sortField.equals("reviewCount") && !sortField.equals("rating") && !sortField.equals("price") ? "modifiedDate" : sortField;
         // asc, desc 중 하나가 아니면 desc로 설정
         this.sortType = sortType == null || !sortType.equals("asc") ? "desc" : sortType;
     }
