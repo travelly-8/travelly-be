@@ -7,6 +7,7 @@ import com.demo.travellybe.member.domain.MemberRepository;
 import com.demo.travellybe.product.dto.OperationDayDto;
 import com.demo.travellybe.product.dto.OperationDayHourDto;
 import com.demo.travellybe.product.dto.ProductCreateRequestDto;
+import com.demo.travellybe.product.dto.TicketDto;
 import com.demo.travellybe.product.service.ProductService;
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
@@ -49,12 +50,11 @@ public class InitDb {
                 authService.signup(signupRequestDto);
             }
 
-            // 각 사용자가 0~2개의 상품을 가지도록 설정
             List<Member> members = new ArrayList<>(memberRepository.findAll());
 
             for (Member member : members) {
-                int productCount = (int) (Math.random() * 3);
-                for (int i = 0; i < productCount; i++) {
+                int productCount = 0;
+                for (; productCount < 3; productCount++) {
                     List<OperationDayHourDto> operationDayHourDtos = new ArrayList<>();
                     int operationHourCount = (int) (Math.random() * 9) + 9;
                     for (int j = 9; j < operationHourCount; j++) {
@@ -74,24 +74,28 @@ public class InitDb {
                     }
 
                     // 무작위 티켓, 가격 설정
-                    Map<String, Integer> ticketPrice = new HashMap<>();
-                    int ticketCount = (int) (Math.random() * 4) + 1;
-                    for (int j = 0; j < ticketCount; j++) {
-                        ticketPrice.put("티켓" + j, (int) (Math.random() * 10000) + 10000);
+                    List<TicketDto> ticketDtos = new ArrayList<>();
+                    for (int j = 0; j < 3; j++) {
+                        ticketDtos.add(TicketDto.builder()
+                                .name("티켓" + j)
+                                .price((int) (Math.random() * 10000))
+                                .description("티켓" + j + "은(는) 여기에 대한 설명입니다.")
+                                .build());
                     }
 
+
                     ProductCreateRequestDto productCreateRequestDto = ProductCreateRequestDto.builder()
-                            .name("상품" + i)
+                            .name("상품" + productCount)
                             .type("12")
-                            .description("상품" + i + "은(는) 여기에 대한 설명입니다.")
-                            .imageUrl("https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png")
+                            .description("상품" + productCount + "은(는) 여기에 대한 설명입니다.")
+                            .imageUrl("상품 이미지 URL")
                             .address("서울특별시 종로구 사직로 161")
                             .detailAddress("경복궁")
                             .phoneNumber("01037003900")
                             .homepage("https://www.royalpalace.go.kr")
                             .cityCode("1")
                             .quantity((int) (Math.random() * 100))
-                            .ticketPrice(ticketPrice)
+                            .tickets(ticketDtos)
                             .operationDays(operationDayDtos)
                             .build();
                     productService.addProduct(member.getId(), productCreateRequestDto);

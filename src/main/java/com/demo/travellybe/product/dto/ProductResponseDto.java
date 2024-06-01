@@ -9,7 +9,6 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 @Getter @Setter
 @NoArgsConstructor
@@ -41,8 +40,8 @@ public class ProductResponseDto {
     @Schema(description = "상품 수량", example = "100")
     private int quantity;
 
-    @Schema(description = "티켓 가격", example = "{\"성인\": 10000, \"청소년\": 8000}")
-    private Map<String, Integer> ticketPrice;
+    @Schema(description = "티켓", example = "{\"성인\": 10000, \"청소년\": 8000}")
+    private List<TicketDto> ticketDto;
 
     @Schema(description = "평점", example = "4.5")
     private double rating;
@@ -61,7 +60,7 @@ public class ProductResponseDto {
     @Schema(description = "수정일", example = "2024-05-29")
     private LocalDateTime modifiedDate;
 
-    public ProductResponseDto(Product product, int reviewCount) {
+    public ProductResponseDto(Product product) {
         this.id = product.getId();
         this.name = product.getName();
         this.type = product.getType();
@@ -73,11 +72,11 @@ public class ProductResponseDto {
         this.homepage = product.getHomepage();
         this.cityCode = product.getCityCode();
         this.quantity = product.getQuantity();
-        this.ticketPrice = product.getTicketPrice();
+        this.ticketDto = product.getTickets().stream().map(TicketDto::new).toList();
         this.rating = product.getRating();
+        this.reviewCount = product.getReviewCount();
         this.operationDays = product.getOperationDays().stream().map(OperationDayDto::new).toList();
 
-        this.reviewCount = reviewCount;
         this.createdDate = product.getCreatedDate();
         this.modifiedDate = product.getModifiedDate();
     }

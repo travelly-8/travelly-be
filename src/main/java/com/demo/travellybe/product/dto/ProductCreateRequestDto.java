@@ -52,8 +52,8 @@ public class ProductCreateRequestDto {
     private int quantity;
 
     @NotNull
-    @Schema(description = "티켓 가격", example = "{\"성인\": 10000, \"청소년\": 8000}")
-    private Map<String, Integer> ticketPrice;
+    @Schema(description = "티켓")
+    private List<TicketDto> tickets;
 
     @NotNull
     @Schema(description = "운영 요일 및 시간")
