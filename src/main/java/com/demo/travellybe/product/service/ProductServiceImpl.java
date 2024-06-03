@@ -100,7 +100,7 @@ public class ProductServiceImpl implements ProductService {
 
 
     @Override
-    public Page<ProductResponseDto> getFilteredProducts(ProductsSearchRequestDto requestDto) {
+    public Page<ProductResponseDto> getSearchedProducts(ProductsSearchRequestDto requestDto) {
         Pageable pageable = requestDto.toPageable();
 
         QueryResults<Product> results = queryFactory

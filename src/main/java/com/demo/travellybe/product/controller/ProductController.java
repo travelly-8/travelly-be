@@ -6,7 +6,6 @@ import com.demo.travellybe.exception.ErrorCode;
 import com.demo.travellybe.exception.ErrorResponse;
 import com.demo.travellybe.product.dto.ProductCreateRequestDto;
 import com.demo.travellybe.product.dto.ProductResponseDto;
-import com.demo.travellybe.product.dto.ProductsRequestDto;
 import com.demo.travellybe.product.dto.ProductsSearchRequestDto;
 import com.demo.travellybe.product.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,7 +17,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -127,22 +125,8 @@ public class ProductController {
             responses = {
                     @ApiResponse(responseCode = "200", description = "성공")
             })
-    public ResponseEntity<Page<ProductResponseDto>> getAllProducts(@ModelAttribute ProductsRequestDto productsRequestDto) {
-        Pageable pageable = productsRequestDto.toPageable();
-        Page<ProductResponseDto> products = productService.getAllProducts(pageable);
-        return ResponseEntity.ok(products);
-    }
-
-    @GetMapping("/search")
-    @Operation(summary = "상품 검색",
-            description = "검색 조건에 맞는 상품 목록을 조회합니다.\n" +
-                    "page, size 필수 / startDate가 있으면 endDate도 필수 / startTime가 있으면 endTime도 필수",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "성공")
-            })
-    public ResponseEntity<Page<ProductResponseDto>> getFilteredProducts(
-            @ModelAttribute ProductsSearchRequestDto searchDto) {
-        Page<ProductResponseDto> products = productService.getFilteredProducts(searchDto);
+    public ResponseEntity<Page<ProductResponseDto>> getAllProducts(ProductsSearchRequestDto searchDto) {
+        Page<ProductResponseDto> products = productService.getSearchedProducts(searchDto);
         return ResponseEntity.ok(products);
     }
 

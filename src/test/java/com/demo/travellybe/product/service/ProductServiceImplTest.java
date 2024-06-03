@@ -307,7 +307,7 @@ class ProductServiceImplTest {
 
     @Test
     @DisplayName("필터링된 상품 조회")
-    void getFilteredProducts() {
+    void getSearchedProducts() {
 
     }
 }

@@ -16,5 +16,5 @@ public interface ProductService {
     void checkLogin(PrincipalDetails principalDetails);
 
     Page<ProductResponseDto> getAllProducts(Pageable pageable);
-    Page<ProductResponseDto> getFilteredProducts(ProductsSearchRequestDto productsSearchRequestDto);
+    Page<ProductResponseDto> getSearchedProducts(ProductsSearchRequestDto productsSearchRequestDto);
 }
