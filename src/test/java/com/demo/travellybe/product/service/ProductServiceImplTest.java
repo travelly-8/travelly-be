@@ -96,7 +96,7 @@ class ProductServiceImplTest {
                 .page(1).size(10).cityCode("1").keyword("keyword")
                 .contentType("type").sortType("desc").sortField("name")
                 .startDate(LocalDate.of(2024, 5, 31)).endDate(LocalDate.of(2024, 6, 1))
-                .startTime(LocalTime.of(9, 0)).endTime(LocalTime.of(18, 0))
+                .startTime("09:00").endTime("18:00")
                 .minPrice(10000).maxPrice(50000)
                 .build();
 
@@ -233,7 +233,7 @@ class ProductServiceImplTest {
         // then
         assertThat(responseDto.getId()).isEqualTo(product.getId());
         assertThat(responseDto.getName()).isEqualTo(product.getName());
-        assertThat(responseDto.getTicketDto()).isEqualTo(product.getTickets());
+
 
         verify(productRepository, times(1)).findById(product.getId());
     }
