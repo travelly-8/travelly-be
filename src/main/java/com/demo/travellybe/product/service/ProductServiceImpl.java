@@ -12,6 +12,7 @@ import com.demo.travellybe.product.dto.ProductResponseDto;
 import com.demo.travellybe.product.dto.ProductsSearchRequestDto;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.QueryResults;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
@@ -91,11 +94,16 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Page<ProductResponseDto> getFilteredProducts(ProductsSearchRequestDto requestDto) {
-        BooleanBuilder builder = buildQuery(requestDto);
         Pageable pageable = requestDto.toPageable();
 
-        QueryResults<Product> results = queryFactory.selectFrom(product)
-                .where(builder)
+        QueryResults<Product> results = queryFactory
+                .selectFrom(product)
+                .where(eqCityCode(requestDto.getCityCode()),
+                        eqContentType(requestDto.getContentType()),
+                        containsKeyword(requestDto.getKeyword()),
+                        betweenPrice(requestDto.getMinPrice(), requestDto.getMaxPrice()),
+                        betweenDate(requestDto.getStartDate(), requestDto.getEndDate()),
+                        betweenTime(requestDto.getStartTime(), requestDto.getEndTime()))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetchResults();
@@ -107,38 +115,38 @@ public class ProductServiceImpl implements ProductService {
         return new PageImpl<>(productDtos, pageable, results.getTotal());
     }
 
-    private BooleanBuilder buildQuery(ProductsSearchRequestDto requestDto) {
-        BooleanBuilder builder = new BooleanBuilder();
+    private BooleanExpression eqCityCode(String cityCode) {
+        if (!StringUtils.hasText(cityCode)) return null;
+        return product.cityCode.eq(cityCode);
+    }
 
-        Optional.ofNullable(requestDto.getKeyword()).ifPresent(keyword ->
-                builder.and(product.name.contains(keyword)
-                        .or(product.description.contains(keyword))));
+    private BooleanExpression eqContentType(String contentType) {
+        if (!StringUtils.hasText(contentType)) return null;
+        return product.type.eq(contentType);
+    }
 
-        Optional.ofNullable(requestDto.getCityCode()).ifPresent(cityCode ->
-                builder.and(product.cityCode.eq(cityCode)));
+    private BooleanExpression containsKeyword(String keyword) {
+        if (!StringUtils.hasText(keyword)) return null;
+        return product.name.contains(keyword)
+                .or(product.description.contains(keyword));
+    }
 
-        Optional.ofNullable(requestDto.getContentType()).ifPresent(contentType ->
-                builder.and(product.type.eq(contentType)));
+    private BooleanExpression betweenPrice(Integer minPrice, Integer maxPrice) {
+        if (minPrice == null || maxPrice == null) return null;
+        return product.minPrice.goe(minPrice)
+                .and(product.maxPrice.loe(maxPrice));
+    }
 
-        Optional.ofNullable(requestDto.getMinPrice()).ifPresent(minPrice ->
-                builder.and(product.minPrice.goe(minPrice)));
+    private BooleanExpression betweenDate(LocalDate startDate, LocalDate endDate) {
+        if (startDate == null || endDate == null) return null;
+        return product.operationDays.any().date.between(startDate, endDate);
+    }
 
-        Optional.ofNullable(requestDto.getMaxPrice()).ifPresent(maxPrice ->
-                builder.and(product.maxPrice.loe(maxPrice)));
-
-        if (requestDto.getStartDate() != null && requestDto.getEndDate() != null) {
-            builder.and(product.operationDays.any().date.between(requestDto.getStartDate(), requestDto.getEndDate()));
-        }
-
-        if (requestDto.getStartTime() != null && requestDto.getEndTime() != null) {
-            LocalTime startTime = LocalTime.parse(requestDto.getStartTime());
-            LocalTime endTime = LocalTime.parse(requestDto.getEndTime());
-            // startTime, endTime 사이의 범위가 opeartionDayHour의 startTime, endTime 사이의 범위에 포함되는 경우
-            builder.and(product.operationDays.any().operationDayHours.any().startTime.goe(startTime)
-                    .and(product.operationDays.any().operationDayHours.any().endTime.loe(endTime)));
-        }
-
-
-        return builder;
+    private BooleanExpression betweenTime(String startTime, String endTime) {
+        if (startTime == null || endTime == null) return null;
+        LocalTime st = LocalTime.parse(startTime);
+        LocalTime et = LocalTime.parse(endTime);
+        return product.operationDays.any().operationDayHours.any().startTime.goe(st)
+                .and(product.operationDays.any().operationDayHours.any().endTime.loe(et));
     }
 }

@@ -1,0 +1,3 @@
+[submodule "config"]
+	path = config
+	url = https://github.com/travelly-8/travelly-be-config.git

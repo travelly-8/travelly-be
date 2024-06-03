@@ -60,3 +60,12 @@ bootJar {
 	archiveBaseName = 'travelly'
 	archiveVersion =  version
 }
+
+
+tasks.register('copyPrivate', Copy) {
+	copy {
+		from './config'
+		include "*.yml"
+		into 'src/main/resources'
+	}
+}

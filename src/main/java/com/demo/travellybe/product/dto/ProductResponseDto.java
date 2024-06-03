@@ -1,7 +1,6 @@
 package com.demo.travellybe.product.dto;
 
 import com.demo.travellybe.product.domain.Product;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -52,12 +51,10 @@ public class ProductResponseDto {
     @Schema(description = "리뷰 개수", example = "10")
     private int reviewCount;
 
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    @Schema(description = "생성일", example = "2024-05-29")
+    @Schema(description = "생성일")
     private LocalDateTime createdDate;
 
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    @Schema(description = "수정일", example = "2024-05-29")
+    @Schema(description = "수정일")
     private LocalDateTime modifiedDate;
 
     public ProductResponseDto(Product product) {
