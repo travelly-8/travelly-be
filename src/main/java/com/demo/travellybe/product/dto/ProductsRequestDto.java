@@ -2,7 +2,9 @@ package com.demo.travellybe.product.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -13,31 +15,35 @@ public class ProductsRequestDto {
     @NotNull
     @Schema(description = "페이지 번호", example = "0")
     private int page;
+
     @NotNull
     @Schema(description = "페이지 크기", example = "10")
     private int size;
-    @Schema(example = "정렬 기준(modifiedDate, reviewCount, rating, price) - 기본값 modifiedDate")
-    private String sortField;
-    @Schema(example = "정렬 방식(asc, desc) - 기본값 desc")
-    private String sortType;
+
+    @Schema(description = "정렬 방식", example = "LowestPrice, HighestRating, MostReviews, Newest (기본값: Newest)")
+    private String sort = "Newest";
 
     @Builder
-    public ProductsRequestDto(int page, int size, String sortField, String sortType) {
+    public ProductsRequestDto(int page, int size, String sort) {
         this.page = page;
         this.size = size;
-        // modifiedDate, reviewCount, rating, price 중 하나가 아니면 modifiedDate로 설정
-        this.sortField = sortField == null || !sortField.equals("reviewCount") && !sortField.equals("rating") && !sortField.equals("price") ? "modifiedDate" : sortField;
-        // asc, desc 중 하나가 아니면 desc로 설정
-        this.sortType = sortType == null || !sortType.equals("asc") ? "desc" : sortType;
+        this.sort = sort != null ? sort : this.sort;
     }
 
     public Pageable toPageable() {
+        String sortField = switch (sort) {
+            case "LowestPrice" -> "minPrice";
+            case "HighestRating" -> "rating";
+            case "MostReviews" -> "reviewCount";
+            default -> "createdDate";
+        };
+
         Sort sort;
-        if ("price".equals(this.sortField)) {
-            sort = "asc".equals(this.sortType) ? Sort.by("minPrice").ascending() : Sort.by("maxPrice").descending();
+        if ("minPrice".equals(sortField)) {
+            sort = Sort.by("minPrice").ascending();
         } else {
-            sort = Sort.by(this.sortField);
-            sort = "desc".equals(this.sortType) ? sort.descending() : sort.ascending();
+            sort = Sort.by(sortField);
+            sort = sort.descending();
         }
         return PageRequest.of(page, size, sort);
     }

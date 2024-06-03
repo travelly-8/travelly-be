@@ -6,8 +6,8 @@ import com.demo.travellybe.member.domain.Member;
 import com.demo.travellybe.member.domain.MemberRepository;
 import com.demo.travellybe.member.domain.Role;
 import com.demo.travellybe.product.domain.Product;
-import com.demo.travellybe.product.domain.ProductRepository;
 import com.demo.travellybe.product.dto.*;
+import com.demo.travellybe.product.repository.ProductRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,7 +19,9 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -94,7 +96,7 @@ class ProductServiceImplTest {
 
         searchRequestDto = ProductsSearchRequestDto.searchBuilder()
                 .page(1).size(10).cityCode("1").keyword("keyword")
-                .contentType("type").sortType("desc").sortField("name")
+                .contentType("type").sort("LowestPrice")
                 .startDate(LocalDate.of(2024, 5, 31)).endDate(LocalDate.of(2024, 6, 1))
                 .startTime("09:00").endTime("18:00")
                 .minPrice(10000).maxPrice(50000)

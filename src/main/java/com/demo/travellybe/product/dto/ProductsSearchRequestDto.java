@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 
 @Getter
 @Setter
@@ -41,8 +40,8 @@ public class ProductsSearchRequestDto extends ProductsRequestDto {
     private Integer maxPrice;
 
     @Builder(builderMethodName = "searchBuilder")
-    public ProductsSearchRequestDto(String keyword, String cityCode, String contentType, LocalDate startDate, LocalDate endDate, String startTime, String endTime, Integer minPrice, Integer maxPrice, int page, int size, String sortField, String sortType) {
-        super(page, size, sortField, sortType);
+    public ProductsSearchRequestDto(String keyword, String cityCode, String contentType, LocalDate startDate, LocalDate endDate, String startTime, String endTime, Integer minPrice, Integer maxPrice, int page, int size, String sort) {
+        super(page, size, sort);
         this.keyword = keyword;
         this.cityCode = cityCode;
         this.contentType = contentType;
