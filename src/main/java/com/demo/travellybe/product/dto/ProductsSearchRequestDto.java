@@ -28,7 +28,6 @@ public class ProductsSearchRequestDto extends ProductsRequestDto {
     @Schema(example = "2024-06-01")
     private LocalDate endDate;
 
-    // TODO : 시간 검색이 안되는 오류 있음. example도 12:00으로 보임
     @Schema(example = "09:00")
     private String startTime;
 

@@ -34,6 +34,7 @@ public class Product extends BaseTimeEntity {
     private List<Review> reviews = new ArrayList<>();
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("price ASC")
     private List<Ticket> tickets = new ArrayList<>();
 
     @Column(nullable = false)
