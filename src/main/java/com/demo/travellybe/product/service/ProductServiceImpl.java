@@ -9,6 +9,7 @@ import com.demo.travellybe.member.domain.MemberRepository;
 import com.demo.travellybe.product.domain.Product;
 import com.demo.travellybe.product.dto.ProductCreateRequestDto;
 import com.demo.travellybe.product.dto.ProductResponseDto;
+import com.demo.travellybe.product.dto.ProductsResponseDto;
 import com.demo.travellybe.product.dto.ProductsSearchRequestDto;
 import com.demo.travellybe.product.repository.ProductRepository;
 import jakarta.transaction.Transactional;
@@ -89,12 +90,12 @@ public class ProductServiceImpl implements ProductService {
 
 
     @Override
-    public Page<ProductResponseDto> getSearchedProducts(ProductsSearchRequestDto requestDto) {
+    public Page<ProductsResponseDto> getSearchedProducts(ProductsSearchRequestDto requestDto) {
         Pageable pageable = requestDto.toPageable();
         Page<Product> products = productRepository.getSearchedProducts(requestDto, pageable);
 
-        List<ProductResponseDto> productDtos = products.stream()
-                .map(ProductResponseDto::new)
+        List<ProductsResponseDto> productDtos = products.stream()
+                .map(ProductsResponseDto::new)
                 .toList();
 
         return new PageImpl<>(productDtos, pageable, products.getTotalElements());

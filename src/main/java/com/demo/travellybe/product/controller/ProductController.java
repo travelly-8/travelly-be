@@ -6,6 +6,7 @@ import com.demo.travellybe.exception.ErrorCode;
 import com.demo.travellybe.exception.ErrorResponse;
 import com.demo.travellybe.product.dto.ProductCreateRequestDto;
 import com.demo.travellybe.product.dto.ProductResponseDto;
+import com.demo.travellybe.product.dto.ProductsResponseDto;
 import com.demo.travellybe.product.dto.ProductsSearchRequestDto;
 import com.demo.travellybe.product.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -125,8 +126,8 @@ public class ProductController {
             responses = {
                     @ApiResponse(responseCode = "200", description = "성공")
             })
-    public ResponseEntity<Page<ProductResponseDto>> getAllProducts(ProductsSearchRequestDto searchDto) {
-        Page<ProductResponseDto> products = productService.getSearchedProducts(searchDto);
+    public ResponseEntity<Page<ProductsResponseDto>> getAllProducts(ProductsSearchRequestDto searchDto) {
+        Page<ProductsResponseDto> products = productService.getSearchedProducts(searchDto);
         return ResponseEntity.ok(products);
     }
 

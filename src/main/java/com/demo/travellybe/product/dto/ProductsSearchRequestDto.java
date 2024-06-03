@@ -10,7 +10,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 public class ProductsSearchRequestDto extends ProductsRequestDto {
-    @Schema(example = "단어가 제목과 내용에 포함된 상품 검색")
+    @Schema(example = "keyword가 제목과 내용, 주소에 포함된 상품 검색")
     private String keyword;
 
     @Schema(example = "1:서울, 2:인천, 3:대전, 4:대구, 5:광주, 6:부산, 7:울산, 8:세종, " +
@@ -21,10 +21,10 @@ public class ProductsSearchRequestDto extends ProductsRequestDto {
     @Schema(example = "12:관광지, 14:문화시설, 15:축제공연행사, 25:여행코스, 28:레포츠, 38:쇼핑, 39:음식점")
     private String contentType;
 
-    @Schema(example = "2024-05-31")
+    @Schema(example = "2024-06-01")
     private LocalDate startDate;
 
-    @Schema(example = "2024-06-01")
+    @Schema(example = "2024-06-30")
     private LocalDate endDate;
 
     @Schema(example = "09:00")
@@ -33,7 +33,7 @@ public class ProductsSearchRequestDto extends ProductsRequestDto {
     @Schema(example = "18:00")
     private String endTime;
 
-    @Schema(example = "10000")
+    @Schema(example = "1000")
     private Integer minPrice;
 
     @Schema(example = "20000")
