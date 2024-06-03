@@ -45,6 +45,27 @@ public class ProductController {
         return ResponseEntity.ok(productService.getProductById(productId));
     }
 
+    @DeleteMapping("/{productId}")
+    @Operation(summary = "상품 삭제",
+            description = "상품을 삭제합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "성공"),
+                    @ApiResponse(responseCode = "401", description = "로그인이 필요합니다.",
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(responseCode = "403", description = "해당 상품의 소유자가 아닙니다.",
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(responseCode = "404", description = "해당 상품을 찾을 수 없습니다.",
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+            })
+    public ResponseEntity<Void> deleteProduct(
+            @Parameter(description = "삭제할 상품 ID", example = "1")
+            @PathVariable Long productId,
+            @AuthenticationPrincipal PrincipalDetails principalDetails) {
+        productService.checkLogin(principalDetails);
+        productService.checkProductOwner(productId, principalDetails.getMember().getId());
+        productService.deleteProduct(productId);
+        return ResponseEntity.ok().build();
+    }
 
     @PostMapping("/")
 //    @PreAuthorize("hasAnyAuthority('TRAVELLY', 'ADMIN')")
@@ -63,7 +84,7 @@ public class ProductController {
     public ResponseEntity<ProductResponseDto> addProduct(
             @RequestBody @Valid ProductCreateRequestDto productCreateRequestDto,
             @AuthenticationPrincipal PrincipalDetails principalDetails) {
-        if (principalDetails == null) throw new CustomException(ErrorCode.LOGIN_REQUIRED);
+        productService.checkLogin(principalDetails);
         Long memberId = principalDetails.getMember().getId();
         ProductResponseDto productResponseDto = productService.addProduct(memberId, productCreateRequestDto);
         return ResponseEntity.ok(productResponseDto);

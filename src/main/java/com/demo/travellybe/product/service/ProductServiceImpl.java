@@ -1,6 +1,7 @@
 package com.demo.travellybe.product.service;
 
 
+import com.demo.travellybe.auth.dto.PrincipalDetails;
 import com.demo.travellybe.exception.CustomException;
 import com.demo.travellybe.exception.ErrorCode;
 import com.demo.travellybe.member.domain.Member;
@@ -81,6 +82,12 @@ public class ProductServiceImpl implements ProductService {
         if (!(member.getId().equals(memberId)))
             throw new CustomException(ErrorCode.PRODUCT_NOT_OWNER);
     }
+
+    @Override
+    public void checkLogin(PrincipalDetails principalDetails) {
+        if (principalDetails == null) throw new CustomException(ErrorCode.LOGIN_REQUIRED);
+    }
+
 
     @Override
     public Page<ProductResponseDto> getAllProducts(Pageable pageable) {
