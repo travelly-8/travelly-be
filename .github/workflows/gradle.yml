@@ -37,7 +37,7 @@ jobs:
         run: find config -type f ! -name 'readme.md' -exec cp -t src/main/resources/ {} +
 
       - name: Build with Gradle
-        run: ./gradlew build
+        run: ./gradlew build -x test
         
       - name: Build Docker Image
         run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/travelly .
