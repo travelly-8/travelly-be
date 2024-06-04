@@ -61,6 +61,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
           script: |
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/travelly
             docker stop travelly
