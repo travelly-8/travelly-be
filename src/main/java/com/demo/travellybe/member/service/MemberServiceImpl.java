@@ -50,11 +50,12 @@ public class MemberServiceImpl implements MemberService {
         Member member = memberRepository.findByEmail(email).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         member.setNickname(nickname);
-        memberRepository.save(member);
         return ProfileDto.of(member);
     }
 
-    public void updateImage(MultipartFile file) {;
+    public ProfileDto updateImage(String email, MultipartFile file) {
+        Member member = memberRepository.findByEmail(email).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentLength(file.getSize());
         metadata.setContentType(file.getContentType());
@@ -65,7 +66,8 @@ public class MemberServiceImpl implements MemberService {
             throw new RuntimeException(e);
         }
 
-        amazonS3.getUrl(bucket, file.getOriginalFilename()).toString();
+        member.setImageUrl(amazonS3.getUrl(bucket, file.getOriginalFilename()).toString());
+        return ProfileDto.of(member);
     }
 
 
@@ -79,7 +81,6 @@ public class MemberServiceImpl implements MemberService {
         }
 
         member.setPassword(bCryptPasswordEncoder.encode(newPassword));
-        memberRepository.save(member);
         return ProfileDto.of(member);
     }
 }
