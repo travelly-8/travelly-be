@@ -30,6 +30,9 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      - name: Copy config files
+        run: find config -type f ! -name 'readme.md' -exec cp -t src/main/resources/ {} +
+
       - name: Build with Gradle
         run: ./gradlew build
         
