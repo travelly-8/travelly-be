@@ -6,7 +6,7 @@ import com.demo.travellybe.exception.ErrorCode;
 import com.demo.travellybe.exception.ErrorResponse;
 import com.demo.travellybe.product.dto.ProductCreateRequestDto;
 import com.demo.travellybe.product.dto.ProductResponseDto;
-import com.demo.travellybe.product.dto.ProductsRequestDto;
+import com.demo.travellybe.product.dto.ProductsResponseDto;
 import com.demo.travellybe.product.dto.ProductsSearchRequestDto;
 import com.demo.travellybe.product.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,7 +18,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -45,6 +44,27 @@ public class ProductController {
         return ResponseEntity.ok(productService.getProductById(productId));
     }
 
+    @DeleteMapping("/{productId}")
+    @Operation(summary = "상품 삭제",
+            description = "상품을 삭제합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "성공"),
+                    @ApiResponse(responseCode = "401", description = "로그인이 필요합니다.",
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(responseCode = "403", description = "해당 상품의 소유자가 아닙니다.",
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(responseCode = "404", description = "해당 상품을 찾을 수 없습니다.",
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+            })
+    public ResponseEntity<Void> deleteProduct(
+            @Parameter(description = "삭제할 상품 ID", example = "1")
+            @PathVariable Long productId,
+            @AuthenticationPrincipal PrincipalDetails principalDetails) {
+        productService.checkLogin(principalDetails);
+        productService.checkProductOwner(productId, principalDetails.getMember().getId());
+        productService.deleteProduct(productId);
+        return ResponseEntity.ok().build();
+    }
 
     @PostMapping("/")
 //    @PreAuthorize("hasAnyAuthority('TRAVELLY', 'ADMIN')")
@@ -63,7 +83,7 @@ public class ProductController {
     public ResponseEntity<ProductResponseDto> addProduct(
             @RequestBody @Valid ProductCreateRequestDto productCreateRequestDto,
             @AuthenticationPrincipal PrincipalDetails principalDetails) {
-        if (principalDetails == null) throw new CustomException(ErrorCode.LOGIN_REQUIRED);
+        productService.checkLogin(principalDetails);
         Long memberId = principalDetails.getMember().getId();
         ProductResponseDto productResponseDto = productService.addProduct(memberId, productCreateRequestDto);
         return ResponseEntity.ok(productResponseDto);
@@ -106,22 +126,8 @@ public class ProductController {
             responses = {
                     @ApiResponse(responseCode = "200", description = "성공")
             })
-    public ResponseEntity<Page<ProductResponseDto>> getAllProducts(@ModelAttribute ProductsRequestDto productsRequestDto) {
-        Pageable pageable = productsRequestDto.toPageable();
-        Page<ProductResponseDto> products = productService.getAllProducts(pageable);
-        return ResponseEntity.ok(products);
-    }
-
-    @GetMapping("/search")
-    @Operation(summary = "상품 검색",
-            description = "검색 조건에 맞는 상품 목록을 조회합니다.\n" +
-                    "page, size 필수 / startDate가 있으면 endDate도 필수 / startTime가 있으면 endTime도 필수",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "성공")
-            })
-    public ResponseEntity<Page<ProductResponseDto>> getFilteredProducts(
-            @ModelAttribute ProductsSearchRequestDto searchDto) {
-        Page<ProductResponseDto> products = productService.getFilteredProducts(searchDto);
+    public ResponseEntity<Page<ProductsResponseDto>> getAllProducts(ProductsSearchRequestDto searchDto) {
+        Page<ProductsResponseDto> products = productService.getSearchedProducts(searchDto);
         return ResponseEntity.ok(products);
     }
 
