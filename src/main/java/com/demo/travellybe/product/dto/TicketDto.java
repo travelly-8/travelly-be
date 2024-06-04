@@ -16,7 +16,6 @@ public class TicketDto {
     @Schema(description = "티켓 가격", example = "10000")
     private int price;
 
-    @NotNull
     @Schema(description = "티켓 설명", example = "1일 이용 가능한 티켓입니다.")
     private String description;
 

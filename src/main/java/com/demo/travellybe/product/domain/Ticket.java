@@ -24,7 +24,6 @@ public class Ticket {
     @Column(nullable = false)
     private int price;
 
-    @Column(nullable = false)
     private String description;
 
     public static Ticket of(TicketDto ticketDto, Product product) {
@@ -32,7 +31,7 @@ public class Ticket {
         ticket.product = product;
         ticket.name = ticketDto.getName();
         ticket.price = ticketDto.getPrice();
-        ticket.description = ticketDto.getDescription();
+        if (ticketDto.getDescription() != null) ticket.description = ticketDto.getDescription();
         return ticket;
     }
 }

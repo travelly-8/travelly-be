@@ -1,34 +1,26 @@
 package com.demo.travellybe.product.service;
 
 
+import com.demo.travellybe.auth.dto.PrincipalDetails;
 import com.demo.travellybe.exception.CustomException;
 import com.demo.travellybe.exception.ErrorCode;
 import com.demo.travellybe.member.domain.Member;
 import com.demo.travellybe.member.domain.MemberRepository;
 import com.demo.travellybe.product.domain.Product;
-import com.demo.travellybe.product.domain.ProductRepository;
 import com.demo.travellybe.product.dto.ProductCreateRequestDto;
 import com.demo.travellybe.product.dto.ProductResponseDto;
+import com.demo.travellybe.product.dto.ProductsResponseDto;
 import com.demo.travellybe.product.dto.ProductsSearchRequestDto;
-import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.QueryResults;
-import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.demo.travellybe.product.repository.ProductRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
-
-import static com.demo.travellybe.product.domain.QProduct.product;
 
 @Service
 @Transactional
@@ -37,7 +29,6 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final MemberRepository memberRepository;
-    private final JPAQueryFactory queryFactory;
 
     @Override
     public ProductResponseDto addProduct(Long memberId, ProductCreateRequestDto productCreateRequestDto) {
@@ -83,6 +74,12 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public void checkLogin(PrincipalDetails principalDetails) {
+        if (principalDetails == null) throw new CustomException(ErrorCode.LOGIN_REQUIRED);
+    }
+
+
+    @Override
     public Page<ProductResponseDto> getAllProducts(Pageable pageable) {
         Page<Product> products = productRepository.findAll(pageable);
         List<ProductResponseDto> productDtos = products.stream()
@@ -93,60 +90,14 @@ public class ProductServiceImpl implements ProductService {
 
 
     @Override
-    public Page<ProductResponseDto> getFilteredProducts(ProductsSearchRequestDto requestDto) {
+    public Page<ProductsResponseDto> getSearchedProducts(ProductsSearchRequestDto requestDto) {
         Pageable pageable = requestDto.toPageable();
+        Page<Product> products = productRepository.getSearchedProducts(requestDto, pageable);
 
-        QueryResults<Product> results = queryFactory
-                .selectFrom(product)
-                .where(eqCityCode(requestDto.getCityCode()),
-                        eqContentType(requestDto.getContentType()),
-                        containsKeyword(requestDto.getKeyword()),
-                        betweenPrice(requestDto.getMinPrice(), requestDto.getMaxPrice()),
-                        betweenDate(requestDto.getStartDate(), requestDto.getEndDate()),
-                        betweenTime(requestDto.getStartTime(), requestDto.getEndTime()))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetchResults();
-
-        List<ProductResponseDto> productDtos = results.getResults().stream()
-                .map(ProductResponseDto::new)
+        List<ProductsResponseDto> productDtos = products.stream()
+                .map(ProductsResponseDto::new)
                 .toList();
 
-        return new PageImpl<>(productDtos, pageable, results.getTotal());
-    }
-
-    private BooleanExpression eqCityCode(String cityCode) {
-        if (!StringUtils.hasText(cityCode)) return null;
-        return product.cityCode.eq(cityCode);
-    }
-
-    private BooleanExpression eqContentType(String contentType) {
-        if (!StringUtils.hasText(contentType)) return null;
-        return product.type.eq(contentType);
-    }
-
-    private BooleanExpression containsKeyword(String keyword) {
-        if (!StringUtils.hasText(keyword)) return null;
-        return product.name.contains(keyword)
-                .or(product.description.contains(keyword));
-    }
-
-    private BooleanExpression betweenPrice(Integer minPrice, Integer maxPrice) {
-        if (minPrice == null || maxPrice == null) return null;
-        return product.minPrice.goe(minPrice)
-                .and(product.maxPrice.loe(maxPrice));
-    }
-
-    private BooleanExpression betweenDate(LocalDate startDate, LocalDate endDate) {
-        if (startDate == null || endDate == null) return null;
-        return product.operationDays.any().date.between(startDate, endDate);
-    }
-
-    private BooleanExpression betweenTime(String startTime, String endTime) {
-        if (startTime == null || endTime == null) return null;
-        LocalTime st = LocalTime.parse(startTime);
-        LocalTime et = LocalTime.parse(endTime);
-        return product.operationDays.any().operationDayHours.any().startTime.goe(st)
-                .and(product.operationDays.any().operationDayHours.any().endTime.loe(et));
+        return new PageImpl<>(productDtos, pageable, products.getTotalElements());
     }
 }
