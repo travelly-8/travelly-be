@@ -60,13 +60,15 @@ public class MemberServiceImpl implements MemberService {
         metadata.setContentLength(file.getSize());
         metadata.setContentType(file.getContentType());
 
+        String filePath = "images/" + file.getOriginalFilename();
+
         try {
-            amazonS3.putObject(bucket, file.getOriginalFilename(), file.getInputStream(), metadata);
+            amazonS3.putObject(bucket, filePath, file.getInputStream(), metadata);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        member.setImageUrl(amazonS3.getUrl(bucket, file.getOriginalFilename()).toString());
+        member.setImageUrl(amazonS3.getUrl(bucket, filePath).toString());
         return ProfileDto.of(member);
     }
 
