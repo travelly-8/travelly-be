@@ -1,5 +1,6 @@
 package com.demo.travellybe.member.domain;
 
+import com.demo.travellybe.Reservation.domain.Reservation;
 import com.demo.travellybe.product.domain.Product;
 import com.demo.travellybe.review.domain.Review;
 import com.demo.travellybe.util.BaseTimeEntity;
@@ -43,6 +44,9 @@ public class Member extends BaseTimeEntity {
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> reviews = new ArrayList<>();
 
+    @OneToMany(mappedBy = "buyer", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Reservation> reservations = new ArrayList<>();
+
     @Builder
     public Member(String email, String password, String nickname, String type) {
         this.email = email;
@@ -73,5 +77,9 @@ public class Member extends BaseTimeEntity {
         product.setMember(this);
     }
 
+    public void addReservation(Reservation reservation) {
+        reservations.add(reservation);
+        reservation.setBuyer(this);
+    }
 
 }

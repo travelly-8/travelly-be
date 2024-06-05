@@ -1,5 +1,6 @@
 package com.demo.travellybe.product.domain;
 
+import com.demo.travellybe.Reservation.domain.Reservation;
 import com.demo.travellybe.member.domain.Member;
 import com.demo.travellybe.product.dto.ProductCreateRequestDto;
 import com.demo.travellybe.product.dto.TicketDto;
@@ -10,9 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Entity
 @Getter
@@ -36,6 +35,9 @@ public class Product extends BaseTimeEntity {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("price ASC")
     private List<Ticket> tickets = new ArrayList<>();
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Reservation> reservations = new ArrayList<>();
 
     @Column(nullable = false)
     private String name;
