@@ -18,7 +18,6 @@ public class ReservationResponseDto {
     private String startTime;
     private String endTime;
     private List<ReservationTicketResponseDto> Tickets;
-    private int totalQuantity;
     private int totalPrice;
     private String status;
 

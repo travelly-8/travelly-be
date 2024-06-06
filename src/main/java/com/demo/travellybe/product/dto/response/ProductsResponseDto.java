@@ -1,6 +1,7 @@
-package com.demo.travellybe.product.dto;
+package com.demo.travellybe.product.dto.response;
 
 import com.demo.travellybe.product.domain.Product;
+import com.demo.travellybe.product.dto.TicketDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

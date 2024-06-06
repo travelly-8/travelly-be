@@ -1,12 +1,13 @@
-package com.demo.travellybe.product.dto;
+package com.demo.travellybe.product.dto.request;
 
+import com.demo.travellybe.product.dto.OperationDayDto;
+import com.demo.travellybe.product.dto.TicketDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;
-import java.util.Map;
 
 @Data
 @Builder

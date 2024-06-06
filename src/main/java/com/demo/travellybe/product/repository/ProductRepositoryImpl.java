@@ -1,7 +1,7 @@
 package com.demo.travellybe.product.repository;
 
 import com.demo.travellybe.product.domain.Product;
-import com.demo.travellybe.product.dto.ProductsSearchRequestDto;
+import com.demo.travellybe.product.dto.request.ProductsSearchRequestDto;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;

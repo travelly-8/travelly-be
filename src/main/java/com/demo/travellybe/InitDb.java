@@ -6,7 +6,7 @@ import com.demo.travellybe.member.domain.Member;
 import com.demo.travellybe.member.domain.MemberRepository;
 import com.demo.travellybe.product.dto.OperationDayDto;
 import com.demo.travellybe.product.dto.OperationHourDto;
-import com.demo.travellybe.product.dto.ProductCreateRequestDto;
+import com.demo.travellybe.product.dto.request.ProductCreateRequestDto;
 import com.demo.travellybe.product.dto.TicketDto;
 import com.demo.travellybe.product.service.ProductService;
 import jakarta.annotation.PostConstruct;
