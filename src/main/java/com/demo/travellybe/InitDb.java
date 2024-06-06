@@ -5,7 +5,7 @@ import com.demo.travellybe.auth.service.AuthService;
 import com.demo.travellybe.member.domain.Member;
 import com.demo.travellybe.member.domain.MemberRepository;
 import com.demo.travellybe.product.dto.OperationDayDto;
-import com.demo.travellybe.product.dto.OperationDayHourDto;
+import com.demo.travellybe.product.dto.OperationHourDto;
 import com.demo.travellybe.product.dto.ProductCreateRequestDto;
 import com.demo.travellybe.product.dto.TicketDto;
 import com.demo.travellybe.product.service.ProductService;
@@ -17,9 +17,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -55,10 +53,10 @@ public class InitDb {
             for (Member member : members) {
                 int productCount = (int) (Math.random() * 2) + 2;
                 for (int i = 0; i < productCount; i++) {
-                    List<OperationDayHourDto> operationDayHourDtos = new ArrayList<>();
+                    List<OperationHourDto> operationHourDtos = new ArrayList<>();
                     int operationHourCount = (int) (Math.random() * 8) + 10;
                     for (int j = 9; j < operationHourCount; j++) {
-                        operationDayHourDtos.add(OperationDayHourDto.builder()
+                        operationHourDtos.add(OperationHourDto.builder()
                                 .startTime(LocalTime.of(j, 0))
                                 .endTime(LocalTime.of(j + 1, 0))
                                 .build());
@@ -69,7 +67,7 @@ public class InitDb {
                     for (int j = 0; j < operationDayCount; j++) {
                         operationDayDtos.add(OperationDayDto.builder()
                                 .date(LocalDate.now().plusDays(j))
-                                .operationDayHours(operationDayHourDtos)
+                                .operationDayHours(operationHourDtos)
                                 .build());
                     }
 
