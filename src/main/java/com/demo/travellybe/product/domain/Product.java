@@ -149,4 +149,8 @@ public class Product extends BaseTimeEntity {
     public void setMember(Member member) {
         this.member = member;
     }
+
+    public void addReservation(Reservation reservation) {
+        this.reservations.add(reservation);
+    }
 }

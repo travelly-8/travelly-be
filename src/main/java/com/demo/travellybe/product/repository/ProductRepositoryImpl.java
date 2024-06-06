@@ -95,7 +95,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
         if (startTime == null || endTime == null) return null;
         LocalTime st = LocalTime.parse(startTime);
         LocalTime et = LocalTime.parse(endTime);
-        return product.operationDays.any().operationDayHours.any().startTime.goe(st)
-                .and(product.operationDays.any().operationDayHours.any().endTime.loe(et));
+        return product.operationDays.any().operationHours.any().startTime.goe(st)
+                .and(product.operationDays.any().operationHours.any().endTime.loe(et));
     }
 }

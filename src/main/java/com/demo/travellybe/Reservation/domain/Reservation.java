@@ -46,6 +46,17 @@ public class Reservation extends BaseTimeEntity {
     @Column(nullable = false)
     private ReservationStatus status;
 
+    public static Reservation of(Product product, Member buyer, LocalDate date, LocalTime startTime, LocalTime endTime) {
+        Reservation reservation = new Reservation();
+        reservation.product = product;
+        reservation.buyer = buyer;
+        reservation.date = date;
+        reservation.startTime = startTime;
+        reservation.endTime = endTime;
+        reservation.status = ReservationStatus.PENDING;
+        return reservation;
+    }
+
     public void addReservationTicket(ReservationTicket reservationTicket) {
         reservationTickets.add(reservationTicket);
         reservationTicket.setReservation(this);

@@ -26,6 +26,16 @@ public class ReservationTicket {
 
     private int quantity;
 
+    private int totalPrice;
+
+    public static ReservationTicket of(Ticket ticket, int quantity) {
+        ReservationTicket reservationTicket = new ReservationTicket();
+        reservationTicket.ticket = ticket;
+        reservationTicket.quantity = quantity;
+        reservationTicket.totalPrice = ticket.getPrice() * quantity;
+        return reservationTicket;
+    }
+
     public void setReservation(Reservation reservation) {
         this.reservation = reservation;
         reservation.getReservationTickets().add(this);
