@@ -1,5 +1,6 @@
 package com.demo.travellybe.member.domain;
 
+import com.demo.travellybe.Reservation.domain.Reservation;
 import com.demo.travellybe.product.domain.Product;
 import com.demo.travellybe.review.domain.Review;
 import com.demo.travellybe.util.BaseTimeEntity;
@@ -31,7 +32,7 @@ public class Member extends BaseTimeEntity {
 
     private int point = 0;
 
-    private String imageUrl;
+    private String imageUrl = "https://travelly-bucket.s3.ap-northeast-2.amazonaws.com/images/default-profile.png";
 
     private String type;
 
@@ -42,6 +43,9 @@ public class Member extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> reviews = new ArrayList<>();
+
+    @OneToMany(mappedBy = "buyer", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Reservation> reservations = new ArrayList<>();
 
     @Builder
     public Member(String email, String password, String nickname, String type) {
@@ -63,6 +67,10 @@ public class Member extends BaseTimeEntity {
         this.password = password;
     }
 
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
     public void setReview(Review review) {
         reviews.add(review);
         review.setMember(this);
@@ -73,5 +81,9 @@ public class Member extends BaseTimeEntity {
         product.setMember(this);
     }
 
+    public void addReservation(Reservation reservation) {
+        reservations.add(reservation);
+        reservation.setBuyer(this);
+    }
 
 }

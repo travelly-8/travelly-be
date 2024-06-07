@@ -1,7 +1,8 @@
-package com.demo.travellybe.product.dto;
+package com.demo.travellybe.product.dto.response;
 
 import com.demo.travellybe.product.domain.Product;
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.demo.travellybe.product.dto.OperationDayDto;
+import com.demo.travellybe.product.dto.ProductImageDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,8 +23,10 @@ public class ProductResponseDto {
     private String type;
     @Schema(description = "상품 설명", example = "경복궁은 조선시대 왕궁으로, 서울특별시 종로구 사직동에 위치하고 있다.")
     private String description;
-    @Schema(description = "상품 이미지 URL", example = "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png")
-    private String imageUrl;
+
+    @Schema(description = "상품 이미지 URL")
+    private List<ProductImageDto> images;
+
     @Schema(description = "주소", example = "서울특별시 종로구 사직로 161")
     private String address;
     @Schema(description = "상세 주소", example = "경복궁")
@@ -40,8 +43,8 @@ public class ProductResponseDto {
     @Schema(description = "상품 수량", example = "100")
     private int quantity;
 
-    @Schema(description = "티켓", example = "{\"성인\": 10000, \"청소년\": 8000}")
-    private List<TicketDto> ticketDto;
+    @Schema(description = "티켓")
+    private List<TicketResponseDto> ticketDto;
 
     @Schema(description = "평점", example = "4.5")
     private double rating;
@@ -52,12 +55,10 @@ public class ProductResponseDto {
     @Schema(description = "리뷰 개수", example = "10")
     private int reviewCount;
 
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    @Schema(description = "생성일", example = "2024-05-29")
+    @Schema(description = "생성일")
     private LocalDateTime createdDate;
 
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    @Schema(description = "수정일", example = "2024-05-29")
+    @Schema(description = "수정일")
     private LocalDateTime modifiedDate;
 
     public ProductResponseDto(Product product) {
@@ -65,14 +66,14 @@ public class ProductResponseDto {
         this.name = product.getName();
         this.type = product.getType();
         this.description = product.getDescription();
-        this.imageUrl = product.getImageUrl();
+        this.images = product.getImages().stream().map(ProductImageDto::new).toList();
         this.address = product.getAddress();
         this.detailAddress = product.getDetailAddress();
         this.phoneNumber = product.getPhoneNumber();
         this.homepage = product.getHomepage();
         this.cityCode = product.getCityCode();
         this.quantity = product.getQuantity();
-        this.ticketDto = product.getTickets().stream().map(TicketDto::new).toList();
+        this.ticketDto = product.getTickets().stream().map(TicketResponseDto::new).toList();
         this.rating = product.getRating();
         this.reviewCount = product.getReviewCount();
         this.operationDays = product.getOperationDays().stream().map(OperationDayDto::new).toList();

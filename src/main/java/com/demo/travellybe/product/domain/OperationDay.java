@@ -20,29 +20,30 @@ public class OperationDay {
     @Column(name = "operation_day_id")
     private Long id;
 
-    @Column(nullable = false)
-    private LocalDate date;
-
-    @OneToMany(mappedBy = "operationDay", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<OperationDayHour> operationDayHours = new ArrayList<>();
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private Product product;
+
+    @OneToMany(mappedBy = "operationDay", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OperationHour> operationHours = new ArrayList<>();
+
+    @Column(nullable = false)
+    private LocalDate date;
 
     public static OperationDay of(OperationDayDto operationDayDto, Product product) {
         OperationDay operationDay = new OperationDay();
         operationDay.date = operationDayDto.getDate();
         operationDay.product = product;
-        if (operationDayDto.getOperationDayHours() != null) {
-            operationDay.operationDayHours = operationDayDto.getOperationDayHours().stream().map(operationDayHourDto ->
-                    OperationDayHour.of(operationDayHourDto, operationDay)).toList();
-        } else {
+
+        if (operationDayDto.getOperationDayHours() == null) {
             OperationDayHourDto operationDayHourDto = OperationDayHourDto.builder()
                     .startTime(LocalTime.of(0, 1))
                     .endTime(LocalTime.of(23, 59))
                     .build();
-            operationDay.operationDayHours.add(OperationDayHour.of(operationDayHourDto, operationDay));
+            operationDay.operationHours.add(OperationHour.of(operationDayHourDto, operationDay));
+        } else {
+            operationDay.operationHours = operationDayDto.getOperationDayHours().stream().map(operationDayHourDto ->
+                    OperationHour.of(operationDayHourDto, operationDay)).toList();
         }
         return operationDay;
     }

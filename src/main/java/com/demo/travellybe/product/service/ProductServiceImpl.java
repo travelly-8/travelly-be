@@ -1,18 +1,17 @@
 package com.demo.travellybe.product.service;
 
 
+import com.demo.travellybe.auth.dto.PrincipalDetails;
 import com.demo.travellybe.exception.CustomException;
 import com.demo.travellybe.exception.ErrorCode;
 import com.demo.travellybe.member.domain.Member;
 import com.demo.travellybe.member.domain.MemberRepository;
 import com.demo.travellybe.product.domain.Product;
-import com.demo.travellybe.product.domain.ProductRepository;
-import com.demo.travellybe.product.dto.ProductCreateRequestDto;
-import com.demo.travellybe.product.dto.ProductResponseDto;
-import com.demo.travellybe.product.dto.ProductsSearchRequestDto;
-import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.QueryResults;
-import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.demo.travellybe.product.dto.request.ProductCreateRequestDto;
+import com.demo.travellybe.product.dto.response.ProductResponseDto;
+import com.demo.travellybe.product.dto.response.ProductsResponseDto;
+import com.demo.travellybe.product.dto.request.ProductsSearchRequestDto;
+import com.demo.travellybe.product.repository.ProductRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -20,12 +19,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
-
-import static com.demo.travellybe.product.domain.QProduct.product;
 
 @Service
 @Transactional
@@ -34,7 +29,6 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final MemberRepository memberRepository;
-    private final JPAQueryFactory queryFactory;
 
     @Override
     public ProductResponseDto addProduct(Long memberId, ProductCreateRequestDto productCreateRequestDto) {
@@ -80,6 +74,12 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public void checkLogin(PrincipalDetails principalDetails) {
+        if (principalDetails == null) throw new CustomException(ErrorCode.LOGIN_REQUIRED);
+    }
+
+
+    @Override
     public Page<ProductResponseDto> getAllProducts(Pageable pageable) {
         Page<Product> products = productRepository.findAll(pageable);
         List<ProductResponseDto> productDtos = products.stream()
@@ -90,55 +90,14 @@ public class ProductServiceImpl implements ProductService {
 
 
     @Override
-    public Page<ProductResponseDto> getFilteredProducts(ProductsSearchRequestDto requestDto) {
-        BooleanBuilder builder = buildQuery(requestDto);
+    public Page<ProductsResponseDto> getSearchedProducts(ProductsSearchRequestDto requestDto) {
         Pageable pageable = requestDto.toPageable();
+        Page<Product> products = productRepository.getSearchedProducts(requestDto, pageable);
 
-        QueryResults<Product> results = queryFactory.selectFrom(product)
-                .where(builder)
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetchResults();
-
-        List<ProductResponseDto> productDtos = results.getResults().stream()
-                .map(ProductResponseDto::new)
+        List<ProductsResponseDto> productDtos = products.stream()
+                .map(ProductsResponseDto::new)
                 .toList();
 
-        return new PageImpl<>(productDtos, pageable, results.getTotal());
-    }
-
-    private BooleanBuilder buildQuery(ProductsSearchRequestDto requestDto) {
-        BooleanBuilder builder = new BooleanBuilder();
-
-        Optional.ofNullable(requestDto.getKeyword()).ifPresent(keyword ->
-                builder.and(product.name.contains(keyword)
-                        .or(product.description.contains(keyword))));
-
-        Optional.ofNullable(requestDto.getCityCode()).ifPresent(cityCode ->
-                builder.and(product.cityCode.eq(cityCode)));
-
-        Optional.ofNullable(requestDto.getContentType()).ifPresent(contentType ->
-                builder.and(product.type.eq(contentType)));
-
-        Optional.ofNullable(requestDto.getMinPrice()).ifPresent(minPrice ->
-                builder.and(product.minPrice.goe(minPrice)));
-
-        Optional.ofNullable(requestDto.getMaxPrice()).ifPresent(maxPrice ->
-                builder.and(product.maxPrice.loe(maxPrice)));
-
-        if (requestDto.getStartDate() != null && requestDto.getEndDate() != null) {
-            builder.and(product.operationDays.any().date.between(requestDto.getStartDate(), requestDto.getEndDate()));
-        }
-
-        if (requestDto.getStartTime() != null && requestDto.getEndTime() != null) {
-            LocalTime startTime = LocalTime.parse(requestDto.getStartTime());
-            LocalTime endTime = LocalTime.parse(requestDto.getEndTime());
-            // startTime, endTime 사이의 범위가 opeartionDayHour의 startTime, endTime 사이의 범위에 포함되는 경우
-            builder.and(product.operationDays.any().operationDayHours.any().startTime.goe(startTime)
-                    .and(product.operationDays.any().operationDayHours.any().endTime.loe(endTime)));
-        }
-
-
-        return builder;
+        return new PageImpl<>(productDtos, pageable, products.getTotalElements());
     }
 }

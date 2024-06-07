@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter @Setter
@@ -16,13 +17,12 @@ public class OperationDayDto {
     @Schema(description = "운영 날짜", examples = "2024-05-29")
     private LocalDate date;
 
-    private List<OperationDayHourDto> operationDayHours;
+    private List<OperationDayHourDto> operationDayHours = new ArrayList<>();
 
     public OperationDayDto(OperationDay operationDay) {
         this.date = operationDay.getDate();
-        if (operationDay.getOperationDayHours() != null) {
-            this.operationDayHours = operationDay.getOperationDayHours().stream().map(OperationDayHourDto::new).toList();
-        }
+
+        this.operationDayHours = operationDay.getOperationHours().stream().map(OperationDayHourDto::new).toList();
     }
 
     @Builder

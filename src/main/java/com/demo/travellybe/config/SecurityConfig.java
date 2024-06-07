@@ -40,6 +40,13 @@ public class SecurityConfig {
                 ))
                 .formLogin(AbstractHttpConfigurer::disable)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .logout((logoutConfig) ->
+                        logoutConfig
+                                .logoutUrl("/auth/logout")
+                                .logoutSuccessHandler(((request, response, authentication) ->
+                                        response.setStatus(200)
+                                ))
+                )
                 .cors(cors -> cors
                         .configurationSource(request -> {
                             var corsConfiguration = new org.springframework.web.cors.CorsConfiguration();

@@ -81,7 +81,9 @@ public class AuthService {
             MemberTokens token = jwtProvider.generateLoginToken(authentication.getName());
 
             memberTokenDto.setToken(token);
-            memberTokenDto.setNewUser(memberRepository.findRoleByEmail(authentication.getName()).isEmpty());
+
+            memberRepository.findNicknameByEmail(authentication.getName()).ifPresent(memberTokenDto::setNickname);
+            memberRepository.findRoleByEmail(authentication.getName()).ifPresent(role -> memberTokenDto.setRole(role.toString().toLowerCase()));
 
         }catch (BadCredentialsException e) {
             throw new CustomException(ErrorCode.MEMBER_PASSWORD_MISMATCH);
@@ -161,10 +163,11 @@ public class AuthService {
             memberRepository.save(member);
 
             memberTokenDto.setToken(makeToken(new PrincipalDetails(member)));
-            memberTokenDto.setNewUser(true);
+            memberTokenDto.setNickname(nickname);
         }else{
             memberTokenDto.setToken(makeToken(new PrincipalDetails(memberEntity.get())));
-            memberTokenDto.setNewUser(false);
+            memberTokenDto.setNickname(memberEntity.get().getNickname());
+            memberTokenDto.setRole(memberEntity.get().getRole().toString().toLowerCase());
         }
 
         return memberTokenDto;
@@ -232,5 +235,15 @@ public class AuthService {
 
     public String findEmail(String nickname) {
         return memberRepository.findByNickname(nickname).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)).getEmail();
+    }
+
+    public void leave(String password, String userPassword, String email) {
+
+        // 비밀번호 일치 여부 확인
+        if (bCryptPasswordEncoder.matches(password, userPassword)) {
+            memberRepository.deleteByEmail(email);
+        }else{
+            throw new CustomException(ErrorCode.MEMBER_PASSWORD_MISMATCH);
+        }
     }
 }
