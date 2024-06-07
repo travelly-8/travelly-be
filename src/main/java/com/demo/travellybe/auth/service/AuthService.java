@@ -11,7 +11,6 @@ import com.demo.travellybe.member.domain.Role;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -25,16 +24,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import java.util.Collection;
 import java.util.Optional;
 @Service
 @Transactional
 @RequiredArgsConstructor
-@Slf4j
 public class AuthService {
 
     private final Environment env;
@@ -85,7 +81,9 @@ public class AuthService {
             MemberTokens token = jwtProvider.generateLoginToken(authentication.getName());
 
             memberTokenDto.setToken(token);
-            memberTokenDto.setNewUser(memberRepository.findRoleByEmail(authentication.getName()).isEmpty());
+
+            memberRepository.findNicknameByEmail(authentication.getName()).ifPresent(memberTokenDto::setNickname);
+            memberRepository.findRoleByEmail(authentication.getName()).ifPresent(role -> memberTokenDto.setRole(role.toString().toLowerCase()));
 
         }catch (BadCredentialsException e) {
             throw new CustomException(ErrorCode.MEMBER_PASSWORD_MISMATCH);
@@ -122,11 +120,6 @@ public class AuthService {
         String clientSecret = env.getProperty(basePath + registrationId + ".client-secret");
         String redirectUri = env.getProperty(basePath + registrationId + ".redirect-uri");
         String tokenUri = env.getProperty(basePath + registrationId + ".token-uri");
-
-        log.info("Response basePath: " + basePath);
-        log.info("Response clientId: " + clientId);
-        log.info("Response clientSecret: " + clientSecret);
-        log.info("Response redirectUri: " + redirectUri);
 
         return webClient.post()
                 .uri(tokenUri)
@@ -170,10 +163,11 @@ public class AuthService {
             memberRepository.save(member);
 
             memberTokenDto.setToken(makeToken(new PrincipalDetails(member)));
-            memberTokenDto.setNewUser(true);
+            memberTokenDto.setNickname(nickname);
         }else{
             memberTokenDto.setToken(makeToken(new PrincipalDetails(memberEntity.get())));
-            memberTokenDto.setNewUser(false);
+            memberTokenDto.setNickname(memberEntity.get().getNickname());
+            memberTokenDto.setRole(memberEntity.get().getRole().toString().toLowerCase());
         }
 
         return memberTokenDto;

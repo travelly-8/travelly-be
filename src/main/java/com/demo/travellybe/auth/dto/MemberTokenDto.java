@@ -1,6 +1,7 @@
 package com.demo.travellybe.auth.dto;
 
 import com.demo.travellybe.auth.domain.MemberTokens;
+import com.demo.travellybe.member.domain.Role;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,5 +11,6 @@ import lombok.Setter;
 @Setter
 public class MemberTokenDto {
     private MemberTokens token;
-    private boolean isNewUser;
+    private String role;
+    private String nickname;
 }
