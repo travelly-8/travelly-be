@@ -14,4 +14,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     @Query("SELECT m.role FROM Member m WHERE m.email = :email")
     Optional<Role> findRoleByEmail(@Param("email") String email);
+
+    void deleteByEmail(String email);
 }

@@ -37,24 +37,8 @@ import java.util.Optional;
 @Slf4j
 public class AuthService {
 
-    private static ExchangeFilterFunction logRequest() {
-        return ExchangeFilterFunction.ofRequestProcessor(clientRequest -> {
-            log.info("Request: " + clientRequest.method() + " " + clientRequest.url() + " " + clientRequest.headers());
-            clientRequest.headers()
-                    .forEach((name, values) -> values.forEach(value -> log.debug("{} : {}", name, value)));
-            return Mono.just(clientRequest);
-        });
-    }
-
-    private static ExchangeFilterFunction logResponse() {
-        return ExchangeFilterFunction.ofResponseProcessor(clientResponse -> {
-            log.info("Response status code: " + clientResponse.statusCode());
-            return Mono.just(clientResponse);
-        });
-    }
-
     private final Environment env;
-    private final WebClient webClient = WebClient.builder().filter(logRequest()).filter(logResponse()).build();
+    private final WebClient webClient = WebClient.builder().build();
     private final MemberRepository memberRepository;
     private final JwtProvider jwtProvider;
     private final AuthenticationManager authenticationManager;
@@ -257,5 +241,15 @@ public class AuthService {
 
     public String findEmail(String nickname) {
         return memberRepository.findByNickname(nickname).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)).getEmail();
+    }
+
+    public void leave(String password, String userPassword, String email) {
+
+        // 비밀번호 일치 여부 확인
+        if (bCryptPasswordEncoder.matches(password, userPassword)) {
+            memberRepository.deleteByEmail(email);
+        }else{
+            throw new CustomException(ErrorCode.MEMBER_PASSWORD_MISMATCH);
+        }
     }
 }
