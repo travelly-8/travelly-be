@@ -1,6 +1,7 @@
 package com.demo.travellybe.product.dto.response;
 
 import com.demo.travellybe.product.domain.Product;
+import com.demo.travellybe.product.dto.ProductImageDto;
 import com.demo.travellybe.product.dto.TicketDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
@@ -24,8 +25,8 @@ public class ProductsResponseDto {
             example = "12")
     private String type;
 
-    @Schema(description = "상품 이미지 URL", example = "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png")
-    private String imageUrl;
+    @Schema(description = "상품 이미지 URL")
+    private List<ProductImageDto> images;
 
     @Schema(description = "주소", example = "서울특별시 종로구")
     private String address;
@@ -57,7 +58,7 @@ public class ProductsResponseDto {
         this.id = product.getId();
         this.name = product.getName();
         this.type = product.getType();
-        this.imageUrl = product.getImageUrl();
+        this.images = product.getImages().stream().map(ProductImageDto::new).toList();
         this.address = formatAddress(product.getAddress());
         this.cityCode = product.getCityCode();
         this.quantity = product.getQuantity();
