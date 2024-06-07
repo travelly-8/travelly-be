@@ -1,6 +1,6 @@
 package com.demo.travellybe.product.dto;
 
-import com.demo.travellybe.product.domain.OperationDayHour;
+import com.demo.travellybe.product.domain.OperationHour;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,9 +16,9 @@ public class OperationDayHourDto {
     @Schema(description = "종료 시간", example = "12:00")
     private LocalTime endTime;
 
-    public OperationDayHourDto(OperationDayHour operationDayHour) {
-        this.startTime = operationDayHour.getStartTime();
-        this.endTime = operationDayHour.getEndTime();
+    public OperationDayHourDto(OperationHour operationHour) {
+        this.startTime = operationHour.getStartTime();
+        this.endTime = operationHour.getEndTime();
     }
 
     @Builder

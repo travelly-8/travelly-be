@@ -1,12 +1,14 @@
-package com.demo.travellybe.product.dto;
+package com.demo.travellybe.product.dto.request;
 
+import com.demo.travellybe.product.dto.OperationDayDto;
+import com.demo.travellybe.product.dto.ProductImageDto;
+import com.demo.travellybe.product.dto.TicketDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;
-import java.util.Map;
 
 @Data
 @Builder
@@ -24,8 +26,7 @@ public class ProductCreateRequestDto {
     @Schema(description = "상품 설명", example = "여행 상품 A는 여행 상품 중 가장 인기 있는 상품입니다.")
     private String description;
 
-    @Schema(description = "상품 이미지 URL", example = "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png")
-    private String imageUrl;
+    private List<ProductImageDto> images;
 
     @NotNull
     @Schema(description = "주소", example = "서울특별시 강남구 역삼동")

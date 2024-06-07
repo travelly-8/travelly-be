@@ -1,7 +1,7 @@
 package com.demo.travellybe.product.repository;
 
 import com.demo.travellybe.product.domain.Product;
-import com.demo.travellybe.product.dto.ProductsSearchRequestDto;
+import com.demo.travellybe.product.dto.request.ProductsSearchRequestDto;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
@@ -95,7 +95,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
         if (startTime == null || endTime == null) return null;
         LocalTime st = LocalTime.parse(startTime);
         LocalTime et = LocalTime.parse(endTime);
-        return product.operationDays.any().operationDayHours.any().startTime.goe(st)
-                .and(product.operationDays.any().operationDayHours.any().endTime.loe(et));
+        return product.operationDays.any().operationHours.any().startTime.goe(st)
+                .and(product.operationDays.any().operationHours.any().endTime.loe(et));
     }
 }

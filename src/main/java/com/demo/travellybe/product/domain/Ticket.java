@@ -1,10 +1,14 @@
 package com.demo.travellybe.product.domain;
 
+import com.demo.travellybe.Reservation.domain.ReservationTicket;
 import com.demo.travellybe.product.dto.TicketDto;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -17,6 +21,9 @@ public class Ticket {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private Product product;
+
+    @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReservationTicket> reservationTickets = new ArrayList<>();
 
     @Column(nullable = false)
     private String name;
@@ -33,5 +40,9 @@ public class Ticket {
         ticket.price = ticketDto.getPrice();
         if (ticketDto.getDescription() != null) ticket.description = ticketDto.getDescription();
         return ticket;
+    }
+
+    public void addReservationTicket(ReservationTicket reservationTicket) {
+        reservationTicket.setTicket(this);
     }
 }

@@ -1,7 +1,8 @@
 package com.demo.travellybe.product.domain;
 
+import com.demo.travellybe.Reservation.domain.Reservation;
 import com.demo.travellybe.member.domain.Member;
-import com.demo.travellybe.product.dto.ProductCreateRequestDto;
+import com.demo.travellybe.product.dto.request.ProductCreateRequestDto;
 import com.demo.travellybe.product.dto.TicketDto;
 import com.demo.travellybe.review.domain.Review;
 import com.demo.travellybe.util.BaseTimeEntity;
@@ -10,9 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Entity
 @Getter
@@ -37,6 +36,12 @@ public class Product extends BaseTimeEntity {
     @OrderBy("price ASC")
     private List<Ticket> tickets = new ArrayList<>();
 
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Reservation> reservations = new ArrayList<>();
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductImage> images = new ArrayList<>();
+
     @Column(nullable = false)
     private String name;
 
@@ -45,8 +50,6 @@ public class Product extends BaseTimeEntity {
 
     @Column(nullable = false)
     private String description;
-
-    private String imageUrl;
 
     @Column(nullable = false)
     private String address;
@@ -78,7 +81,6 @@ public class Product extends BaseTimeEntity {
         product.name = productCreateRequestDto.getName();
         product.type = productCreateRequestDto.getType();
         product.description = productCreateRequestDto.getDescription();
-        product.imageUrl = productCreateRequestDto.getImageUrl();
         product.address = productCreateRequestDto.getAddress();
         product.detailAddress = productCreateRequestDto.getDetailAddress();
         product.phoneNumber = productCreateRequestDto.getPhoneNumber();
@@ -87,6 +89,9 @@ public class Product extends BaseTimeEntity {
         product.quantity = productCreateRequestDto.getQuantity();
         product.rating = 0.0;
 
+        product.images = productCreateRequestDto.getImages().stream()
+                .map(imageDto -> ProductImage.of(imageDto.getUrl(), imageDto.getOrder(), product))
+                .toList();
         product.tickets = productCreateRequestDto.getTickets().stream()
                 .map(ticketDto -> Ticket.of(ticketDto, product))
                 .toList();
@@ -104,7 +109,6 @@ public class Product extends BaseTimeEntity {
         this.name = productCreateRequestDto.getName();
         this.type = productCreateRequestDto.getType();
         this.description = productCreateRequestDto.getDescription();
-        this.imageUrl = productCreateRequestDto.getImageUrl();
         this.address = productCreateRequestDto.getAddress();
         this.detailAddress = productCreateRequestDto.getDetailAddress();
         this.phoneNumber = productCreateRequestDto.getPhoneNumber();
@@ -116,6 +120,13 @@ public class Product extends BaseTimeEntity {
         this.maxPrice = productCreateRequestDto.getTickets().stream()
                 .map(TicketDto::getPrice).max(Integer::compareTo).orElse(0);
         // rating, reviewCount는 리뷰를 통해 업데이트되는 값이므로 업데이트하지 않음
+
+        // images 컬렉션 업데이트
+        List<ProductImage> newImages = productCreateRequestDto.getImages().stream()
+                .map(imageDto -> ProductImage.of(imageDto.getUrl(), imageDto.getOrder(), this))
+                .toList();
+        this.images.clear();
+        this.images.addAll(newImages);
 
         // operationDays 컬렉션 업데이트
         List<OperationDay> newOperationDays = productCreateRequestDto.getOperationDays().stream()
@@ -146,5 +157,9 @@ public class Product extends BaseTimeEntity {
 
     public void setMember(Member member) {
         this.member = member;
+    }
+
+    public void addReservation(Reservation reservation) {
+        this.reservations.add(reservation);
     }
 }
