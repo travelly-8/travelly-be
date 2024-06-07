@@ -51,4 +51,11 @@ public class ReservationServiceImpl implements ReservationService {
         Reservation saved = reservationRepository.save(reservation);
         return new ReservationResponseDto(saved);
     }
+
+    @Override
+    public ReservationResponseDto getReservation(Long id) {
+        Reservation reservation = reservationRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.RESERVATION_NOT_FOUND));
+        return new ReservationResponseDto(reservation);
+    }
 }

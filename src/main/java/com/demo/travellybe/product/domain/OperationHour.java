@@ -1,6 +1,6 @@
 package com.demo.travellybe.product.domain;
 
-import com.demo.travellybe.product.dto.OperationHourDto;
+import com.demo.travellybe.product.dto.OperationDayHourDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,10 +26,10 @@ public class OperationHour {
     @Column(nullable = false)
     private LocalTime endTime;
 
-    public static OperationHour of(OperationHourDto operationHourDto, OperationDay operationDay) {
+    public static OperationHour of(OperationDayHourDto operationDayHourDto, OperationDay operationDay) {
         OperationHour operationHour = new OperationHour();
-        operationHour.startTime = operationHourDto.getStartTime();
-        operationHour.endTime = operationHourDto.getEndTime();
+        operationHour.startTime = operationDayHourDto.getStartTime();
+        operationHour.endTime = operationDayHourDto.getEndTime();
         operationHour.operationDay = operationDay;
         return operationHour;
     }

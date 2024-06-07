@@ -5,7 +5,7 @@ import com.demo.travellybe.auth.service.AuthService;
 import com.demo.travellybe.member.domain.Member;
 import com.demo.travellybe.member.domain.MemberRepository;
 import com.demo.travellybe.product.dto.OperationDayDto;
-import com.demo.travellybe.product.dto.OperationHourDto;
+import com.demo.travellybe.product.dto.OperationDayHourDto;
 import com.demo.travellybe.product.dto.request.ProductCreateRequestDto;
 import com.demo.travellybe.product.dto.TicketDto;
 import com.demo.travellybe.product.service.ProductService;
@@ -53,10 +53,10 @@ public class InitDb {
             for (Member member : members) {
                 int productCount = (int) (Math.random() * 2) + 2;
                 for (int i = 0; i < productCount; i++) {
-                    List<OperationHourDto> operationHourDtos = new ArrayList<>();
+                    List<OperationDayHourDto> operationDayHourDtos = new ArrayList<>();
                     int operationHourCount = (int) (Math.random() * 8) + 10;
                     for (int j = 9; j < operationHourCount; j++) {
-                        operationHourDtos.add(OperationHourDto.builder()
+                        operationDayHourDtos.add(OperationDayHourDto.builder()
                                 .startTime(LocalTime.of(j, 0))
                                 .endTime(LocalTime.of(j + 1, 0))
                                 .build());
@@ -67,7 +67,7 @@ public class InitDb {
                     for (int j = 0; j < operationDayCount; j++) {
                         operationDayDtos.add(OperationDayDto.builder()
                                 .date(LocalDate.now().plusDays(j))
-                                .operationDayHours(operationHourDtos)
+                                .operationDayHours(operationDayHourDtos)
                                 .build());
                     }
 

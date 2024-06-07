@@ -9,20 +9,20 @@ import lombok.Setter;
 import java.time.LocalTime;
 
 @Getter @Setter
-public class OperationHourDto {
+public class OperationDayHourDto {
     @Schema(description = "시작 시간", example = "09:00")
     private LocalTime startTime;
 
     @Schema(description = "종료 시간", example = "12:00")
     private LocalTime endTime;
 
-    public OperationHourDto(OperationHour operationHour) {
+    public OperationDayHourDto(OperationHour operationHour) {
         this.startTime = operationHour.getStartTime();
         this.endTime = operationHour.getEndTime();
     }
 
     @Builder
-    public OperationHourDto(LocalTime startTime, LocalTime endTime) {
+    public OperationDayHourDto(LocalTime startTime, LocalTime endTime) {
         this.startTime = startTime;
         this.endTime = endTime;
     }

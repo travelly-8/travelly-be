@@ -58,7 +58,6 @@ public class Reservation extends BaseTimeEntity {
     }
 
     public void addReservationTicket(ReservationTicket reservationTicket) {
-        reservationTickets.add(reservationTicket);
         reservationTicket.setReservation(this);
     }
 

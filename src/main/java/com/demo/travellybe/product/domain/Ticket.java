@@ -43,7 +43,6 @@ public class Ticket {
     }
 
     public void addReservationTicket(ReservationTicket reservationTicket) {
-        reservationTickets.add(reservationTicket);
         reservationTicket.setTicket(this);
     }
 }

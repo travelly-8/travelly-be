@@ -5,5 +5,5 @@ import com.demo.travellybe.Reservation.dto.ReservationResponseDto;
 
 public interface ReservationService {
     ReservationResponseDto addReservation(Long memberId, Long productId, ReservationCreateDto reservationCreateDto);
-//    void getReservation(String id);
+    ReservationResponseDto getReservation(Long id);
 }
