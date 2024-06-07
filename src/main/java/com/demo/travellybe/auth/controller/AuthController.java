@@ -88,5 +88,15 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @PostMapping("/leave")
+    @Operation(summary = "회원 탈퇴")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "회원탈퇴 성공"),
+            @ApiResponse(responseCode = "400", description = "비밀번호가 일치하지 않습니다")
+    })
+    public ResponseEntity<Void> leave(@RequestBody LeaveRequestDto leaveRequestDto,  @AuthenticationPrincipal PrincipalDetails userInfo) {
+        authService.leave(leaveRequestDto.getPassword(), userInfo.getPassword(), userInfo.getUsername());
 
+        return ResponseEntity.ok().build();
+    }
 }

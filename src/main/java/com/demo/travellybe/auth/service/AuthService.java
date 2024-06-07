@@ -11,7 +11,6 @@ import com.demo.travellybe.member.domain.Role;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -25,36 +24,17 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import java.util.Collection;
 import java.util.Optional;
 @Service
 @Transactional
 @RequiredArgsConstructor
-@Slf4j
 public class AuthService {
 
-    private static ExchangeFilterFunction logRequest() {
-        return ExchangeFilterFunction.ofRequestProcessor(clientRequest -> {
-            log.info("Request: " + clientRequest.method() + " " + clientRequest.url() + " " + clientRequest.headers());
-            clientRequest.headers()
-                    .forEach((name, values) -> values.forEach(value -> log.debug("{} : {}", name, value)));
-            return Mono.just(clientRequest);
-        });
-    }
-
-    private static ExchangeFilterFunction logResponse() {
-        return ExchangeFilterFunction.ofResponseProcessor(clientResponse -> {
-            log.info("Response status code: " + clientResponse.statusCode());
-            return Mono.just(clientResponse);
-        });
-    }
-
     private final Environment env;
-    private final WebClient webClient = WebClient.builder().filter(logRequest()).filter(logResponse()).build();
+    private final WebClient webClient = WebClient.builder().build();
     private final MemberRepository memberRepository;
     private final JwtProvider jwtProvider;
     private final AuthenticationManager authenticationManager;
@@ -101,7 +81,9 @@ public class AuthService {
             MemberTokens token = jwtProvider.generateLoginToken(authentication.getName());
 
             memberTokenDto.setToken(token);
-            memberTokenDto.setNewUser(memberRepository.findRoleByEmail(authentication.getName()).isEmpty());
+
+            memberRepository.findNicknameByEmail(authentication.getName()).ifPresent(memberTokenDto::setNickname);
+            memberRepository.findRoleByEmail(authentication.getName()).ifPresent(role -> memberTokenDto.setRole(role.toString().toLowerCase()));
 
         }catch (BadCredentialsException e) {
             throw new CustomException(ErrorCode.MEMBER_PASSWORD_MISMATCH);
@@ -138,11 +120,6 @@ public class AuthService {
         String clientSecret = env.getProperty(basePath + registrationId + ".client-secret");
         String redirectUri = env.getProperty(basePath + registrationId + ".redirect-uri");
         String tokenUri = env.getProperty(basePath + registrationId + ".token-uri");
-
-        log.info("Response basePath: " + basePath);
-        log.info("Response clientId: " + clientId);
-        log.info("Response clientSecret: " + clientSecret);
-        log.info("Response redirectUri: " + redirectUri);
 
         return webClient.post()
                 .uri(tokenUri)
@@ -186,10 +163,11 @@ public class AuthService {
             memberRepository.save(member);
 
             memberTokenDto.setToken(makeToken(new PrincipalDetails(member)));
-            memberTokenDto.setNewUser(true);
+            memberTokenDto.setNickname(nickname);
         }else{
             memberTokenDto.setToken(makeToken(new PrincipalDetails(memberEntity.get())));
-            memberTokenDto.setNewUser(false);
+            memberTokenDto.setNickname(memberEntity.get().getNickname());
+            memberTokenDto.setRole(memberEntity.get().getRole().toString().toLowerCase());
         }
 
         return memberTokenDto;
@@ -257,5 +235,15 @@ public class AuthService {
 
     public String findEmail(String nickname) {
         return memberRepository.findByNickname(nickname).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)).getEmail();
+    }
+
+    public void leave(String password, String userPassword, String email) {
+
+        // 비밀번호 일치 여부 확인
+        if (bCryptPasswordEncoder.matches(password, userPassword)) {
+            memberRepository.deleteByEmail(email);
+        }else{
+            throw new CustomException(ErrorCode.MEMBER_PASSWORD_MISMATCH);
+        }
     }
 }
