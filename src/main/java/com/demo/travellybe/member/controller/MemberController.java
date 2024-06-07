@@ -55,6 +55,12 @@ public class MemberController {
         return ResponseEntity.ok().body(memberService.updateImage(userInfo.getUsername(), multipartFile));
     }
 
+    @PutMapping(value = "/my/profile/image/default")
+    @Operation(summary = "프로필 기본 이미지로 수정")
+    public ResponseEntity<ProfileDto> updateDefaultImage(@AuthenticationPrincipal PrincipalDetails userInfo) {
+        return ResponseEntity.ok().body(memberService.updateDefaultImage(userInfo.getUsername()));
+    }
+
     @PutMapping("/my/profile/password")
     @Operation(summary = "비밀번호 수정")
     @ApiResponses({

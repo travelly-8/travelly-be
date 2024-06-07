@@ -72,6 +72,15 @@ public class MemberServiceImpl implements MemberService {
         return ProfileDto.of(member);
     }
 
+    public ProfileDto updateDefaultImage(String email) {
+        Member member = memberRepository.findByEmail(email).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+;
+        String filePath = "images/default-profile.png";
+
+        member.setImageUrl(amazonS3.getUrl(bucket, filePath).toString());
+        return ProfileDto.of(member);
+    }
+
 
     public ProfileDto updatePassword(String email, String password, String newPassword) {
         Member member = memberRepository.findByEmail(email).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));

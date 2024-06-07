@@ -88,7 +88,7 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PostMapping("/leave")
+    @DeleteMapping("/leave")
     @Operation(summary = "회원 탈퇴")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "회원탈퇴 성공"),
