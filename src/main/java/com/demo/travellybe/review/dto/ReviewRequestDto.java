@@ -8,10 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ReviewDto {
+public class ReviewRequestDto {
     private String content;
-    private double rating;
-    private int likeCount;
-    private String imageUrl;
-
+    private int rating;
 }

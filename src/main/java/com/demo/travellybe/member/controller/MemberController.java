@@ -1,7 +1,6 @@
 package com.demo.travellybe.member.controller;
 
 import com.demo.travellybe.auth.dto.PrincipalDetails;
-import com.demo.travellybe.member.dto.MemberDto;
 import com.demo.travellybe.member.dto.PasswordDto;
 import com.demo.travellybe.member.dto.ProfileDto;
 import com.demo.travellybe.member.service.MemberService;
@@ -52,9 +51,14 @@ public class MemberController {
 
     @PutMapping(value = "/my/profile/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "프로필 이미지 수정")
-    public ResponseEntity<Void> updateImage(@AuthenticationPrincipal PrincipalDetails userInfo, @RequestPart(value = "file") MultipartFile multipartFile) {
-        memberService.updateImage(multipartFile);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<ProfileDto> updateImage(@AuthenticationPrincipal PrincipalDetails userInfo, @RequestPart(value = "file") MultipartFile multipartFile) {
+        return ResponseEntity.ok().body(memberService.updateImage(userInfo.getUsername(), multipartFile));
+    }
+
+    @PutMapping(value = "/my/profile/image/default")
+    @Operation(summary = "프로필 기본 이미지로 수정")
+    public ResponseEntity<ProfileDto> updateDefaultImage(@AuthenticationPrincipal PrincipalDetails userInfo) {
+        return ResponseEntity.ok().body(memberService.updateDefaultImage(userInfo.getUsername()));
     }
 
     @PutMapping("/my/profile/password")

@@ -32,7 +32,7 @@ public class Member extends BaseTimeEntity {
 
     private int point = 0;
 
-    private String imageUrl;
+    private String imageUrl = "https://travelly-bucket.s3.ap-northeast-2.amazonaws.com/images/default-profile.png";
 
     private String type;
 
@@ -67,7 +67,11 @@ public class Member extends BaseTimeEntity {
         this.password = password;
     }
 
-    public void setReview(Review review) {
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public void addReview(Review review) {
         reviews.add(review);
         review.setMember(this);
     }

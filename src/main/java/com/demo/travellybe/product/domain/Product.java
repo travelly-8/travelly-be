@@ -146,6 +146,7 @@ public class Product extends BaseTimeEntity {
 
     public void addReview(Review review) {
         this.reviews.add(review);
+        review.setProduct(this);
 //        this.rating = calculateRating();
         this.reviewCount++;
     }
