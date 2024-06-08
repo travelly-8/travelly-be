@@ -71,7 +71,7 @@ public class Member extends BaseTimeEntity {
         this.imageUrl = imageUrl;
     }
 
-    public void setReview(Review review) {
+    public void addReview(Review review) {
         reviews.add(review);
         review.setMember(this);
     }
