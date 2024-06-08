@@ -91,7 +91,7 @@ public class InitDb {
                     int imageCount = (int) (Math.random() * 5);
                     for (int j = 0; j < imageCount; j++) {
                         productImageDtos.add(ProductImageDto.builder()
-                                .url("상품 이미지 URL. Order: " + j)
+                                .url("상품 이미지 URL")
                                 .order(j)
                                 .build());
                     }

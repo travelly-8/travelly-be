@@ -18,6 +18,8 @@ public class ProductResponseDto {
     private Long id;
     @Schema(description = "상품 이름", example = "경복궁")
     private String name;
+    @Schema(description = "판매자 이름", example = "홍길동")
+    private String sellerName;
     @Schema(description = "12:관광지, 14:문화시설, 15:축제공연행사, 25:여행코스, 28:레포츠, 38:쇼핑, 39:음식점",
             example = "12")
     private String type;
@@ -64,6 +66,7 @@ public class ProductResponseDto {
     public ProductResponseDto(Product product) {
         this.id = product.getId();
         this.name = product.getName();
+        this.sellerName = product.getMember().getNickname();
         this.type = product.getType();
         this.description = product.getDescription();
         this.images = product.getImages().stream().map(ProductImageDto::new).toList();
