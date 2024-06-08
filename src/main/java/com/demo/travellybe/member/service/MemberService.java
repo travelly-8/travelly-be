@@ -14,4 +14,6 @@ public interface MemberService {
     ProfileDto updatePassword(String username, String password, String newPassword);
 
     ProfileDto updateImage(String username, MultipartFile multipartFile);
+
+    ProfileDto updateDefaultImage(String username);
 }
