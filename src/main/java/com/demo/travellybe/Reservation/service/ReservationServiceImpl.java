@@ -35,11 +35,10 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public ReservationResponseDto addReservation(Long memberId, Long productId, ReservationCreateDto reservationCreateDto) {
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
+        Product product = findProductById(productId);
+        Member buyer = findMemberById(memberId);
 
-        Member buyer = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        checkProductQuantity(reservationCreateDto, product);
 
         Reservation reservation = Reservation.of(product, buyer, reservationCreateDto.getDate(), reservationCreateDto.getStartTime(), reservationCreateDto.getEndTime());
         product.addReservation(reservation);
@@ -54,7 +53,28 @@ public class ReservationServiceImpl implements ReservationService {
         }
 
         Reservation saved = reservationRepository.save(reservation);
+
+
         return new ReservationResponseDto(saved);
+    }
+
+    private Member findMemberById(Long memberId) {
+        return memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+    }
+
+    private Product findProductById(Long productId) {
+        return productRepository.findById(productId)
+                .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
+    }
+
+    private void checkProductQuantity(ReservationCreateDto reservationCreateDto, Product product) {
+        int totalQuantity = reservationCreateDto.getTicketDtos().stream()
+                .mapToInt(ReservationTicketDto::getQuantity)
+                .sum();
+        if (product.getQuantity() < totalQuantity)
+            throw new CustomException(ErrorCode.PRODUCT_NOT_ENOUGH_TICKET_QUANTITY);
+        product.updateStock(product.getQuantity() - totalQuantity);
     }
 
     @Override
@@ -66,23 +86,19 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public void checkProductOwner(Long productId, Long memberId) {
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
-        if (product.getMember().getId().equals(memberId)) {
-            throw new CustomException(ErrorCode.RESERVATION_SELF_PRODUCT);
-        }
+        Product product = findProductById(productId);
+        if (product.getMember().getId().equals(memberId)) throw new CustomException(ErrorCode.RESERVATION_SELF_PRODUCT);
     }
 
     @Override
     public void checkOperationDateTime(Long productId, ReservationCreateDto reservationCreateDto) {
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
+        Product product = findProductById(productId);
+
         Optional<OperationDay> day = product.getOperationDays().stream()
                 .filter(operationDay -> operationDay.getDate().equals(reservationCreateDto.getDate()))
                 .findAny();
-        if (day.isEmpty()) {
-            throw new CustomException(ErrorCode.PRODUCT_NOT_AVAILABLE_OPERATION_DAY);
-        }
+        if (day.isEmpty()) throw new CustomException(ErrorCode.PRODUCT_NOT_AVAILABLE_OPERATION_DAY);
+
         List<OperationHour> hours = day.get().getOperationHours();
         if (hours.stream().noneMatch(hour -> hour.getStartTime().equals(reservationCreateDto.getStartTime())
                 && hour.getEndTime().equals(reservationCreateDto.getEndTime()))) {
