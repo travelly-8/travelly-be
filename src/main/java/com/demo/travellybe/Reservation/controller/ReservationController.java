@@ -40,9 +40,11 @@ public class ReservationController {
     @Operation(summary = "예약 추가", description = "상품 ID로 예약을 추가합니다.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "성공"),
+                    @ApiResponse(responseCode = "400", description = "예약 시간이 유효하지 않습니다.",
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                     @ApiResponse(responseCode = "401", description = "로그인이 필요합니다.",
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = "403", description = "상품 소유자만 예약할 수 있습니다.",
+                    @ApiResponse(responseCode = "403", description = "상품 소유자는 예약할 수 없습니다",
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                     @ApiResponse(responseCode = "404", description = "해당 상품을 찾을 수 없습니다.",
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
@@ -52,6 +54,7 @@ public class ReservationController {
                                @AuthenticationPrincipal PrincipalDetails principalDetails) {
         if (principalDetails == null) throw new CustomException(ErrorCode.LOGIN_REQUIRED);
         reservationService.checkProductOwner(productId, principalDetails.getMember().getId());
+        reservationService.checkOperationDateTime(productId, reservationCreateDto);
         return reservationService.addReservation(principalDetails.getMember().getId(), productId, reservationCreateDto);
     }
 }

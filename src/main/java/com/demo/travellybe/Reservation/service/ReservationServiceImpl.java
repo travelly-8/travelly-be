@@ -10,6 +10,8 @@ import com.demo.travellybe.exception.CustomException;
 import com.demo.travellybe.exception.ErrorCode;
 import com.demo.travellybe.member.domain.Member;
 import com.demo.travellybe.member.domain.MemberRepository;
+import com.demo.travellybe.product.domain.OperationDay;
+import com.demo.travellybe.product.domain.OperationHour;
 import com.demo.travellybe.product.domain.Product;
 import com.demo.travellybe.product.domain.Ticket;
 import com.demo.travellybe.product.repository.ProductRepository;
@@ -17,6 +19,9 @@ import com.demo.travellybe.product.repository.TicketRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -65,6 +70,23 @@ public class ReservationServiceImpl implements ReservationService {
                 .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
         if (product.getMember().getId().equals(memberId)) {
             throw new CustomException(ErrorCode.RESERVATION_SELF_PRODUCT);
+        }
+    }
+
+    @Override
+    public void checkOperationDateTime(Long productId, ReservationCreateDto reservationCreateDto) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
+        Optional<OperationDay> day = product.getOperationDays().stream()
+                .filter(operationDay -> operationDay.getDate().equals(reservationCreateDto.getDate()))
+                .findAny();
+        if (day.isEmpty()) {
+            throw new CustomException(ErrorCode.PRODUCT_NOT_AVAILABLE_OPERATION_DAY);
+        }
+        List<OperationHour> hours = day.get().getOperationHours();
+        if (hours.stream().noneMatch(hour -> hour.getStartTime().equals(reservationCreateDto.getStartTime())
+                && hour.getEndTime().equals(reservationCreateDto.getEndTime()))) {
+            throw new CustomException(ErrorCode.PRODUCT_NOT_AVAILABLE_OPERATION_DAY);
         }
     }
 }
