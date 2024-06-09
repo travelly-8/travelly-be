@@ -20,6 +20,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -93,6 +94,11 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     public void checkOperationDateTime(Long productId, ReservationCreateDto reservationCreateDto) {
         Product product = findProductById(productId);
+        // 예약 시간이 없을 경우 하루 중 최대 시간으로 설정
+        if (reservationCreateDto.getStartTime() == null && reservationCreateDto.getEndTime() == null) {
+            reservationCreateDto.setStartTime(LocalTime.of(0, 1));
+            reservationCreateDto.setEndTime(LocalTime.of(23, 59));
+        }
 
         Optional<OperationDay> day = product.getOperationDays().stream()
                 .filter(operationDay -> operationDay.getDate().equals(reservationCreateDto.getDate()))
