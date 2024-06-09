@@ -58,4 +58,13 @@ public class ReservationServiceImpl implements ReservationService {
                 .orElseThrow(() -> new CustomException(ErrorCode.RESERVATION_NOT_FOUND));
         return new ReservationResponseDto(reservation);
     }
+
+    @Override
+    public void checkProductOwner(Long productId, Long memberId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
+        if (product.getMember().getId().equals(memberId)) {
+            throw new CustomException(ErrorCode.RESERVATION_SELF_PRODUCT);
+        }
+    }
 }

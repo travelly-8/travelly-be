@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -41,13 +42,16 @@ public class ReservationController {
                     @ApiResponse(responseCode = "200", description = "성공"),
                     @ApiResponse(responseCode = "401", description = "로그인이 필요합니다.",
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(responseCode = "403", description = "상품 소유자만 예약할 수 있습니다.",
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                     @ApiResponse(responseCode = "404", description = "해당 상품을 찾을 수 없습니다.",
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
             })
     public ReservationResponseDto addReservation(@PathVariable Long productId,
-                               @RequestBody ReservationCreateDto reservationCreateDto,
+                               @Valid @RequestBody ReservationCreateDto reservationCreateDto,
                                @AuthenticationPrincipal PrincipalDetails principalDetails) {
         if (principalDetails == null) throw new CustomException(ErrorCode.LOGIN_REQUIRED);
+        reservationService.checkProductOwner(productId, principalDetails.getMember().getId());
         return reservationService.addReservation(principalDetails.getMember().getId(), productId, reservationCreateDto);
     }
 }
