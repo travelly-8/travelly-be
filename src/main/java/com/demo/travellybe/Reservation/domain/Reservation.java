@@ -64,4 +64,8 @@ public class Reservation extends BaseTimeEntity {
     public void setBuyer(Member buyer) {
         this.buyer = buyer;
     }
+
+    public void updateStatus(ReservationStatus status) {
+        this.status = status;
+    }
 }

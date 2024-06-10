@@ -1,6 +1,7 @@
 package com.demo.travellybe.Reservation.service;
 
 import com.demo.travellybe.Reservation.domain.Reservation;
+import com.demo.travellybe.Reservation.domain.ReservationStatus;
 import com.demo.travellybe.Reservation.domain.ReservationTicket;
 import com.demo.travellybe.Reservation.dto.ReservationCreateDto;
 import com.demo.travellybe.Reservation.dto.ReservationResponseDto;
@@ -110,5 +111,21 @@ public class ReservationServiceImpl implements ReservationService {
                 && hour.getEndTime().equals(reservationCreateDto.getEndTime()))) {
             throw new CustomException(ErrorCode.PRODUCT_NOT_AVAILABLE_OPERATION_DAY);
         }
+    }
+
+    @Override
+    public ReservationResponseDto updateStatus(Long id, ReservationStatus status) {
+        Reservation reservation = reservationRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.RESERVATION_NOT_FOUND));
+        reservation.updateStatus(status);
+        return new ReservationResponseDto(reservation);
+    }
+
+    @Override
+    public void checkSeller(Long reservationId, Long memberId) {
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new CustomException(ErrorCode.RESERVATION_NOT_FOUND));
+        Member seller = reservation.getProduct().getMember();
+        if (!seller.getId().equals(memberId)) throw new CustomException(ErrorCode.RESERVATION_FORBIDDEN);
     }
 }
