@@ -19,6 +19,8 @@ import com.demo.travellybe.product.repository.ProductRepository;
 import com.demo.travellybe.product.repository.TicketRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
@@ -127,5 +129,11 @@ public class ReservationServiceImpl implements ReservationService {
                 .orElseThrow(() -> new CustomException(ErrorCode.RESERVATION_NOT_FOUND));
         Member seller = reservation.getProduct().getMember();
         if (!seller.getId().equals(memberId)) throw new CustomException(ErrorCode.RESERVATION_FORBIDDEN);
+    }
+
+    @Override
+    public Page<ReservationResponseDto> getReservationsByMemberId(Long memberId, Pageable pageable) {
+        return reservationRepository.findByBuyerId(memberId, pageable)
+                .map(ReservationResponseDto::new);
     }
 }

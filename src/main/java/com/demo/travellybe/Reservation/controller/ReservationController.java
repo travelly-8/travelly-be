@@ -16,6 +16,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -38,6 +40,19 @@ public class ReservationController {
             })
     public ResponseEntity<ReservationResponseDto> getReservation(@PathVariable Long id) {
         return ResponseEntity.ok(reservationService.getReservation(id));
+    }
+
+    @GetMapping("/my")
+    @Operation(summary = "내 예약 조회", description = "내 예약을 조회합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "성공"),
+                    @ApiResponse(responseCode = "401", description = "로그인이 필요합니다.",
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+            })
+    public ResponseEntity<Page<ReservationResponseDto>> getMyReservations(@AuthenticationPrincipal PrincipalDetails principalDetails,
+                                                                          Pageable pageable) {
+        if (principalDetails == null) throw new CustomException(ErrorCode.LOGIN_REQUIRED);
+        return ResponseEntity.ok(reservationService.getReservationsByMemberId(principalDetails.getMember().getId(), pageable));
     }
 
     @PostMapping("/{productId}")
