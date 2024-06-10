@@ -147,14 +147,12 @@ public class Product extends BaseTimeEntity {
     public void addReview(Review review) {
         this.reviews.add(review);
         review.setProduct(this);
-//        this.rating = calculateRating();
         this.reviewCount++;
-    }
 
-    public void removeReview(Review review) {
-        this.reviews.remove(review);
-//        this.rating = calculateRating();
-        this.reviewCount--;
+//        this.rating = ((this.rating * (this.reviewCount - 1)) + review.getRating()) / this.reviewCount;
+        this.rating = this.reviews.stream()
+                .mapToDouble(Review::getRating)
+                .average().orElse(0.0);
     }
 
     public void updateStock(int quantity) {
