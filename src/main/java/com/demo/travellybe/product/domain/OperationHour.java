@@ -13,7 +13,7 @@ import java.time.LocalTime;
 public class OperationHour {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "operation_day_hour_id")
+    @Column(name = "operation_hour_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

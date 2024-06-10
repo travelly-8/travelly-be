@@ -27,6 +27,7 @@ public class Product extends BaseTimeEntity {
     private Member member;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("date DESC")
     private List<OperationDay> operationDays = new ArrayList<>();
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -154,6 +155,10 @@ public class Product extends BaseTimeEntity {
         this.reviews.remove(review);
 //        this.rating = calculateRating();
         this.reviewCount--;
+    }
+
+    public void updateStock(int quantity) {
+        this.quantity = quantity;
     }
 
     public void setMember(Member member) {
