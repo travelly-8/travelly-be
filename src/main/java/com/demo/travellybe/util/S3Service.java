@@ -2,6 +2,8 @@ package com.demo.travellybe.util;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.demo.travellybe.exception.CustomException;
+import com.demo.travellybe.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -42,8 +44,7 @@ public class S3Service {
         try {
             amazonS3.putObject(bucket, filePath, file.getInputStream(), metadata);
         } catch (IOException e) {
-            // 수정 필요
-            throw new RuntimeException(e);
+            throw new CustomException(ErrorCode.FILE_UPLOAD_FAILED);
         }
 
         return amazonS3.getUrl(bucket, filePath).toString();

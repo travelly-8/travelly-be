@@ -1,5 +1,6 @@
 package com.demo.travellybe.review.domain;
 
+import com.demo.travellybe.comment.domain.Comment;
 import com.demo.travellybe.member.domain.Member;
 import com.demo.travellybe.product.domain.Product;
 import com.demo.travellybe.util.BaseTimeEntity;
@@ -9,6 +10,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -39,6 +41,10 @@ public class Review extends BaseTimeEntity {
     @JoinColumn(name = "product_id")
     private Product product;
 
+    @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
+
+
     @Builder
     public Review(String content, int rating, List<String> imageUrls) {
         this.content = content;
@@ -53,4 +59,8 @@ public class Review extends BaseTimeEntity {
         this.product = product;
     }
 
+    public void addComment(Comment comment) {
+        comments.add(comment);
+        comment.setReview(this);
+    }
 }
