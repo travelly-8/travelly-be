@@ -66,9 +66,6 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
         Member member = product.getMember();
-        // 상품 소유자가 아니거나 관리자가 아닌 경우 예외 발생
-//        if (!(member.getId().equals(memberId) || member.getRole().equals(Role.ADMIN)))
-//            throw new CustomException(ErrorCode.PRODUCT_NOT_OWNER);
         if (!(member.getId().equals(memberId)))
             throw new CustomException(ErrorCode.PRODUCT_NOT_OWNER);
     }

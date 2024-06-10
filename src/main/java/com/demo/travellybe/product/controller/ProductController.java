@@ -4,6 +4,7 @@ import com.demo.travellybe.auth.dto.PrincipalDetails;
 import com.demo.travellybe.exception.CustomException;
 import com.demo.travellybe.exception.ErrorCode;
 import com.demo.travellybe.exception.ErrorResponse;
+import com.demo.travellybe.member.domain.Role;
 import com.demo.travellybe.product.dto.request.ProductCreateRequestDto;
 import com.demo.travellybe.product.dto.response.ProductResponseDto;
 import com.demo.travellybe.product.dto.response.ProductsResponseDto;
@@ -61,7 +62,9 @@ public class ProductController {
             @PathVariable Long productId,
             @AuthenticationPrincipal PrincipalDetails principalDetails) {
         productService.checkLogin(principalDetails);
-        productService.checkProductOwner(productId, principalDetails.getMember().getId());
+        if (!principalDetails.getMember().getRole().equals(Role.ADMIN)) {
+            productService.checkProductOwner(productId, principalDetails.getMember().getId());
+        }
         productService.deleteProduct(productId);
         return ResponseEntity.ok().build();
     }
@@ -109,11 +112,10 @@ public class ProductController {
             @PathVariable Long productId,
             @RequestBody @Valid ProductCreateRequestDto productCreateRequestDto,
             @AuthenticationPrincipal PrincipalDetails principalDetails) {
-//        if (principalDetails.getMember().getRole().equals(Role.ADMIN)) {
-//            productService.checkProductOwner(productId, principalDetails.getMember().getId());
-//        }
         if (principalDetails == null) throw new CustomException(ErrorCode.LOGIN_REQUIRED);
-        productService.checkProductOwner(productId, principalDetails.getMember().getId());
+        if (!principalDetails.getMember().getRole().equals(Role.ADMIN)) {
+            productService.checkProductOwner(productId, principalDetails.getMember().getId());
+        }
         productService.updateProduct(productId, productCreateRequestDto);
         ProductResponseDto productResponseDto = productService.getProductById(productId);
         return ResponseEntity.ok(productResponseDto);
