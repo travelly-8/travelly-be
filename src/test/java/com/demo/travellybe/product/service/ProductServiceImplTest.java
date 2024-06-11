@@ -191,39 +191,39 @@ class ProductServiceImplTest {
     @Test
     @DisplayName("상품 수정 - 성공")
     void updateProduct_success() {
-//        // given
-//        List<TicketDto> newTicketPrice = new ArrayList<>();
-//        newTicketPrice.add(TicketDto.builder()
-//                .name("성인").price(20000)
-//                .build());
-//        newTicketPrice.add(TicketDto.builder()
-//                .name("학생").price(15000)
-//                .build());
-//
-//        ProductCreateRequestDto updateRequestDto = ProductCreateRequestDto.builder()
-//                .name("product2").type("type2")
-//                .description("description2").imageUrl("imageUrl2")
-//                .address("address2").detailAddress("detailAddress2")
-//                .phoneNumber("phoneNumber2").homepage("homepage2")
-//                .cityCode("cityCode2").quantity(200)
-//                .tickets(newTicketPrice)
-//                .operationDays(createRequestDto.getOperationDays())
-//                .build();
-//
-//        Product product = Product.of(createRequestDto);
-//        when(productRepository.findById(anyLong())).thenReturn(Optional.of(product));
-//
-//        // when
-//        postService.updateProduct(1L, updateRequestDto);
-//
-//        // then
-//        assertThat(product.getName()).isEqualTo(updateRequestDto.getName());
-//        assertThat(product.getType()).isEqualTo(updateRequestDto.getType());
-//        for (int i = 0; i < product.getTickets().size(); i++) {
-//            assertThat(product.getTickets().get(i).getPrice()).isEqualTo(updateRequestDto.getTickets().get(i).getPrice());
-//        }
-//
-//        verify(productRepository, times(1)).findById(1L);
+        // given
+        List<TicketDto> newTicketPrice = new ArrayList<>();
+        newTicketPrice.add(TicketDto.builder()
+                .name("성인").price(20000)
+                .build());
+        newTicketPrice.add(TicketDto.builder()
+                .name("학생").price(15000)
+                .build());
+
+        ProductCreateRequestDto updateRequestDto = ProductCreateRequestDto.builder()
+                .name("product2").type("type2")
+                .description("description2").images(createRequestDto.getImages())
+                .address("address2").detailAddress("detailAddress2")
+                .phoneNumber("phoneNumber2").homepage("homepage2")
+                .cityCode("cityCode2").quantity(200)
+                .tickets(newTicketPrice)
+                .operationDays(createRequestDto.getOperationDays())
+                .build();
+
+        Product product = Product.of(createRequestDto);
+        when(productRepository.findById(anyLong())).thenReturn(Optional.of(product));
+
+        // when
+        postService.updateProduct(1L, updateRequestDto);
+
+        // then
+        assertThat(product.getName()).isEqualTo(updateRequestDto.getName());
+        assertThat(product.getType()).isEqualTo(updateRequestDto.getType());
+        for (int i = 0; i < product.getTickets().size(); i++) {
+            assertThat(product.getTickets().get(i).getPrice()).isEqualTo(updateRequestDto.getTickets().get(i).getPrice());
+        }
+
+        verify(productRepository, times(1)).findById(1L);
     }
 
     @Test

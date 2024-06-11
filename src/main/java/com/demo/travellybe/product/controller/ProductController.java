@@ -74,7 +74,6 @@ public class ProductController {
     }
 
     @PostMapping("/")
-//    @PreAuthorize("hasAnyAuthority('TRAVELLY', 'ADMIN')")
     @Operation(summary = "상품 등록",
             description = "상품을 등록합니다.",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
