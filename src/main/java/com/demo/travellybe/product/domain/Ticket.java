@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Getter
@@ -32,6 +33,22 @@ public class Ticket {
     private int price;
 
     private String description;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Ticket ticket = (Ticket) o;
+        return price == ticket.price &&
+                Objects.equals(name, ticket.name) &&
+                Objects.equals(description, ticket.description);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, price, description);
+    }
+
 
     public static Ticket of(TicketDto ticketDto, Product product) {
         Ticket ticket = new Ticket();
