@@ -137,7 +137,6 @@ public class ProductController {
         return ResponseEntity.ok(products);
     }
 
-    // 사진 업로드
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
         String contentType = file.getContentType();
