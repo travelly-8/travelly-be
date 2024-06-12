@@ -26,6 +26,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+import java.util.Set;
+
 @RestController
 @RequestMapping("/products")
 @RequiredArgsConstructor
@@ -137,6 +140,11 @@ public class ProductController {
     }
 
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "이미지 업로드",
+            description = "이미지를 업로드합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "성공")
+            })
     public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
         String contentType = file.getContentType();
         if (contentType == null || !contentType.startsWith("image")) {
@@ -144,4 +152,15 @@ public class ProductController {
         }
         return ResponseEntity.ok(s3Service.uploadFile(file, "product"));
     }
+
+    @GetMapping("/top10")
+    @Operation(summary = "인기 검색어 조회",
+            description = "인기 검색어 상위 10개를 조회합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "성공")
+            })
+    public ResponseEntity<List<String>> getTopSearchKeywords() {
+        return ResponseEntity.ok(productService.getTopSearchKeywords());
+    }
+
 }

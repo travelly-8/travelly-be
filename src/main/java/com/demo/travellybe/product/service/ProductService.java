@@ -8,6 +8,9 @@ import com.demo.travellybe.product.dto.request.ProductsSearchRequestDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+import java.util.Set;
+
 public interface ProductService {
     ProductResponseDto addProduct(Long memberId, ProductCreateRequestDto productCreateRequestDto);
     void deleteProduct(Long id);
@@ -18,4 +21,6 @@ public interface ProductService {
 
     Page<ProductResponseDto> getAllProducts(Pageable pageable);
     Page<ProductsResponseDto> getSearchedProducts(ProductsSearchRequestDto productsSearchRequestDto);
+
+    List<String> getTopSearchKeywords();
 }
