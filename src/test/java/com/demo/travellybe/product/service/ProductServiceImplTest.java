@@ -187,7 +187,6 @@ class ProductServiceImplTest {
         verify(productRepository, times(1)).findById(1L);
     }
 
-    // TODO update clear에서 오류 발생
     @Test
     @DisplayName("상품 수정 - 성공")
     void updateProduct_success() {

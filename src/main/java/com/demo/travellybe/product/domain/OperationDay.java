@@ -11,6 +11,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -44,7 +45,8 @@ public class OperationDay {
             operationDay.operationHours.add(OperationHour.of(operationDayHourDto, operationDay));
         } else {
             operationDay.operationHours = operationDayDto.getOperationDayHours().stream().map(operationDayHourDto ->
-                    OperationHour.of(operationDayHourDto, operationDay)).toList();
+                    OperationHour.of(operationDayHourDto, operationDay))
+                    .collect(Collectors.toList());
         }
         return operationDay;
     }

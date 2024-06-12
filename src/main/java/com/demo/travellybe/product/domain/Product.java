@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -93,17 +94,18 @@ public class Product extends BaseTimeEntity {
 
         product.images = productCreateRequestDto.getImages().stream()
                 .map(imageDto -> ProductImage.of(imageDto.getUrl(), imageDto.getOrder(), product))
-                .toList();
+                .collect(Collectors.toList());
         product.tickets = productCreateRequestDto.getTickets().stream()
                 .map(ticketDto -> Ticket.of(ticketDto, product))
-                .toList();
+                .collect(Collectors.toList());
         product.minPrice = productCreateRequestDto.getTickets().stream()
                 .map(TicketDto::getPrice).min(Integer::compareTo).orElse(0);
         product.maxPrice = productCreateRequestDto.getTickets().stream()
                 .map(TicketDto::getPrice).max(Integer::compareTo).orElse(0);
 
-        product.operationDays = productCreateRequestDto.getOperationDays().stream().map(operationDayDto ->
-                OperationDay.of(operationDayDto, product)).toList();
+        product.operationDays = productCreateRequestDto.getOperationDays().stream().map(
+                operationDayDto -> OperationDay.of(operationDayDto, product))
+                .collect(Collectors.toList());
         return product;
     }
 
