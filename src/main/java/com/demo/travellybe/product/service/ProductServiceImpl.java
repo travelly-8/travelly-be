@@ -14,6 +14,7 @@ import com.demo.travellybe.product.dto.request.ProductsSearchRequestDto;
 import com.demo.travellybe.product.repository.ProductRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -22,7 +23,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -60,6 +63,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductResponseDto getProductById(Long id) {
+        // 상품 id를 Redis에 저장
+        redisTemplate.opsForZSet().incrementScore("popular_products", String.valueOf(id), 1);
+
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
         return new ProductResponseDto(product);
@@ -93,7 +99,8 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Page<ProductsResponseDto> getSearchedProducts(ProductsSearchRequestDto requestDto) {
         // 검색 키워드를 Redis에 저장
-        redisTemplate.opsForZSet().incrementScore("popular_keywords", requestDto.getKeyword(), 1);
+        if (requestDto.getKeyword() != null)
+            redisTemplate.opsForZSet().incrementScore("popular_keywords", requestDto.getKeyword(), 1);
 
         Pageable pageable = requestDto.toPageable();
         Page<Product> products = productRepository.getSearchedProducts(requestDto, pageable);
@@ -111,5 +118,25 @@ public class ProductServiceImpl implements ProductService {
         Set<String> topKeywords = redisTemplate.opsForZSet().reverseRange("popular_keywords", 0, 9);
         if (topKeywords == null) return new ArrayList<>();
         return new ArrayList<>(topKeywords);
+    }
+
+    @Override
+    public List<ProductsResponseDto> getTopProducts() {
+        // Redis에서 인기상품 top 10을 조회하여 반환
+        Set<String> topProducts = redisTemplate.opsForZSet().reverseRange("popular_products", 0, 9);
+        if (topProducts == null) return new ArrayList<>();
+
+        // 모든 상품을 조회하고 Map에 저장
+        Map<Long, Product> productMap = productRepository.findAllById(topProducts.stream()
+                        .map(Long::parseLong).collect(Collectors.toList()))
+                .stream()
+                .collect(Collectors.toMap(Product::getId, Function.identity()));
+
+        // 원래 순서를 유지하면서 ProductsResponseDto 리스트를 생성
+        return topProducts.stream()
+                .map(Long::parseLong)
+                .map(productMap::get)
+                .map(ProductsResponseDto::new)
+                .collect(Collectors.toList());
     }
 }

@@ -23,4 +23,5 @@ public interface ProductService {
     Page<ProductsResponseDto> getSearchedProducts(ProductsSearchRequestDto productsSearchRequestDto);
 
     List<String> getTopSearchKeywords();
+    List<ProductsResponseDto> getTopProducts();
 }

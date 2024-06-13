@@ -153,7 +153,7 @@ public class ProductController {
         return ResponseEntity.ok(s3Service.uploadFile(file, "product"));
     }
 
-    @GetMapping("/top10")
+    @GetMapping("top-keywords")
     @Operation(summary = "인기 검색어 조회",
             description = "인기 검색어 상위 10개를 조회합니다.",
             responses = {
@@ -163,4 +163,13 @@ public class ProductController {
         return ResponseEntity.ok(productService.getTopSearchKeywords());
     }
 
+    @GetMapping("top-products")
+    @Operation(summary = "인기 상품 조회",
+            description = "인기 상품 상위 10개를 조회합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "성공")
+            })
+    public ResponseEntity<List<ProductsResponseDto>> getTopProducts() {
+        return ResponseEntity.ok(productService.getTopProducts());
+    }
 }
