@@ -2,6 +2,7 @@ package com.demo.travellybe.product.domain;
 
 import com.demo.travellybe.Reservation.domain.Reservation;
 import com.demo.travellybe.member.domain.Member;
+import com.demo.travellybe.product.dto.OperationDayDto;
 import com.demo.travellybe.product.dto.request.ProductCreateRequestDto;
 import com.demo.travellybe.product.dto.TicketDto;
 import com.demo.travellybe.review.domain.Review;
@@ -12,6 +13,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -92,17 +94,18 @@ public class Product extends BaseTimeEntity {
 
         product.images = productCreateRequestDto.getImages().stream()
                 .map(imageDto -> ProductImage.of(imageDto.getUrl(), imageDto.getOrder(), product))
-                .toList();
+                .collect(Collectors.toList());
         product.tickets = productCreateRequestDto.getTickets().stream()
                 .map(ticketDto -> Ticket.of(ticketDto, product))
-                .toList();
+                .collect(Collectors.toList());
         product.minPrice = productCreateRequestDto.getTickets().stream()
                 .map(TicketDto::getPrice).min(Integer::compareTo).orElse(0);
         product.maxPrice = productCreateRequestDto.getTickets().stream()
                 .map(TicketDto::getPrice).max(Integer::compareTo).orElse(0);
 
-        product.operationDays = productCreateRequestDto.getOperationDays().stream().map(operationDayDto ->
-                OperationDay.of(operationDayDto, product)).toList();
+        product.operationDays = productCreateRequestDto.getOperationDays().stream().map(
+                operationDayDto -> OperationDay.of(operationDayDto, product))
+                .collect(Collectors.toList());
         return product;
     }
 
@@ -130,18 +133,58 @@ public class Product extends BaseTimeEntity {
         this.images.addAll(newImages);
 
         // operationDays 컬렉션 업데이트
-        List<OperationDay> newOperationDays = productCreateRequestDto.getOperationDays().stream()
-                .map(operationDayDto -> OperationDay.of(operationDayDto, this))
-                .toList();
+        List<OperationDay> newOperationDays = getOperationDays(productCreateRequestDto);
         this.operationDays.clear();
         this.operationDays.addAll(newOperationDays);
 
+
         // tickets 컬렉션 업데이트
-        List<Ticket> newTickets = productCreateRequestDto.getTickets().stream()
-                .map(ticketDto -> Ticket.of(ticketDto, this))
-                .toList();
+        List<Ticket> newTickets = getTickets(productCreateRequestDto);
         this.tickets.clear();
         this.tickets.addAll(newTickets);
+    }
+
+    private List<OperationDay> getOperationDays(ProductCreateRequestDto productCreateRequestDto) {
+        return productCreateRequestDto.getOperationDays().stream()
+                .map(operationDayDto -> {
+                    for (OperationDay existingOperationDay : this.operationDays) {
+                        if (existingOperationDay.equals(OperationDay.of(operationDayDto, this))) {
+                            // operationHours 컬렉션 업데이트
+                            List<OperationHour> newOperationHours = getOperationHours(operationDayDto, existingOperationDay);
+                            existingOperationDay.getOperationHours().clear();
+                            existingOperationDay.getOperationHours().addAll(newOperationHours);
+                            return existingOperationDay;
+                        }
+                    }
+                    return OperationDay.of(operationDayDto, this);
+                })
+                .toList();
+    }
+
+    private List<OperationHour> getOperationHours(OperationDayDto operationDayDto, OperationDay existingOperationDay) {
+        return operationDayDto.getOperationDayHours().stream()
+                .map(operationHourDto -> {
+                    for (OperationHour existingOperationHour : existingOperationDay.getOperationHours()) {
+                        if (existingOperationHour.equals(OperationHour.of(operationHourDto, existingOperationDay))) {
+                            return existingOperationHour;
+                        }
+                    }
+                    return OperationHour.of(operationHourDto, existingOperationDay);
+                })
+                .toList();
+    }
+
+    private List<Ticket> getTickets(ProductCreateRequestDto productCreateRequestDto) {
+        return productCreateRequestDto.getTickets().stream()
+                .map(ticketDto -> {
+                    for (Ticket existingTicket : this.tickets) {
+                        if (existingTicket.equals(Ticket.of(ticketDto, this))) {
+                            return existingTicket;
+                        }
+                    }
+                    return Ticket.of(ticketDto, this);
+                })
+                .toList();
     }
 
     public void addReview(Review review) {

@@ -5,6 +5,7 @@ import com.demo.travellybe.exception.CustomException;
 import com.demo.travellybe.exception.ErrorCode;
 import com.demo.travellybe.exception.ErrorResponse;
 import com.demo.travellybe.member.domain.Role;
+import com.demo.travellybe.product.dto.KeywordRankChangeDto;
 import com.demo.travellybe.product.dto.request.ProductCreateRequestDto;
 import com.demo.travellybe.product.dto.response.ProductResponseDto;
 import com.demo.travellybe.product.dto.response.ProductsResponseDto;
@@ -25,6 +26,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/products")
@@ -74,7 +78,6 @@ public class ProductController {
     }
 
     @PostMapping("/")
-//    @PreAuthorize("hasAnyAuthority('TRAVELLY', 'ADMIN')")
     @Operation(summary = "상품 등록",
             description = "상품을 등록합니다.",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -137,13 +140,37 @@ public class ProductController {
         return ResponseEntity.ok(products);
     }
 
-    // 사진 업로드
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "이미지 업로드",
+            description = "이미지를 업로드합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "성공")
+            })
     public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
         String contentType = file.getContentType();
         if (contentType == null || !contentType.startsWith("image")) {
             throw new CustomException(ErrorCode.FILE_UPLOAD_FAILED);
         }
         return ResponseEntity.ok(s3Service.uploadFile(file, "product"));
+    }
+
+    @GetMapping("/top-keywords")
+    @Operation(summary = "인기 검색어 조회",
+            description = "인기 검색어 상위 10개를 조회합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "성공")
+            })
+    public ResponseEntity<List<KeywordRankChangeDto>> getTopSearchKeywords() {
+        return ResponseEntity.ok(productService.getTopSearchKeywordsWithRankChange());
+    }
+
+    @GetMapping("/top-products")
+    @Operation(summary = "인기 상품 조회",
+            description = "인기 상품 상위 10개를 조회합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "성공")
+            })
+    public ResponseEntity<List<ProductsResponseDto>> getTopProducts() {
+        return ResponseEntity.ok(productService.getTopProducts());
     }
 }

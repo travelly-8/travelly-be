@@ -1,12 +1,15 @@
 package com.demo.travellybe.product.service;
 
 import com.demo.travellybe.auth.dto.PrincipalDetails;
+import com.demo.travellybe.product.dto.KeywordRankChangeDto;
 import com.demo.travellybe.product.dto.request.ProductCreateRequestDto;
+import com.demo.travellybe.product.dto.request.ProductsSearchRequestDto;
 import com.demo.travellybe.product.dto.response.ProductResponseDto;
 import com.demo.travellybe.product.dto.response.ProductsResponseDto;
-import com.demo.travellybe.product.dto.request.ProductsSearchRequestDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
+import java.util.List;
 
 public interface ProductService {
     ProductResponseDto addProduct(Long memberId, ProductCreateRequestDto productCreateRequestDto);
@@ -18,4 +21,8 @@ public interface ProductService {
 
     Page<ProductResponseDto> getAllProducts(Pageable pageable);
     Page<ProductsResponseDto> getSearchedProducts(ProductsSearchRequestDto productsSearchRequestDto);
+
+    List<String> getTopSearchKeywords();
+    List<KeywordRankChangeDto> getTopSearchKeywordsWithRankChange();
+    List<ProductsResponseDto> getTopProducts();
 }

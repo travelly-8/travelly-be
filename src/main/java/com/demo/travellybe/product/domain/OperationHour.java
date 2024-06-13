@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalTime;
+import java.util.Objects;
 
 @Entity
 @Getter
@@ -32,5 +33,19 @@ public class OperationHour {
         operationHour.endTime = operationDayHourDto.getEndTime();
         operationHour.operationDay = operationDay;
         return operationHour;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        OperationHour that = (OperationHour) o;
+        return Objects.equals(startTime, that.startTime) &&
+                Objects.equals(endTime, that.endTime);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(startTime, endTime);
     }
 }

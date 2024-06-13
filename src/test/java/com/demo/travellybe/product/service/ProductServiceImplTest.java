@@ -18,6 +18,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDate;
@@ -37,7 +39,9 @@ class ProductServiceImplTest {
 
     @Mock private ProductRepository productRepository;
     @Mock private MemberRepository memberRepository;
-    @InjectMocks private ProductServiceImpl postService;
+    @Mock private RedisTemplate<String, Object> redisTemplate;
+    @Mock private ZSetOperations<String, Object> zSetOperations;
+    @InjectMocks private ProductServiceImpl productService;
 
     Member member1;
     Member member2;
@@ -123,7 +127,7 @@ class ProductServiceImplTest {
         when(productRepository.save(any(Product.class))).thenAnswer(i -> i.getArgument(0));
 
         // When
-        ProductResponseDto responseDto = postService.addProduct(1L, createRequestDto);
+        ProductResponseDto responseDto = productService.addProduct(1L, createRequestDto);
 
         // Then
         assertThat(responseDto.getName()).isEqualTo(createRequestDto.getName());
@@ -153,7 +157,7 @@ class ProductServiceImplTest {
 
         // when
         // then
-        CustomException exception = assertThrows(CustomException.class, () -> postService.addProduct(1L, createRequestDto));
+        CustomException exception = assertThrows(CustomException.class, () -> productService.addProduct(1L, createRequestDto));
         assertThat(exception.getCode()).isEqualTo(ErrorCode.MEMBER_NOT_FOUND.getCode());
 
         verify(memberRepository, times(1)).findById(1L);
@@ -166,7 +170,7 @@ class ProductServiceImplTest {
         when(productRepository.findById(anyLong())).thenReturn(Optional.of(Product.of(createRequestDto)));
 
         // When
-        postService.deleteProduct(1L);
+        productService.deleteProduct(1L);
 
         // Then
         verify(productRepository, times(1)).findById(anyLong());
@@ -181,49 +185,48 @@ class ProductServiceImplTest {
 
         // When
         // Then
-        CustomException exception = assertThrows(CustomException.class, () -> postService.deleteProduct(1L));
+        CustomException exception = assertThrows(CustomException.class, () -> productService.deleteProduct(1L));
         assertThat(exception.getCode()).isEqualTo(ErrorCode.PRODUCT_NOT_FOUND.getCode());
 
         verify(productRepository, times(1)).findById(1L);
     }
 
-    // TODO update clear에서 오류 발생
     @Test
     @DisplayName("상품 수정 - 성공")
     void updateProduct_success() {
-//        // given
-//        List<TicketDto> newTicketPrice = new ArrayList<>();
-//        newTicketPrice.add(TicketDto.builder()
-//                .name("성인").price(20000)
-//                .build());
-//        newTicketPrice.add(TicketDto.builder()
-//                .name("학생").price(15000)
-//                .build());
-//
-//        ProductCreateRequestDto updateRequestDto = ProductCreateRequestDto.builder()
-//                .name("product2").type("type2")
-//                .description("description2").imageUrl("imageUrl2")
-//                .address("address2").detailAddress("detailAddress2")
-//                .phoneNumber("phoneNumber2").homepage("homepage2")
-//                .cityCode("cityCode2").quantity(200)
-//                .tickets(newTicketPrice)
-//                .operationDays(createRequestDto.getOperationDays())
-//                .build();
-//
-//        Product product = Product.of(createRequestDto);
-//        when(productRepository.findById(anyLong())).thenReturn(Optional.of(product));
-//
-//        // when
-//        postService.updateProduct(1L, updateRequestDto);
-//
-//        // then
-//        assertThat(product.getName()).isEqualTo(updateRequestDto.getName());
-//        assertThat(product.getType()).isEqualTo(updateRequestDto.getType());
-//        for (int i = 0; i < product.getTickets().size(); i++) {
-//            assertThat(product.getTickets().get(i).getPrice()).isEqualTo(updateRequestDto.getTickets().get(i).getPrice());
-//        }
-//
-//        verify(productRepository, times(1)).findById(1L);
+        // given
+        List<TicketDto> newTicketPrice = new ArrayList<>();
+        newTicketPrice.add(TicketDto.builder()
+                .name("성인").price(20000)
+                .build());
+        newTicketPrice.add(TicketDto.builder()
+                .name("학생").price(15000)
+                .build());
+
+        ProductCreateRequestDto updateRequestDto = ProductCreateRequestDto.builder()
+                .name("product2").type("type2")
+                .description("description2").images(createRequestDto.getImages())
+                .address("address2").detailAddress("detailAddress2")
+                .phoneNumber("phoneNumber2").homepage("homepage2")
+                .cityCode("cityCode2").quantity(200)
+                .tickets(newTicketPrice)
+                .operationDays(createRequestDto.getOperationDays())
+                .build();
+
+        Product product = Product.of(createRequestDto);
+        when(productRepository.findById(anyLong())).thenReturn(Optional.of(product));
+
+        // when
+        productService.updateProduct(1L, updateRequestDto);
+
+        // then
+        assertThat(product.getName()).isEqualTo(updateRequestDto.getName());
+        assertThat(product.getType()).isEqualTo(updateRequestDto.getType());
+        for (int i = 0; i < product.getTickets().size(); i++) {
+            assertThat(product.getTickets().get(i).getPrice()).isEqualTo(updateRequestDto.getTickets().get(i).getPrice());
+        }
+
+        verify(productRepository, times(1)).findById(1L);
     }
 
     @Test
@@ -234,7 +237,7 @@ class ProductServiceImplTest {
 
         // when
         // then
-        CustomException exception = assertThrows(CustomException.class, () -> postService.updateProduct(1L, createRequestDto));
+        CustomException exception = assertThrows(CustomException.class, () -> productService.updateProduct(1L, createRequestDto));
         assertThat(exception.getCode()).isEqualTo(ErrorCode.PRODUCT_NOT_FOUND.getCode());
 
         verify(productRepository, times(1)).findById(1L);
@@ -248,16 +251,18 @@ class ProductServiceImplTest {
         ReflectionTestUtils.setField(product, "id", 1L);
         ReflectionTestUtils.setField(product, "member", member1);
         when(productRepository.findById(product.getId())).thenReturn(Optional.of(product));
+        when(redisTemplate.opsForZSet()).thenReturn(zSetOperations);
+        when(zSetOperations.incrementScore(any(), any(), anyDouble())).thenReturn(1.0);
 
         // when
-        ProductResponseDto responseDto = postService.getProductById(product.getId());
+        ProductResponseDto responseDto = productService.getProductById(product.getId());
 
         // then
         assertThat(responseDto.getId()).isEqualTo(product.getId());
         assertThat(responseDto.getName()).isEqualTo(product.getName());
 
-
         verify(productRepository, times(1)).findById(product.getId());
+        verify(zSetOperations, times(1)).incrementScore("popular_products", String.valueOf(product.getId()), 1);
     }
 
     @Test
@@ -268,7 +273,7 @@ class ProductServiceImplTest {
 
         // when
         // then
-        CustomException exception = assertThrows(CustomException.class, () -> postService.getProductById(1L));
+        CustomException exception = assertThrows(CustomException.class, () -> productService.getProductById(1L));
         assertThat(exception.getCode()).isEqualTo(ErrorCode.PRODUCT_NOT_FOUND.getCode());
 
         verify(productRepository, times(1)).findById(1L);
@@ -284,7 +289,7 @@ class ProductServiceImplTest {
         when(productRepository.findById(product.getId())).thenReturn(Optional.of(product));
 
         // when
-        postService.checkProductOwner(product.getId(), member1.getId());
+        productService.checkProductOwner(product.getId(), member1.getId());
 
         // then
         verify(productRepository, times(1)).findById(product.getId());
@@ -298,7 +303,7 @@ class ProductServiceImplTest {
 
         // when
         // then
-        CustomException exception = assertThrows(CustomException.class, () -> postService.checkProductOwner(1L, member1.getId()));
+        CustomException exception = assertThrows(CustomException.class, () -> productService.checkProductOwner(1L, member1.getId()));
         assertThat(exception.getCode()).isEqualTo(ErrorCode.PRODUCT_NOT_FOUND.getCode());
 
         verify(productRepository, times(1)).findById(1L);
@@ -315,7 +320,7 @@ class ProductServiceImplTest {
 
         // when
         // then
-        CustomException exception = assertThrows(CustomException.class, () -> postService.checkProductOwner(product.getId(), member2.getId()));
+        CustomException exception = assertThrows(CustomException.class, () -> productService.checkProductOwner(product.getId(), member2.getId()));
         assertThat(exception.getCode()).isEqualTo(ErrorCode.PRODUCT_NOT_OWNER.getCode());
 
         verify(productRepository, times(1)).findById(product.getId());
