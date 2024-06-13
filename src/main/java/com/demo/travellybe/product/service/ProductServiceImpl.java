@@ -63,11 +63,10 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductResponseDto getProductById(Long id) {
-        // 상품 id를 Redis에 저장
-        redisTemplate.opsForZSet().incrementScore("popular_products", String.valueOf(id), 1);
-
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
+        // 상품 id를 Redis에 저장
+        redisTemplate.opsForZSet().incrementScore("popular_products", String.valueOf(id), 1);
         return new ProductResponseDto(product);
     }
 
