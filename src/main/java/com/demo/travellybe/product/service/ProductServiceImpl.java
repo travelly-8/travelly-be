@@ -121,24 +121,32 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<KeywordRankChangeDto> getTopSearchKeywordsWithRankChange() {
-        // Redis에서 현재 인기검색어 top 10 조회
-        Set<String> currentTopKeywordsSet = redisTemplate.opsForZSet().reverseRange("popular_keywords", 0, 9);
-        if (currentTopKeywordsSet == null) return new ArrayList<>();
+        // Redis에서 인기검색어 top 10을 조회
+        Set<String> topKeywords = redisTemplate.opsForZSet().reverseRange("popular_keywords", 0, 9);
+        List<KeywordRankChangeDto> keywordRankChangeDtoList = new ArrayList<>();
 
-        // Redis에서 이전 인기검색어 top 10 조회
-        Set<String> prevTopKeywordsSet = redisTemplate.opsForZSet().reverseRange("popular_keywords_prev", 0, 9);
+        if (topKeywords == null) return keywordRankChangeDtoList;
 
-        // 현재와 이전 순위 비교하여 순위 변동 정보 계산
-        List<KeywordRankChangeDto> keywordRankChangeDtos = new ArrayList<>();
         int rank = 1;
-        for (String keyword : currentTopKeywordsSet) {
-            int prevRank = prevTopKeywordsSet != null ? prevTopKeywordsSet.stream().toList().indexOf(keyword) + 1 : 0;
-            int rankChange = prevRank == 0 ? 0 : prevRank - rank;
-            keywordRankChangeDtos.add(new KeywordRankChangeDto(keyword, rank, prevRank, rankChange));
-            rank++;
+        for (String keyword : topKeywords) {
+            // 현재 랭킹
+            int currentRank = rank++;
+
+            // 이전 랭킹 조회
+            Long previousRankLong = redisTemplate.opsForZSet().reverseRank("popular_keywords_prev", keyword);
+            int previousRank = previousRankLong != null ? previousRankLong.intValue() + 1 : currentRank;
+
+            // 랭킹 변화 계산
+            int rankChange = previousRank - currentRank;
+
+            // KeywordRankChangeDto 생성 및 리스트에 추가
+            keywordRankChangeDtoList.add(new KeywordRankChangeDto(keyword, currentRank, previousRank, rankChange));
         }
 
-        return keywordRankChangeDtos;
+        // 현재 인기검색어를 이전 인기검색어로 복사
+        redisTemplate.opsForZSet().intersectAndStore("popular_keywords", "popular_keywords", "popular_keywords_prev");
+
+        return keywordRankChangeDtoList;
     }
 
 
