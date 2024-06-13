@@ -5,6 +5,7 @@ import com.demo.travellybe.exception.CustomException;
 import com.demo.travellybe.exception.ErrorCode;
 import com.demo.travellybe.exception.ErrorResponse;
 import com.demo.travellybe.member.domain.Role;
+import com.demo.travellybe.product.dto.KeywordRankChangeDto;
 import com.demo.travellybe.product.dto.request.ProductCreateRequestDto;
 import com.demo.travellybe.product.dto.response.ProductResponseDto;
 import com.demo.travellybe.product.dto.response.ProductsResponseDto;
@@ -153,17 +154,17 @@ public class ProductController {
         return ResponseEntity.ok(s3Service.uploadFile(file, "product"));
     }
 
-    @GetMapping("top-keywords")
+    @GetMapping("/top-keywords")
     @Operation(summary = "인기 검색어 조회",
             description = "인기 검색어 상위 10개를 조회합니다.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "성공")
             })
-    public ResponseEntity<List<String>> getTopSearchKeywords() {
-        return ResponseEntity.ok(productService.getTopSearchKeywords());
+    public ResponseEntity<List<KeywordRankChangeDto>> getTopSearchKeywords() {
+        return ResponseEntity.ok(productService.getTopSearchKeywordsWithRankChange());
     }
 
-    @GetMapping("top-products")
+    @GetMapping("/top-products")
     @Operation(summary = "인기 상품 조회",
             description = "인기 상품 상위 10개를 조회합니다.",
             responses = {

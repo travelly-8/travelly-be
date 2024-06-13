@@ -7,14 +7,14 @@ import com.demo.travellybe.exception.ErrorCode;
 import com.demo.travellybe.member.domain.Member;
 import com.demo.travellybe.member.domain.MemberRepository;
 import com.demo.travellybe.product.domain.Product;
+import com.demo.travellybe.product.dto.KeywordRankChangeDto;
 import com.demo.travellybe.product.dto.request.ProductCreateRequestDto;
+import com.demo.travellybe.product.dto.request.ProductsSearchRequestDto;
 import com.demo.travellybe.product.dto.response.ProductResponseDto;
 import com.demo.travellybe.product.dto.response.ProductsResponseDto;
-import com.demo.travellybe.product.dto.request.ProductsSearchRequestDto;
 import com.demo.travellybe.product.repository.ProductRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -119,6 +119,29 @@ public class ProductServiceImpl implements ProductService {
         if (topKeywords == null) return new ArrayList<>();
         return new ArrayList<>(topKeywords);
     }
+
+    @Override
+    public List<KeywordRankChangeDto> getTopSearchKeywordsWithRankChange() {
+        // Redis에서 현재 인기검색어 top 10 조회
+        Set<String> currentTopKeywordsSet = redisTemplate.opsForZSet().reverseRange("popular_keywords", 0, 9);
+        if (currentTopKeywordsSet == null) return new ArrayList<>();
+
+        // Redis에서 이전 인기검색어 top 10 조회
+        Set<String> prevTopKeywordsSet = redisTemplate.opsForZSet().reverseRange("popular_keywords_prev", 0, 9);
+
+        // 현재와 이전 순위 비교하여 순위 변동 정보 계산
+        List<KeywordRankChangeDto> keywordRankChangeDtos = new ArrayList<>();
+        int rank = 1;
+        for (String keyword : currentTopKeywordsSet) {
+            int prevRank = prevTopKeywordsSet != null ? prevTopKeywordsSet.stream().toList().indexOf(keyword) + 1 : 0;
+            int rankChange = prevRank == 0 ? 0 : prevRank - rank;
+            keywordRankChangeDtos.add(new KeywordRankChangeDto(keyword, rank, prevRank, rankChange));
+            rank++;
+        }
+
+        return keywordRankChangeDtos;
+    }
+
 
     @Override
     public List<ProductsResponseDto> getTopProducts() {

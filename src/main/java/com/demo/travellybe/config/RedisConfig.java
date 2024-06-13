@@ -42,7 +42,7 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisCacheManager permanentCacheManager(RedisConnectionFactory redisConnectionFactory) {
+    public RedisCacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
         RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
                 .serializeKeysWith(RedisSerializationContext
                         .SerializationPair.fromSerializer(new StringRedisSerializer()))
