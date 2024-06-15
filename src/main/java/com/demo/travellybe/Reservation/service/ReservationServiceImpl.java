@@ -44,6 +44,7 @@ public class ReservationServiceImpl implements ReservationService {
     public ReservationResponseDto addReservation(Long memberId, Long productId, ReservationCreateDto reservationCreateDto) {
         Product product = findProductById(productId);
         Member buyer = findMemberById(memberId);
+        Member seller = product.getMember();
 
         List<Long> ticketIds = reservationCreateDto.getTicketDtos().stream()
                 .map(ReservationTicketDto::getTicketId)
@@ -81,6 +82,8 @@ public class ReservationServiceImpl implements ReservationService {
 
         product.setQuantity(product.getQuantity() - totalQuantity);
         buyer.setPoint(buyer.getPoint() - totalPrice);
+        seller.setPoint(seller.getPoint() + totalPrice);
+
 
         return new ReservationResponseDto(saved);
     }

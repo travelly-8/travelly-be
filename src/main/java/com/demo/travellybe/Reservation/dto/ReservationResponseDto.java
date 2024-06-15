@@ -39,6 +39,8 @@ public class ReservationResponseDto {
         this.id = reservation.getId();
         this.sellerName = reservation.getProduct().getMember().getNickname();
         this.buyerName = reservation.getBuyer().getNickname();
+        this.phone = reservation.getPhone();
+        this.email = reservation.getEmail();
         this.productName = reservation.getProduct().getName();
         this.date = reservation.getDate();
         this.startTime = reservation.getStartTime();

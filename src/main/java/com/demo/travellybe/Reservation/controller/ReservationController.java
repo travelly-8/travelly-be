@@ -10,6 +10,7 @@ import com.demo.travellybe.exception.ErrorCode;
 import com.demo.travellybe.exception.ErrorResponse;
 import com.demo.travellybe.member.domain.Member;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -17,7 +18,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -50,8 +52,10 @@ public class ReservationController {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
             })
     public ResponseEntity<Page<ReservationResponseDto>> getMyReservations(@AuthenticationPrincipal PrincipalDetails principalDetails,
-                                                                          Pageable pageable) {
+                                                                          @Parameter(example = "0") int page,
+                                                                          @Parameter(example = "10") int size) {
         if (principalDetails == null) throw new CustomException(ErrorCode.LOGIN_REQUIRED);
+        PageRequest pageable = PageRequest.of(page, size, Sort.by("date"));
         return ResponseEntity.ok(reservationService.getReservationsByMemberId(principalDetails.getMember().getId(), pageable));
     }
 
