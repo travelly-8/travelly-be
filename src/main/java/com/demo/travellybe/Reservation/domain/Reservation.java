@@ -33,6 +33,19 @@ public class Reservation extends BaseTimeEntity {
     @OneToMany(mappedBy = "reservation", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReservationTicket> reservationTickets = new ArrayList<>();
 
+    // 예약자명(구매자와 다를 수 있음)
+    @Column(nullable = false)
+    private String name;
+
+    // 예약자 연락처(구매자와 다를 수 있음)
+    @Column(nullable = false)
+    private String phone;
+
+    // 예약자 이메일(구매자와 다를 수 있음)
+    @Column(nullable = false)
+    private String email;
+
+
     @Column(nullable = false)
     private LocalDate date;
 
@@ -46,10 +59,14 @@ public class Reservation extends BaseTimeEntity {
     @Column(nullable = false)
     private ReservationStatus status;
 
-    public static Reservation of(Product product, Member buyer, LocalDate date, LocalTime startTime, LocalTime endTime) {
+    public static Reservation of(Product product, Member buyer, String name, String phone, String email,
+                                 LocalDate date, LocalTime startTime, LocalTime endTime) {
         Reservation reservation = new Reservation();
         reservation.product = product;
         reservation.buyer = buyer;
+        reservation.name = name;
+        reservation.phone = phone;
+        reservation.email = email;
         reservation.date = date;
         reservation.startTime = startTime;
         reservation.endTime = endTime;

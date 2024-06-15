@@ -19,8 +19,6 @@ public class ReservationTicketResponseDto {
     private int quantity;
     @Schema(description = "가격", example = "10000")
     private int price;
-    @Schema(description = "티켓 총 가격", example = "20000")
-    private int totalPrice;
 
     public ReservationTicketResponseDto(ReservationTicket reservationTicket) {
         Ticket ticket = reservationTicket.getTicket();
@@ -29,6 +27,5 @@ public class ReservationTicketResponseDto {
         this.description = ticket.getDescription();
         this.quantity = reservationTicket.getQuantity();
         this.price = ticket.getPrice();
-        this.totalPrice = ticket.getPrice() * reservationTicket.getQuantity();
     }
 }

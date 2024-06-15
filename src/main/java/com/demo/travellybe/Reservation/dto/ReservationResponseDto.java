@@ -14,12 +14,16 @@ import java.util.List;
 public class ReservationResponseDto {
     @Schema(description = "예약 ID", example = "1")
     private Long id;
-    @Schema(description = "판매자 이름", example = "김철수")
-    private String sellerName;
-    @Schema(description = "구매자 이름", example = "홍길동")
-    private String buyerName;
     @Schema(description = "상품 이름", example = "제주도 여행")
     private String productName;
+    @Schema(description = "판매자 이름", example = "김철수")
+    private String sellerName;
+    @Schema(description = "예약자 이름", example = "홍길동")
+    private String buyerName;
+    @Schema(description = "연락처", example = "010-1234-5678")
+    private String phone;
+    @Schema(description = "이메일", example = "email@email.com")
+    private String email;
 
     private LocalDate date;
     private LocalTime startTime;

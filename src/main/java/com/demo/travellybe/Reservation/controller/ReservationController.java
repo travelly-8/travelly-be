@@ -73,7 +73,9 @@ public class ReservationController {
                                @AuthenticationPrincipal PrincipalDetails principalDetails) {
         if (principalDetails == null) throw new CustomException(ErrorCode.LOGIN_REQUIRED);
         Member member = principalDetails.getMember();
+        // 상품 소유자는 예약할 수 없음
         reservationService.checkProductOwner(productId, member.getId());
+        // 예약 시간이 유효한지 확인
         reservationService.checkOperationDateTime(productId, reservationCreateDto);
         return ResponseEntity.ok(reservationService.addReservation(member.getId(), productId, reservationCreateDto));
     }

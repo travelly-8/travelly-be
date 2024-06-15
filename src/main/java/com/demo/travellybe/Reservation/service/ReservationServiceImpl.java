@@ -57,7 +57,9 @@ public class ReservationServiceImpl implements ReservationService {
         // 구매자의 포인트가 부족하면 MEMBER_NOT_ENOUGH_POINT 에러 발생
         checkBuyerPoint(buyer, reservationCreateDto, tickets);
 
-        Reservation reservation = Reservation.of(product, buyer, reservationCreateDto.getDate(), reservationCreateDto.getStartTime(), reservationCreateDto.getEndTime());
+        Reservation reservation = Reservation.of(product, buyer, reservationCreateDto.getName(), reservationCreateDto.getPhone(),
+                reservationCreateDto.getEmail(), reservationCreateDto.getDate(),
+                reservationCreateDto.getStartTime(), reservationCreateDto.getEndTime());
 
         int totalQuantity = 0;
         int totalPrice = 0;
@@ -167,5 +169,10 @@ public class ReservationServiceImpl implements ReservationService {
     public Page<ReservationResponseDto> getReservationsByMemberId(Long memberId, Pageable pageable) {
         return reservationRepository.findByBuyerId(memberId, pageable)
                 .map(ReservationResponseDto::new);
+    }
+
+    @Override
+    public void cancelReservation(Long id) {
+
     }
 }

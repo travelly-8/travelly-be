@@ -12,6 +12,15 @@ import java.util.List;
 @Setter
 public class ReservationCreateDto {
     @NotNull
+    private String name;
+
+    @NotNull
+    private String phone;
+
+    @NotNull
+    private String email;
+
+    @NotNull
     private List<ReservationTicketDto> ticketDtos;
 
     @NotNull

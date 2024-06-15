@@ -15,4 +15,5 @@ public interface ReservationService {
     void checkSeller(Long reservationId, Long memberId);
 
     Page<ReservationResponseDto> getReservationsByMemberId(Long memberId, Pageable pageable);
+    void cancelReservation(Long id);
 }
