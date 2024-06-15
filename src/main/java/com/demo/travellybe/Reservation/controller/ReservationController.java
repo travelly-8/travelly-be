@@ -1,6 +1,5 @@
 package com.demo.travellybe.Reservation.controller;
 
-import com.demo.travellybe.Reservation.domain.ReservationStatus;
 import com.demo.travellybe.Reservation.dto.ReservationCreateDto;
 import com.demo.travellybe.Reservation.dto.ReservationResponseDto;
 import com.demo.travellybe.Reservation.service.ReservationService;
@@ -21,7 +20,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -82,6 +80,26 @@ public class ReservationController {
         // 예약 시간이 유효한지 확인
         reservationService.checkOperationDateTime(productId, reservationCreateDto);
         return ResponseEntity.ok(reservationService.addReservation(member.getId(), productId, reservationCreateDto));
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "예약 취소", description = "예약 ID로 예약을 취소합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "성공"),
+                    @ApiResponse(responseCode = "401", description = "로그인이 필요합니다.",
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(responseCode = "403", description = "예약자만 취소할 수 있습니다.",
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(responseCode = "404", description = "해당 예약을 찾을 수 없습니다.",
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+            })
+    public ResponseEntity<Void> cancelReservation(@PathVariable Long id, @AuthenticationPrincipal PrincipalDetails principalDetails) {
+        if (principalDetails == null) throw new CustomException(ErrorCode.LOGIN_REQUIRED);
+        // 판매자 또는 구매자만 취소 가능
+//        if (isSeller(principalDetails) || !isBuyer(principalDetails, id))
+//            throw new CustomException(ErrorCode.RESERVATION_FORBIDDEN);
+        reservationService.cancelReservation(id);
+        return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/{reservationId}")

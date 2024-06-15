@@ -176,6 +176,25 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public void cancelReservation(Long id) {
+        Reservation reservation = reservationRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.RESERVATION_NOT_FOUND));
+        if (reservation.getIsCanceled()) throw new CustomException(ErrorCode.RESERVATION_FORBIDDEN);
 
+        Member buyer = reservation.getBuyer();
+        Product product = reservation.getProduct();
+        Member seller = product.getMember();
+
+        int totalPrice = reservation.getReservationTickets().stream()
+                .mapToInt(reservationTicket -> reservationTicket.getTicket().getPrice() * reservationTicket.getQuantity())
+                .sum();
+        int totalQuantity = reservation.getReservationTickets().stream()
+                .mapToInt(ReservationTicket::getQuantity)
+                .sum();
+
+        buyer.setPoint(buyer.getPoint() + totalPrice);
+        seller.setPoint(seller.getPoint() - totalPrice);
+        product.setQuantity(product.getQuantity() + totalQuantity);
+
+        reservation.cancel();
     }
 }

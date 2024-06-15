@@ -70,7 +70,6 @@ public class Reservation extends BaseTimeEntity {
         reservation.date = date;
         reservation.startTime = startTime;
         reservation.endTime = endTime;
-        reservation.status = ReservationStatus.PENDING;
         return reservation;
     }
 
@@ -80,9 +79,5 @@ public class Reservation extends BaseTimeEntity {
 
     public void setBuyer(Member buyer) {
         this.buyer = buyer;
-    }
-
-    public void updateStatus(ReservationStatus status) {
-        this.status = status;
     }
 }
