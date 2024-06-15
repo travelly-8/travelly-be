@@ -30,7 +30,7 @@ public class Member extends BaseTimeEntity {
     @Column(nullable = false)
     private String nickname;
 
-    private int point = 0;
+    private int point = 30000;
 
     private String imageUrl = "https://travelly-bucket.s3.ap-northeast-2.amazonaws.com/images/default-profile.png";
 
@@ -71,6 +71,10 @@ public class Member extends BaseTimeEntity {
         this.imageUrl = imageUrl;
     }
 
+    public void setPoint(int point) {
+        this.point = point;
+    }
+
     public void addReview(Review review) {
         reviews.add(review);
         review.setMember(this);
@@ -85,5 +89,4 @@ public class Member extends BaseTimeEntity {
         reservations.add(reservation);
         reservation.setBuyer(this);
     }
-
 }

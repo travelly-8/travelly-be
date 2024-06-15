@@ -157,7 +157,7 @@ public class Product extends BaseTimeEntity {
         this.reviewCount--;
     }
 
-    public void updateStock(int quantity) {
+    public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
 
