@@ -37,7 +37,7 @@ public class ReservationController {
             responses = {
                     @ApiResponse(responseCode = "200", description = "성공"),
                     @ApiResponse(responseCode = "404", description = "해당 예약을 찾을 수 없습니다.",
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+                            content = @Content(schema = @Schema(hidden = true)))
             })
     public ResponseEntity<ReservationResponseDto> getReservation(@PathVariable Long id) {
         return ResponseEntity.ok(reservationService.getReservation(id));
@@ -48,7 +48,7 @@ public class ReservationController {
             responses = {
                     @ApiResponse(responseCode = "200", description = "성공"),
                     @ApiResponse(responseCode = "401", description = "로그인이 필요합니다.",
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+                            content = @Content(schema = @Schema(hidden = true)))
             })
     public ResponseEntity<Page<ReservationResponseDto>> getMyReservations(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                                                           @Parameter(example = "0") int page,
@@ -59,17 +59,17 @@ public class ReservationController {
     }
 
     @PostMapping("/{productId}")
-    @Operation(summary = "예약 추가", description = "상품 ID로 예약을 추가합니다.",
+    @Operation(summary = "예약 생성", description = "상품 ID로 예약을 추가합니다.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "성공"),
                     @ApiResponse(responseCode = "400", description = "예약 시간이 유효하지 않습니다.",
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                            content = @Content(schema = @Schema(hidden = true))),
                     @ApiResponse(responseCode = "401", description = "로그인이 필요합니다.",
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                            content = @Content(schema = @Schema(hidden = true))),
                     @ApiResponse(responseCode = "403", description = "상품 소유자는 예약할 수 없습니다",
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                            content = @Content(schema = @Schema(hidden = true))),
                     @ApiResponse(responseCode = "404", description = "해당 상품을 찾을 수 없습니다.",
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+                            content = @Content(schema = @Schema(hidden = true)))
             })
     public ResponseEntity<ReservationResponseDto> addReservation(@PathVariable Long productId,
                                @Valid @RequestBody ReservationCreateDto reservationCreateDto,
@@ -88,7 +88,7 @@ public class ReservationController {
             responses = {
                     @ApiResponse(responseCode = "200", description = "성공"),
                     @ApiResponse(responseCode = "401", description = "로그인이 필요합니다.",
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+                            content = @Content(schema = @Schema(hidden = true)))
             })
     public ResponseEntity<ReservationResponseDto> acceptReservation(@PathVariable Long id,
                                                                     @AuthenticationPrincipal PrincipalDetails principalDetails) {
@@ -103,10 +103,11 @@ public class ReservationController {
                     @ApiResponse(responseCode = "401", description = "로그인이 필요합니다.")
             })
     public ResponseEntity<Void> rejectReservation(@PathVariable Long id,
+                                                  @RequestBody String rejectReason,
                                                   @AuthenticationPrincipal PrincipalDetails principalDetails) {
         if (principalDetails == null) throw new CustomException(ErrorCode.LOGIN_REQUIRED);
         // TODO: 판매자만 예약 거절 가능
-//        reservationService.rejectReservation(id);
+        reservationService.rejectReservation(id, rejectReason);
         return ResponseEntity.ok().build();
     }
 

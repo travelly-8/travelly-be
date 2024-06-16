@@ -16,4 +16,6 @@ public interface ReservationService {
     Page<ReservationResponseDto> getReservationsByMemberId(Long memberId, Pageable pageable);
 
     void cancelReservation(Long id);
+
+    void rejectReservation(Long id, String rejectReason);
 }

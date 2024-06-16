@@ -58,6 +58,10 @@ public class Reservation extends BaseTimeEntity {
     @Column(nullable = false)
     private ReservationStatus status = ReservationStatus.PENDING;
 
+    // 예약 거절 사유 (REJECTED 상태일 때만 저장)
+    @Column(length = 500)
+    private String rejectionReason;
+
     public static Reservation of(Product product, Member buyer, String name, String phone, String email,
                                  LocalDate date, LocalTime startTime, LocalTime endTime) {
         Reservation reservation = new Reservation();
@@ -82,5 +86,9 @@ public class Reservation extends BaseTimeEntity {
 
     public void setStatus(ReservationStatus status) {
         this.status = status;
+    }
+
+    public void setRejectionReason(String rejectionReason) {
+        this.rejectionReason = rejectionReason;
     }
 }

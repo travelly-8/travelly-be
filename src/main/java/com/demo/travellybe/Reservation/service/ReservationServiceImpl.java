@@ -170,9 +170,23 @@ public class ReservationServiceImpl implements ReservationService {
     public void cancelReservation(Long id) {
         Reservation reservation = reservationRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.RESERVATION_NOT_FOUND));
-        // TODO: 취소 가능한 상태인지 확인
         reservation.setStatus(ReservationStatus.CANCELED);
 
+        refund(reservation);
+    }
+
+    @Override
+    public void rejectReservation(Long id, String rejectReason) {
+        Reservation reservation = reservationRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.RESERVATION_NOT_FOUND));
+        reservation.setStatus(ReservationStatus.REJECTED);
+        reservation.setRejectionReason(rejectReason);
+
+        refund(reservation);
+    }
+
+    // 환불 처리
+    private void refund(Reservation reservation) {
         Member buyer = reservation.getBuyer();
         Product product = reservation.getProduct();
         Member seller = product.getMember();
