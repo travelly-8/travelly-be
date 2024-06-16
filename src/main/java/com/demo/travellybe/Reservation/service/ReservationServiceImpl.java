@@ -41,7 +41,7 @@ public class ReservationServiceImpl implements ReservationService {
     private final TicketRepository ticketRepository;
 
     @Override
-    public ReservationResponseDto addReservation(Long memberId, Long productId, ReservationCreateDto reservationCreateDto) {
+    public ReservationResponseDto createReservation(Long memberId, Long productId, ReservationCreateDto reservationCreateDto) {
         Product product = findProductById(productId);
         Member buyer = findMemberById(memberId);
         Member seller = product.getMember();
@@ -80,12 +80,21 @@ public class ReservationServiceImpl implements ReservationService {
         product.addReservation(reservation);
         buyer.addReservation(reservation);
 
+        // 상품 수량 차감, 구매자 포인트 차감, 판매자 포인트 증가
         product.setQuantity(product.getQuantity() - totalQuantity);
         buyer.setPoint(buyer.getPoint() - totalPrice);
         seller.setPoint(seller.getPoint() + totalPrice);
 
 
         return new ReservationResponseDto(saved);
+    }
+
+    @Override
+    public ReservationResponseDto updateStatus(Long id, ReservationStatus status) {
+        Reservation reservation = reservationRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.RESERVATION_NOT_FOUND));
+        reservation.setStatus(status);
+        return new ReservationResponseDto(reservation);
     }
 
     private void checkBuyerPoint(Member buyer, ReservationCreateDto reservationCreateDto, Map<Long, Ticket> tickets) {
@@ -99,6 +108,13 @@ public class ReservationServiceImpl implements ReservationService {
         if (buyer.getPoint() < totalPrice) throw new CustomException(ErrorCode.MEMBER_NOT_ENOUGH_POINT);
     }
 
+    private void checkProductQuantity(ReservationCreateDto reservationCreateDto, Product product) {
+        int totalQuantity = reservationCreateDto.getTicketDtos().stream()
+                .mapToInt(ReservationTicketDto::getQuantity)
+                .sum();
+        if (product.getQuantity() < totalQuantity)
+            throw new CustomException(ErrorCode.PRODUCT_NOT_ENOUGH_TICKET_QUANTITY);
+    }
 
     private Member findMemberById(Long memberId) {
         return memberRepository.findById(memberId)
@@ -108,14 +124,6 @@ public class ReservationServiceImpl implements ReservationService {
     private Product findProductById(Long productId) {
         return productRepository.findById(productId)
                 .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
-    }
-
-    private void checkProductQuantity(ReservationCreateDto reservationCreateDto, Product product) {
-        int totalQuantity = reservationCreateDto.getTicketDtos().stream()
-                .mapToInt(ReservationTicketDto::getQuantity)
-                .sum();
-        if (product.getQuantity() < totalQuantity)
-            throw new CustomException(ErrorCode.PRODUCT_NOT_ENOUGH_TICKET_QUANTITY);
     }
 
     @Override
@@ -153,48 +161,8 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public ReservationResponseDto updateStatus(Long id, ReservationStatus status) {
-        Reservation reservation = reservationRepository.findById(id)
-                .orElseThrow(() -> new CustomException(ErrorCode.RESERVATION_NOT_FOUND));
-        reservation.updateStatus(status);
-        return new ReservationResponseDto(reservation);
-    }
-
-    @Override
-    public void checkSeller(Long reservationId, Long memberId) {
-        Reservation reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new CustomException(ErrorCode.RESERVATION_NOT_FOUND));
-        Member seller = reservation.getProduct().getMember();
-        if (!seller.getId().equals(memberId)) throw new CustomException(ErrorCode.RESERVATION_FORBIDDEN);
-    }
-
-    @Override
     public Page<ReservationResponseDto> getReservationsByMemberId(Long memberId, Pageable pageable) {
         return reservationRepository.findByBuyerId(memberId, pageable)
                 .map(ReservationResponseDto::new);
-    }
-
-    @Override
-    public void cancelReservation(Long id) {
-        Reservation reservation = reservationRepository.findById(id)
-                .orElseThrow(() -> new CustomException(ErrorCode.RESERVATION_NOT_FOUND));
-        if (reservation.getIsCanceled()) throw new CustomException(ErrorCode.RESERVATION_FORBIDDEN);
-
-        Member buyer = reservation.getBuyer();
-        Product product = reservation.getProduct();
-        Member seller = product.getMember();
-
-        int totalPrice = reservation.getReservationTickets().stream()
-                .mapToInt(reservationTicket -> reservationTicket.getTicket().getPrice() * reservationTicket.getQuantity())
-                .sum();
-        int totalQuantity = reservation.getReservationTickets().stream()
-                .mapToInt(ReservationTicket::getQuantity)
-                .sum();
-
-        buyer.setPoint(buyer.getPoint() + totalPrice);
-        seller.setPoint(seller.getPoint() - totalPrice);
-        product.setQuantity(product.getQuantity() + totalQuantity);
-
-        reservation.cancel();
     }
 }

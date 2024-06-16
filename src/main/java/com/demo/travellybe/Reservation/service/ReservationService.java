@@ -7,13 +7,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface ReservationService {
-    ReservationResponseDto addReservation(Long memberId, Long productId, ReservationCreateDto reservationCreateDto);
-    ReservationResponseDto getReservation(Long id);
+    ReservationResponseDto getReservation(Long reservationId);
+    ReservationResponseDto createReservation(Long memberId, Long productId, ReservationCreateDto reservationCreateDto);
     void checkProductOwner(Long productId, Long memberId);
     void checkOperationDateTime(Long productId, ReservationCreateDto reservationCreateDto);
     ReservationResponseDto updateStatus(Long id, ReservationStatus status);
-    void checkSeller(Long reservationId, Long memberId);
 
     Page<ReservationResponseDto> getReservationsByMemberId(Long memberId, Pageable pageable);
-    void cancelReservation(Long id);
 }
