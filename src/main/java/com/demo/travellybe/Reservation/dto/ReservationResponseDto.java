@@ -45,7 +45,7 @@ public class ReservationResponseDto {
         this.date = reservation.getDate();
         this.startTime = reservation.getStartTime();
         this.endTime = reservation.getEndTime();
-        this.isCanceled = reservation.getIsCanceled();
+        this.status = reservation.getStatus().name();
         this.Tickets = reservation.getReservationTickets().stream()
                 .map(ReservationTicketResponseDto::new)
                 .toList();

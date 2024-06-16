@@ -165,4 +165,26 @@ public class ReservationServiceImpl implements ReservationService {
         return reservationRepository.findByBuyerId(memberId, pageable)
                 .map(ReservationResponseDto::new);
     }
+
+    @Override
+    public void cancelReservation(Long id) {
+        Reservation reservation = reservationRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.RESERVATION_NOT_FOUND));
+        // TODO: 취소 가능한 상태인지 확인
+        reservation.setStatus(ReservationStatus.CANCELED);
+
+        Member buyer = reservation.getBuyer();
+        Product product = reservation.getProduct();
+        Member seller = product.getMember();
+
+        int totalPrice = reservation.getReservationTickets().stream()
+                .mapToInt(rt -> rt.getTicket().getPrice() * rt.getQuantity())
+                .sum();
+
+        buyer.setPoint(buyer.getPoint() + totalPrice);
+        seller.setPoint(seller.getPoint() - totalPrice);
+        product.setQuantity(product.getQuantity() + reservation.getReservationTickets().stream()
+                .mapToInt(ReservationTicket::getQuantity)
+                .sum());
+    }
 }

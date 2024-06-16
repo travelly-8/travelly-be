@@ -45,7 +45,6 @@ public class Reservation extends BaseTimeEntity {
     @Column(nullable = false)
     private String email;
 
-
     @Column(nullable = false)
     private LocalDate date;
 
@@ -57,7 +56,7 @@ public class Reservation extends BaseTimeEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ReservationStatus status;
+    private ReservationStatus status = ReservationStatus.PENDING;
 
     public static Reservation of(Product product, Member buyer, String name, String phone, String email,
                                  LocalDate date, LocalTime startTime, LocalTime endTime) {

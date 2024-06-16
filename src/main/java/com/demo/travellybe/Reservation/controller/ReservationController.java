@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/reservations")
+@RequestMapping("/reservation")
 @Tag(name = "Reservation", description = "예약 API")
 public class ReservationController {
 
@@ -83,25 +83,44 @@ public class ReservationController {
         return ResponseEntity.ok(reservationService.createReservation(member.getId(), productId, reservationCreateDto));
     }
 
-    @DeleteMapping("/{id}")
-    @Operation(summary = "예약 취소", description = "예약 ID로 예약을 취소합니다.",
+    @PatchMapping ("/{id}/accept")
+    @Operation(summary = "예약 수락", description = "상품 판매자가 예약을 수락합니다.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "성공"),
                     @ApiResponse(responseCode = "401", description = "로그인이 필요합니다.",
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = "403", description = "예약자만 취소할 수 있습니다.",
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = "404", description = "해당 예약을 찾을 수 없습니다.",
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
             })
-    public ResponseEntity<Void> cancelReservation(@PathVariable Long id, @AuthenticationPrincipal PrincipalDetails principalDetails) {
+    public ResponseEntity<ReservationResponseDto> acceptReservation(@PathVariable Long id,
+                                                                    @AuthenticationPrincipal PrincipalDetails principalDetails) {
         if (principalDetails == null) throw new CustomException(ErrorCode.LOGIN_REQUIRED);
-        // 판매자 또는 구매자만 취소 가능
+        return ResponseEntity.ok(reservationService.updateStatus(id, ReservationStatus.ACCEPTED));
+    }
+
+    @PatchMapping("/{id}/reject")
+    @Operation(summary = "예약 거절", description = "상품 판매자가 예약을 거절합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "성공"),
+                    @ApiResponse(responseCode = "401", description = "로그인이 필요합니다.")
+            })
+    public ResponseEntity<Void> rejectReservation(@PathVariable Long id,
+                                                  @AuthenticationPrincipal PrincipalDetails principalDetails) {
+        if (principalDetails == null) throw new CustomException(ErrorCode.LOGIN_REQUIRED);
+        // TODO: 판매자만 예약 거절 가능
+//        reservationService.rejectReservation(id);
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/accept/{id}")
-    public ResponseEntity<ReservationResponseDto> acceptReservation(@PathVariable Long id) {
-        return ResponseEntity.ok(reservationService.updateStatus(id, ReservationStatus.ACCEPTED));
+    @PatchMapping("/{id}/cancel")
+    @Operation(summary = "예약 취소", description = "상품 구매자가 예약을 취소합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "성공"),
+                    @ApiResponse(responseCode = "401", description = "로그인이 필요합니다.")
+            })
+    public ResponseEntity<Void> cancelReservation(@PathVariable Long id,
+                                                  @AuthenticationPrincipal PrincipalDetails principalDetails) {
+        if (principalDetails == null) throw new CustomException(ErrorCode.LOGIN_REQUIRED);
+        // TODO: 구매자만 예약 취소 가능
+        reservationService.cancelReservation(id);
+        return ResponseEntity.ok().build();
     }
 }
