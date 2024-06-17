@@ -39,6 +39,7 @@ public class S3Service {
         metadata.setContentLength(file.getSize());
         metadata.setContentType(file.getContentType());
 
+        // s3 에 저장될 경로 설정
         String filePath = "images/" + path + "/" + file.getOriginalFilename();
 
         try {

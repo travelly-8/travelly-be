@@ -32,21 +32,18 @@ public class Ticket {
     @Column(nullable = false)
     private int price;
 
-    private String description;
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Ticket ticket = (Ticket) o;
         return price == ticket.price &&
-                Objects.equals(name, ticket.name) &&
-                Objects.equals(description, ticket.description);
+                Objects.equals(name, ticket.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, price, description);
+        return Objects.hash(name, price);
     }
 
 
@@ -55,7 +52,7 @@ public class Ticket {
         ticket.product = product;
         ticket.name = ticketDto.getName();
         ticket.price = ticketDto.getPrice();
-        if (ticketDto.getDescription() != null) ticket.description = ticketDto.getDescription();
+
         return ticket;
     }
 

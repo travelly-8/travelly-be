@@ -42,14 +42,17 @@ public class Reservation extends BaseTimeEntity {
     @Column(nullable = false)
     private LocalTime endTime;
 
+    private String phoneNumber;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ReservationStatus status;
 
-    public static Reservation of(Product product, Member buyer, LocalDate date, LocalTime startTime, LocalTime endTime) {
+    public static Reservation of(Product product, Member buyer, String phoneNumber, LocalDate date, LocalTime startTime, LocalTime endTime) {
         Reservation reservation = new Reservation();
         reservation.product = product;
         reservation.buyer = buyer;
+        reservation.phoneNumber = phoneNumber;
         reservation.date = date;
         reservation.startTime = startTime;
         reservation.endTime = endTime;

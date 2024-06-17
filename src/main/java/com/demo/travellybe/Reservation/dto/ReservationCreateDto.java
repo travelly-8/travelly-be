@@ -14,6 +14,8 @@ public class ReservationCreateDto {
     @NotNull
     private List<ReservationTicketDto> ticketDtos;
 
+    private String phoneNumber;
+
     @NotNull
     private LocalDate date;
 
