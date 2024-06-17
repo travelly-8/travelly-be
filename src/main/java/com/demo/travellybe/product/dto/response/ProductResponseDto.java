@@ -3,6 +3,7 @@ package com.demo.travellybe.product.dto.response;
 import com.demo.travellybe.product.domain.Product;
 import com.demo.travellybe.product.dto.OperationDayDto;
 import com.demo.travellybe.product.dto.ProductImageDto;
+import com.demo.travellybe.review.dto.ReviewResponseDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -63,6 +64,9 @@ public class ProductResponseDto {
     @Schema(description = "수정일")
     private LocalDateTime modifiedDate;
 
+    @Schema(description = "리뷰")
+    private List<ProductReviewResponseDto> reviews;
+
     public ProductResponseDto(Product product) {
         this.id = product.getId();
         this.name = product.getName();
@@ -80,8 +84,9 @@ public class ProductResponseDto {
         this.rating = product.getRating();
         this.reviewCount = product.getReviewCount();
         this.operationDays = product.getOperationDays().stream().map(OperationDayDto::new).toList();
-
         this.createdDate = product.getCreatedDate();
         this.modifiedDate = product.getModifiedDate();
+
+        this.reviews = product.getReviews().stream().map(ProductReviewResponseDto::new).toList();
     }
 }

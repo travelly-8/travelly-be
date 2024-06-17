@@ -3,6 +3,7 @@ package com.demo.travellybe.Reservation.service;
 import com.demo.travellybe.Reservation.domain.Reservation;
 import com.demo.travellybe.Reservation.domain.ReservationStatus;
 import com.demo.travellybe.Reservation.domain.ReservationTicket;
+import com.demo.travellybe.Reservation.dto.MyReservationResponseDto;
 import com.demo.travellybe.Reservation.dto.ReservationCreateDto;
 import com.demo.travellybe.Reservation.dto.ReservationResponseDto;
 import com.demo.travellybe.Reservation.dto.ReservationTicketDto;
@@ -200,5 +201,24 @@ public class ReservationServiceImpl implements ReservationService {
         product.setQuantity(product.getQuantity() + reservation.getReservationTickets().stream()
                 .mapToInt(ReservationTicket::getQuantity)
                 .sum());
+        }
+
+    @Override
+    public List<ReservationResponseDto> getReservationsByMemberId(Long memberId) {
+        return reservationRepository.findByBuyerId(memberId).stream()
+                .map(ReservationResponseDto::new)
+                .toList();
+    }
+
+    public MyReservationResponseDto getReservationsByProductId(Long memberId, Long productId) {
+
+        // 상품 검색
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        // 예약 검색
+        List<Reservation> reservations = reservationRepository.findByBuyerId(memberId);
+
+        return new MyReservationResponseDto(product, reservations);
     }
 }

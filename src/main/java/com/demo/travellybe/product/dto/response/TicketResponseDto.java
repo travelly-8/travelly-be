@@ -10,7 +10,7 @@ public class TicketResponseDto {
     @Schema(description = "티켓 ID", example = "1")
     private Long id;
 
-    @Schema(description = "티켓 이름", example = "성인")
+    @Schema(description = "티켓 이름", example = "성인/청소년/아동")
     private String name;
 
     @NotNull

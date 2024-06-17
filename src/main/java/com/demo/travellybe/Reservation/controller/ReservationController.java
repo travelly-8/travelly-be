@@ -1,28 +1,26 @@
 package com.demo.travellybe.Reservation.controller;
 
 import com.demo.travellybe.Reservation.domain.ReservationStatus;
+import com.demo.travellybe.Reservation.dto.MyReservationResponseDto;
 import com.demo.travellybe.Reservation.dto.ReservationCreateDto;
 import com.demo.travellybe.Reservation.dto.ReservationResponseDto;
 import com.demo.travellybe.Reservation.service.ReservationService;
 import com.demo.travellybe.auth.dto.PrincipalDetails;
 import com.demo.travellybe.exception.CustomException;
 import com.demo.travellybe.exception.ErrorCode;
-import com.demo.travellybe.exception.ErrorResponse;
 import com.demo.travellybe.member.domain.Member;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -43,6 +41,15 @@ public class ReservationController {
         return ResponseEntity.ok(reservationService.getReservation(id));
     }
 
+    @GetMapping("/my/{productId}")
+    @Operation(summary = "예약 관리 상세")
+    public ResponseEntity<MyReservationResponseDto> getProductReservations(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @PathVariable Long productId
+    ) {
+        return ResponseEntity.ok().body(reservationService.getReservationsByProductId(principalDetails.getMember().getId(), productId));
+    }
+
     @GetMapping("/my")
     @Operation(summary = "내 예약 조회", description = "내 예약을 조회합니다.",
             responses = {
@@ -50,12 +57,9 @@ public class ReservationController {
                     @ApiResponse(responseCode = "401", description = "로그인이 필요합니다.",
                             content = @Content(schema = @Schema(hidden = true)))
             })
-    public ResponseEntity<Page<ReservationResponseDto>> getMyReservations(@AuthenticationPrincipal PrincipalDetails principalDetails,
-                                                                          @Parameter(example = "0") int page,
-                                                                          @Parameter(example = "10") int size) {
+    public ResponseEntity<List<ReservationResponseDto>> getMyReservations(@AuthenticationPrincipal PrincipalDetails principalDetails) {
         if (principalDetails == null) throw new CustomException(ErrorCode.LOGIN_REQUIRED);
-        PageRequest pageable = PageRequest.of(page, size, Sort.by("date"));
-        return ResponseEntity.ok(reservationService.getReservationsByMemberId(principalDetails.getMember().getId(), pageable));
+        return ResponseEntity.ok(reservationService.getReservationsByMemberId(principalDetails.getMember().getId()));
     }
 
     @PostMapping("/{productId}")

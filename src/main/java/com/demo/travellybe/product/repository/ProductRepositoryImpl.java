@@ -37,7 +37,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .where(eqCityCode(requestDto.getCityCode()),
                         eqContentType(requestDto.getContentType()),
                         containsKeyword(requestDto.getKeyword()),
-                        betweenPrice(requestDto.getMinPrice(), requestDto.getMaxPrice()),
+                        minPrice(requestDto.getMinPrice()),
+                        maxPrice(requestDto.getMaxPrice()),
                         betweenDate(requestDto.getStartDate(), requestDto.getEndDate()),
                         betweenTime(requestDto.getStartTime(), requestDto.getEndTime()))
                 .offset(pageable.getOffset())
@@ -80,10 +81,14 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .or(product.address.contains(keyword));
     }
 
-    private BooleanExpression betweenPrice(Integer minPrice, Integer maxPrice) {
-        if (minPrice == null || maxPrice == null) return null;
-        return product.minPrice.goe(minPrice)
-                .and(product.maxPrice.loe(maxPrice));
+    private BooleanExpression minPrice(Integer minPrice) {
+        if (minPrice == null) return null;
+        return product.minPrice.goe(minPrice);
+    }
+
+    private BooleanExpression maxPrice(Integer maxPrice) {
+        if (maxPrice == null) return null;
+        return product.maxPrice.loe(maxPrice);
     }
 
     private BooleanExpression betweenDate(LocalDate startDate, LocalDate endDate) {

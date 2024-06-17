@@ -7,19 +7,26 @@ import com.demo.travellybe.exception.ErrorCode;
 import com.demo.travellybe.member.domain.Member;
 import com.demo.travellybe.member.domain.MemberRepository;
 import com.demo.travellybe.product.domain.Product;
+import com.demo.travellybe.product.dto.KeywordRankChangeDto;
 import com.demo.travellybe.product.dto.request.ProductCreateRequestDto;
+import com.demo.travellybe.product.dto.request.ProductsSearchRequestDto;
+import com.demo.travellybe.product.dto.response.MyProductResponseDto;
 import com.demo.travellybe.product.dto.response.ProductResponseDto;
 import com.demo.travellybe.product.dto.response.ProductsResponseDto;
-import com.demo.travellybe.product.dto.request.ProductsSearchRequestDto;
 import com.demo.travellybe.product.repository.ProductRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,6 +36,7 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final MemberRepository memberRepository;
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Override
     public ProductResponseDto addProduct(Long memberId, ProductCreateRequestDto productCreateRequestDto) {
@@ -58,6 +66,8 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponseDto getProductById(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
+        // 상품 id를 Redis에 저장
+        redisTemplate.opsForZSet().incrementScore("popular_products", String.valueOf(id), 1);
         return new ProductResponseDto(product);
     }
 
@@ -66,9 +76,6 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
         Member member = product.getMember();
-        // 상품 소유자가 아니거나 관리자가 아닌 경우 예외 발생
-//        if (!(member.getId().equals(memberId) || member.getRole().equals(Role.ADMIN)))
-//            throw new CustomException(ErrorCode.PRODUCT_NOT_OWNER);
         if (!(member.getId().equals(memberId)))
             throw new CustomException(ErrorCode.PRODUCT_NOT_OWNER);
     }
@@ -91,6 +98,10 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Page<ProductsResponseDto> getSearchedProducts(ProductsSearchRequestDto requestDto) {
+        // 검색 키워드를 Redis에 저장
+        if (requestDto.getKeyword() != null)
+            redisTemplate.opsForZSet().incrementScore("popular_keywords", requestDto.getKeyword(), 1);
+
         Pageable pageable = requestDto.toPageable();
         Page<Product> products = productRepository.getSearchedProducts(requestDto, pageable);
 
@@ -100,4 +111,80 @@ public class ProductServiceImpl implements ProductService {
 
         return new PageImpl<>(productDtos, pageable, products.getTotalElements());
     }
+
+    @Override
+    public List<String> getTopSearchKeywords() {
+        // Redis에서 인기검색어 top 10을 조회하여 반환
+        Set<String> topKeywords = redisTemplate.opsForZSet().reverseRange("popular_keywords", 0, 9);
+        if (topKeywords == null) return new ArrayList<>();
+        return new ArrayList<>(topKeywords);
+    }
+
+    @Override
+    public List<KeywordRankChangeDto> getTopSearchKeywordsWithRankChange() {
+        // Redis에서 인기검색어 top 10을 조회
+        Set<String> topKeywords = redisTemplate.opsForZSet().reverseRange("popular_keywords", 0, 9);
+        List<KeywordRankChangeDto> keywordRankChangeDtoList = new ArrayList<>();
+
+        if (topKeywords == null) return keywordRankChangeDtoList;
+
+        int rank = 1;
+        for (String keyword : topKeywords) {
+            // 현재 랭킹
+            int currentRank = rank++;
+
+            // 이전 랭킹 조회
+            Long previousRankLong = redisTemplate.opsForZSet().reverseRank("popular_keywords_prev", keyword);
+            int previousRank = previousRankLong != null ? previousRankLong.intValue() + 1 : currentRank;
+
+            // 랭킹 변화 계산
+            int rankChange = previousRank - currentRank;
+
+            // KeywordRankChangeDto 생성 및 리스트에 추가
+            keywordRankChangeDtoList.add(new KeywordRankChangeDto(keyword, currentRank, previousRank, rankChange));
+        }
+
+        // 현재 인기검색어를 이전 인기검색어로 복사
+        redisTemplate.opsForZSet().intersectAndStore("popular_keywords", "popular_keywords", "popular_keywords_prev");
+
+        return keywordRankChangeDtoList;
+    }
+
+
+    @Override
+    public List<ProductsResponseDto> getTopProducts() {
+        // Redis에서 인기상품 top 10을 조회하여 반환
+        Set<String> topProducts = redisTemplate.opsForZSet().reverseRange("popular_products", 0, 9);
+        if (topProducts == null) return new ArrayList<>();
+
+        // 모든 상품을 조회하고 Map에 저장
+        Map<Long, Product> productMap = productRepository.findAllById(topProducts.stream()
+                        .map(Long::parseLong).collect(Collectors.toList()))
+                .stream()
+                .collect(Collectors.toMap(Product::getId, Function.identity()));
+
+        // 원래 순서를 유지하면서 ProductsResponseDto 리스트를 생성
+        return topProducts.stream()
+                .map(Long::parseLong)
+                .map(productMap::get)
+                .map(ProductsResponseDto::new)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<MyProductResponseDto> getMyProducts(String email) {
+
+        // 유저 검색
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        // 유저가 가진 상품 검색
+        List<Product> products = productRepository.findByMemberId(member.getId());
+
+
+        return products.stream()
+                .map(MyProductResponseDto::new)
+                .toList();
+    }
+
 }

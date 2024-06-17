@@ -9,7 +9,7 @@ import lombok.Data;
 @Data
 public class TicketDto {
     @NotNull
-    @Schema(description = "티켓 이름", example = "성인")
+    @Schema(description = "티켓 이름", example = "성인/청소년/아동")
     private String name;
 
     @NotNull
