@@ -2,6 +2,7 @@ package com.demo.travellybe.Reservation.controller;
 
 import com.demo.travellybe.Reservation.domain.ReservationStatus;
 import com.demo.travellybe.Reservation.dto.MyReservationResponseDto;
+import com.demo.travellybe.Reservation.dto.RejectReasonDto;
 import com.demo.travellybe.Reservation.dto.ReservationCreateDto;
 import com.demo.travellybe.Reservation.dto.ReservationResponseDto;
 import com.demo.travellybe.Reservation.service.ReservationService;
@@ -107,11 +108,11 @@ public class ReservationController {
                     @ApiResponse(responseCode = "401", description = "로그인이 필요합니다.")
             })
     public ResponseEntity<Void> rejectReservation(@PathVariable Long id,
-                                                  @RequestBody String rejectReason,
+                                                  @RequestBody RejectReasonDto rejectReasonDto,
                                                   @AuthenticationPrincipal PrincipalDetails principalDetails) {
         if (principalDetails == null) throw new CustomException(ErrorCode.LOGIN_REQUIRED);
         // TODO: 판매자만 예약 거절 가능
-        reservationService.rejectReservation(id, rejectReason);
+        reservationService.rejectReservation(id, rejectReasonDto.getRejectReason());
         return ResponseEntity.ok().build();
     }
 
