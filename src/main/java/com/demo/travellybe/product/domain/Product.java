@@ -48,6 +48,8 @@ public class Product extends BaseTimeEntity {
     @Column(nullable = false)
     private String name;
 
+    private String companyName;
+
     @Column(nullable = false)
     private String type;
 
@@ -82,6 +84,7 @@ public class Product extends BaseTimeEntity {
     public static Product of(ProductCreateRequestDto productCreateRequestDto) {
         Product product = new Product();
         product.name = productCreateRequestDto.getName();
+        product.companyName = productCreateRequestDto.getCompanyName();
         product.type = productCreateRequestDto.getType();
         product.description = productCreateRequestDto.getDescription();
         product.address = productCreateRequestDto.getAddress();

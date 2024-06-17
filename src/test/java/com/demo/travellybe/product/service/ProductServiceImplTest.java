@@ -85,10 +85,10 @@ class ProductServiceImplTest {
                 .name("성인").price(10000)
                 .build());
         ticketDtos.add(TicketDto.builder()
-                .name("학생").price(7000)
+                .name("청소년").price(7000)
                 .build());
         ticketDtos.add(TicketDto.builder()
-                .name("어린이").price(5000)
+                .name("아동").price(5000)
                 .build());
 
         List<ProductImageDto> productImageDtos = new ArrayList<>();

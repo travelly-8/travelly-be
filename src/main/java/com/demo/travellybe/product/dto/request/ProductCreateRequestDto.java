@@ -17,6 +17,9 @@ public class ProductCreateRequestDto {
     @Schema(description = "상품명", example = "여행 상품 A")
     private String name;
 
+    @Schema(description = "업체명", example = "트래블리")
+    private String companyName;
+
     @NotNull
     @Schema(description = "12:관광지, 14:문화시설, 15:축제공연행사, 25:여행코스, 28:레포츠, 38:쇼핑, 39:음식점",
             example = "12")

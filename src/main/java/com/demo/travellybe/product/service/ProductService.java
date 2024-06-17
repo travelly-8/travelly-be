@@ -4,6 +4,7 @@ import com.demo.travellybe.auth.dto.PrincipalDetails;
 import com.demo.travellybe.product.dto.KeywordRankChangeDto;
 import com.demo.travellybe.product.dto.request.ProductCreateRequestDto;
 import com.demo.travellybe.product.dto.request.ProductsSearchRequestDto;
+import com.demo.travellybe.product.dto.response.MyProductResponseDto;
 import com.demo.travellybe.product.dto.response.ProductResponseDto;
 import com.demo.travellybe.product.dto.response.ProductsResponseDto;
 import org.springframework.data.domain.Page;
@@ -25,4 +26,6 @@ public interface ProductService {
     List<String> getTopSearchKeywords();
     List<KeywordRankChangeDto> getTopSearchKeywordsWithRankChange();
     List<ProductsResponseDto> getTopProducts();
+
+    List<MyProductResponseDto> getMyProducts(String username);
 }

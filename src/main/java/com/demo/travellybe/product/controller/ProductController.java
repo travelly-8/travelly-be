@@ -7,6 +7,7 @@ import com.demo.travellybe.exception.ErrorResponse;
 import com.demo.travellybe.member.domain.Role;
 import com.demo.travellybe.product.dto.KeywordRankChangeDto;
 import com.demo.travellybe.product.dto.request.ProductCreateRequestDto;
+import com.demo.travellybe.product.dto.response.MyProductResponseDto;
 import com.demo.travellybe.product.dto.response.ProductResponseDto;
 import com.demo.travellybe.product.dto.response.ProductsResponseDto;
 import com.demo.travellybe.product.dto.request.ProductsSearchRequestDto;
@@ -146,12 +147,8 @@ public class ProductController {
             responses = {
                     @ApiResponse(responseCode = "200", description = "성공")
             })
-    public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
-        String contentType = file.getContentType();
-        if (contentType == null || !contentType.startsWith("image")) {
-            throw new CustomException(ErrorCode.FILE_UPLOAD_FAILED);
-        }
-        return ResponseEntity.ok(s3Service.uploadFile(file, "product"));
+    public ResponseEntity<List<String>> uploadFiles(@RequestPart("images") List<MultipartFile> files) {
+        return ResponseEntity.ok().body(s3Service.uploadFiles(files, "product"));
     }
 
     @GetMapping("/top-keywords")
@@ -172,5 +169,12 @@ public class ProductController {
             })
     public ResponseEntity<List<ProductsResponseDto>> getTopProducts() {
         return ResponseEntity.ok(productService.getTopProducts());
+    }
+
+    @GetMapping("/my")
+    @Operation(summary = "내 상품 리스트 조회")
+    public ResponseEntity<List<MyProductResponseDto>> myProduct(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+
+        return ResponseEntity.ok().body(productService.getMyProducts(principalDetails.getUsername()));
     }
 }

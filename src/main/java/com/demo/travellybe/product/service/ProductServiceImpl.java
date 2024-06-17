@@ -10,6 +10,7 @@ import com.demo.travellybe.product.domain.Product;
 import com.demo.travellybe.product.dto.KeywordRankChangeDto;
 import com.demo.travellybe.product.dto.request.ProductCreateRequestDto;
 import com.demo.travellybe.product.dto.request.ProductsSearchRequestDto;
+import com.demo.travellybe.product.dto.response.MyProductResponseDto;
 import com.demo.travellybe.product.dto.response.ProductResponseDto;
 import com.demo.travellybe.product.dto.response.ProductsResponseDto;
 import com.demo.travellybe.product.repository.ProductRepository;
@@ -169,4 +170,21 @@ public class ProductServiceImpl implements ProductService {
                 .map(ProductsResponseDto::new)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<MyProductResponseDto> getMyProducts(String email) {
+
+        // 유저 검색
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        // 유저가 가진 상품 검색
+        List<Product> products = productRepository.findByMemberId(member.getId());
+
+
+        return products.stream()
+                .map(MyProductResponseDto::new)
+                .toList();
+    }
+
 }
