@@ -20,8 +20,6 @@ import com.demo.travellybe.product.repository.ProductRepository;
 import com.demo.travellybe.product.repository.TicketRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
@@ -162,9 +160,23 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public Page<ReservationResponseDto> getReservationsByMemberId(Long memberId, Pageable pageable) {
-        return reservationRepository.findByBuyerId(memberId, pageable)
-                .map(ReservationResponseDto::new);
+    public List<ReservationResponseDto> getReservationsByMemberId(Long memberId) {
+        return reservationRepository.findByBuyerId(memberId).stream()
+                .map(ReservationResponseDto::new)
+                .toList();
+    }
+
+    @Override
+    public MyReservationResponseDto getReservationsByProductId(Long memberId, Long productId) {
+
+        // 상품 검색
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        // 예약 검색
+        List<Reservation> reservations = reservationRepository.findByBuyerId(memberId);
+
+        return new MyReservationResponseDto(product, reservations);
     }
 
     @Override
@@ -201,24 +213,5 @@ public class ReservationServiceImpl implements ReservationService {
         product.setQuantity(product.getQuantity() + reservation.getReservationTickets().stream()
                 .mapToInt(ReservationTicket::getQuantity)
                 .sum());
-        }
-
-    @Override
-    public List<ReservationResponseDto> getReservationsByMemberId(Long memberId) {
-        return reservationRepository.findByBuyerId(memberId).stream()
-                .map(ReservationResponseDto::new)
-                .toList();
-    }
-
-    public MyReservationResponseDto getReservationsByProductId(Long memberId, Long productId) {
-
-        // 상품 검색
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
-
-        // 예약 검색
-        List<Reservation> reservations = reservationRepository.findByBuyerId(memberId);
-
-        return new MyReservationResponseDto(product, reservations);
     }
 }

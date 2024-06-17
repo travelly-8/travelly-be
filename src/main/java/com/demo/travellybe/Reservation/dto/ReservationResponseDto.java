@@ -30,6 +30,8 @@ public class ReservationResponseDto {
     private int totalPrice;
     @Schema(example = "PENDING, REJECTED, ACCEPTED, CANCELED, EXPIRED")
     private String status;
+    @Schema(description = "거절 사유", example = "거절 사유")
+    private String rejectReason;
 
     public ReservationResponseDto(Reservation reservation) {
         this.id = reservation.getId();
@@ -46,5 +48,6 @@ public class ReservationResponseDto {
                 .mapToInt(rt -> rt.getTicket().getPrice() * rt.getQuantity())
                 .sum();
         this.status = reservation.getStatus().name();
+        this.rejectReason = reservation.getRejectionReason();
     }
 }
