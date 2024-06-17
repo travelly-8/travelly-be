@@ -14,10 +14,12 @@ import java.util.List;
 public class ReservationResponseDto {
     @Schema(description = "예약 ID", example = "1")
     private Long id;
-    @Schema(description = "구매자 이름", example = "홍길동")
+    @Schema(description = "예약자 이름", example = "홍길동")
     private String buyerName;
-
-    private String phoneNumber;
+    @Schema(description = "연락처", example = "01012345678")
+    private String phone;
+    @Schema(description = "이메일", example = "email@email.com")
+    private String email;
 
     private LocalDate date;
     private LocalTime startTime;
@@ -28,11 +30,14 @@ public class ReservationResponseDto {
     private int totalPrice;
     @Schema(example = "PENDING, REJECTED, ACCEPTED, CANCELED, EXPIRED")
     private String status;
+    @Schema(description = "거절 사유", example = "거절 사유")
+    private String rejectReason;
 
     public ReservationResponseDto(Reservation reservation) {
         this.id = reservation.getId();
         this.buyerName = reservation.getBuyer().getNickname();
-        this.phoneNumber = reservation.getPhoneNumber();
+        this.phone = reservation.getPhone();
+        this.email = reservation.getEmail();
         this.date = reservation.getDate();
         this.startTime = reservation.getStartTime();
         this.endTime = reservation.getEndTime();
@@ -43,5 +48,6 @@ public class ReservationResponseDto {
                 .mapToInt(rt -> rt.getTicket().getPrice() * rt.getQuantity())
                 .sum();
         this.status = reservation.getStatus().name();
+        this.rejectReason = reservation.getRejectionReason();
     }
 }

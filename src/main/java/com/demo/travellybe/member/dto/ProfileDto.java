@@ -14,6 +14,7 @@ public class ProfileDto {
     private String nickname;
     private String imageUrl;
     private String type;
+    private int point;
 
     public static ProfileDto of(Member member) {
         ProfileDto profileDto = new ProfileDto();
@@ -21,6 +22,7 @@ public class ProfileDto {
         profileDto.setNickname(member.getNickname());
         profileDto.setImageUrl(member.getImageUrl());
         profileDto.setType(member.getType());
+        profileDto.setPoint(member.getPoint());
         return profileDto;
     }
 

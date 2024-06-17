@@ -15,6 +15,7 @@ public class SwaggerConfig {
     public OpenAPI openAPI() {
 
         return new OpenAPI()
+                .addServersItem(new Server().url("/"))
                 .addServersItem(new Server().url("https://travellykr.shop"))
                 .info(new Info()
                         .title("Travelly API")

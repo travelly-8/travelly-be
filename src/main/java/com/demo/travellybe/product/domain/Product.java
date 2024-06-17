@@ -201,7 +201,7 @@ public class Product extends BaseTimeEntity {
                 .average().orElse(0.0);
     }
 
-    public void updateStock(int quantity) {
+    public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
 
