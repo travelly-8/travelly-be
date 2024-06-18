@@ -51,7 +51,7 @@ public class ReservationController {
     }
 
     @GetMapping("/my")
-    @Operation(summary = "내 예약 조회", description = "내 예약을 조회합니다.",
+    @Operation(summary = "내 예약 조회(구매자)", description = "내 예약을 조회합니다.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "성공"),
                     @ApiResponse(responseCode = "401", description = "로그인이 필요합니다.",

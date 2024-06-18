@@ -3,7 +3,10 @@ package com.demo.travellybe.member.controller;
 import com.demo.travellybe.auth.dto.PrincipalDetails;
 import com.demo.travellybe.member.dto.PasswordDto;
 import com.demo.travellybe.member.dto.ProfileDto;
+import com.demo.travellybe.member.dto.TravellerResponseDto;
+import com.demo.travellybe.member.dto.TravellyResponseDto;
 import com.demo.travellybe.member.service.MemberService;
+import com.demo.travellybe.product.dto.request.ProductRecentRequestDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -15,6 +18,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @Tag(name = "Member", description = "멤버 API")
@@ -22,12 +27,22 @@ public class MemberController {
 
     private final MemberService memberService;
 
-//    @GetMapping("/my")
-//    public ResponseEntity<MemberDto> myPage(@AuthenticationPrincipal PrincipalDetails userInfo) {
-//        MemberDto memberDto = memberService.getUser(userInfo.getUsername());
-//
-//        return ResponseEntity.ok().body(memberDto);
-//    }
+    @GetMapping("/my/traveller")
+    @Operation(summary = "구매자 프로필 정보")
+    public ResponseEntity<TravellerResponseDto> travellerPage(
+            @RequestBody List<ProductRecentRequestDto> recentProducts,
+            @AuthenticationPrincipal PrincipalDetails userInfo) {
+
+        return ResponseEntity.ok().body(memberService.getTravellerData(recentProducts, userInfo.getUsername()));
+    }
+
+    @GetMapping("/my/travelly")
+    @Operation(summary = "판매자 프로필 정보")
+    public ResponseEntity<TravellyResponseDto> travellyPage(
+            @AuthenticationPrincipal PrincipalDetails userInfo) {
+
+        return ResponseEntity.ok().body(memberService.getTravellyData(userInfo.getUsername()));
+    }
 
     @GetMapping("/my/profile")
     @Operation(summary = "프로필 정보")
