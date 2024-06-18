@@ -182,13 +182,14 @@ public class ReservationServiceImpl implements ReservationService {
                     .date(pendingReservationCount != 0 ? reservationList.getFirst().getDate() : null)
                     .startTime(pendingReservationCount != 0 ? reservationList.getFirst().getStartTime() : null)
                     .endTime(pendingReservationCount != 0 ? reservationList.getFirst().getEndTime() : null)
+                    .createdDate(pendingReservationCount != 0 ? reservationList.getFirst().getCreatedDate() : null)
                     .reservationCount(reservationList.size())
                     .pendingReservationCount((int) pendingReservationCount)
                     .build();
             responseList.add(dto);
         }
         // 가장 최근에 생성된 예약이 있는 상품 순서대로 정렬
-        responseList.sort(Comparator.comparing(PendingReservationsPerProductDto::getDate, Comparator.nullsFirst(Comparator.naturalOrder())).reversed());
+        responseList.sort(Comparator.comparing(PendingReservationsPerProductDto::getCreatedDate, Comparator.nullsFirst(Comparator.naturalOrder())).reversed());
 
         return responseList;
     }
