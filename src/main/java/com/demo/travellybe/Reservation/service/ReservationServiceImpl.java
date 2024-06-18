@@ -46,21 +46,22 @@ public class ReservationServiceImpl implements ReservationService {
         List<Long> ticketIds = reservationCreateDto.getTicketDtos().stream()
                 .map(ReservationTicketDto::getTicketId)
                 .collect(Collectors.toList());
-
         Map<Long, Ticket> tickets = ticketRepository.findAllById(ticketIds).stream()
                 .collect(Collectors.toMap(Ticket::getId, Function.identity()));
 
         // 상품 수량이 부족하면 PRODUCT_NOT_ENOUGH_TICKET_QUANTITY 에러 발생
-        checkProductQuantity(reservationCreateDto, product);
+        int totalPrice = getTotalPrice(reservationCreateDto, tickets);
+        if (product.getQuantity() < getTotalQuantity(reservationCreateDto))
+            throw new CustomException(ErrorCode.PRODUCT_NOT_ENOUGH_TICKET_QUANTITY);
         // 구매자의 포인트가 부족하면 MEMBER_NOT_ENOUGH_POINT 에러 발생
-        checkBuyerPoint(buyer, reservationCreateDto, tickets);
+        int totalQuantity = getTotalQuantity(reservationCreateDto);
+        if (buyer.getPoint() < totalPrice)
+            throw new CustomException(ErrorCode.MEMBER_NOT_ENOUGH_POINT);
 
         Reservation reservation = Reservation.of(product, buyer, reservationCreateDto.getName(), reservationCreateDto.getPhone(),
                 reservationCreateDto.getEmail(), reservationCreateDto.getDate(),
-                reservationCreateDto.getStartTime(), reservationCreateDto.getEndTime());
+                reservationCreateDto.getStartTime(), reservationCreateDto.getEndTime(), totalPrice, totalQuantity);
 
-        int totalQuantity = 0;
-        int totalPrice = 0;
         for (ReservationTicketDto ticketDto : reservationCreateDto.getTicketDtos()) {
             Ticket ticket = tickets.get(ticketDto.getTicketId());
             if (ticket == null) throw new CustomException(ErrorCode.TICKET_NOT_FOUND);
@@ -69,19 +70,15 @@ public class ReservationServiceImpl implements ReservationService {
             reservation.addReservationTicket(reservationTicket);
             ticket.addReservationTicket(reservationTicket);
 
-            totalQuantity += ticketDto.getQuantity();
-            totalPrice += ticket.getPrice() * ticketDto.getQuantity();
         }
-
         Reservation saved = reservationRepository.save(reservation);
         product.addReservation(reservation);
         buyer.addReservation(reservation);
 
         // 상품 수량 차감, 구매자 포인트 차감, 판매자 포인트 증가
-        product.setQuantity(product.getQuantity() - totalQuantity);
-        buyer.setPoint(buyer.getPoint() - totalPrice);
-        seller.setPoint(seller.getPoint() + totalPrice);
-
+        product.setQuantity(product.getQuantity() - reservation.getTotalTicketCount());
+        buyer.setPoint(buyer.getPoint() - reservation.getTotalPrice());
+        seller.setPoint(seller.getPoint() + reservation.getTotalPrice());
 
         return new ReservationResponseDto(saved);
     }
@@ -94,23 +91,20 @@ public class ReservationServiceImpl implements ReservationService {
         return new ReservationResponseDto(reservation);
     }
 
-    private void checkBuyerPoint(Member buyer, ReservationCreateDto reservationCreateDto, Map<Long, Ticket> tickets) {
-        int totalPrice = reservationCreateDto.getTicketDtos().stream()
+    private int getTotalPrice(ReservationCreateDto reservationCreateDto, Map<Long, Ticket> tickets) {
+        return reservationCreateDto.getTicketDtos().stream()
                 .mapToInt(ticketDto -> {
                     Ticket ticket = tickets.get(ticketDto.getTicketId());
                     if (ticket == null) throw new CustomException(ErrorCode.TICKET_NOT_FOUND);
                     return ticket.getPrice() * ticketDto.getQuantity();
                 })
                 .sum();
-        if (buyer.getPoint() < totalPrice) throw new CustomException(ErrorCode.MEMBER_NOT_ENOUGH_POINT);
     }
 
-    private void checkProductQuantity(ReservationCreateDto reservationCreateDto, Product product) {
-        int totalQuantity = reservationCreateDto.getTicketDtos().stream()
+    private int getTotalQuantity(ReservationCreateDto reservationCreateDto) {
+        return reservationCreateDto.getTicketDtos().stream()
                 .mapToInt(ReservationTicketDto::getQuantity)
                 .sum();
-        if (product.getQuantity() < totalQuantity)
-            throw new CustomException(ErrorCode.PRODUCT_NOT_ENOUGH_TICKET_QUANTITY);
     }
 
     private Member findMemberById(Long memberId) {
@@ -191,9 +185,7 @@ public class ReservationServiceImpl implements ReservationService {
             PendingReservationsPerProductDto dto = PendingReservationsPerProductDto.builder()
                     .productId(product.getId())
                     .productName(product.getName())
-//                  .price(reservationList.getTotalPrice())
-                    // TODO: Reservation에 TotalPrice 추가 후 변경
-                    .price(10000)
+                    .price(reservationList.getFirst().getTotalPrice())
                     .date(reservationList.getFirst().getDate())
                     .startTime(reservationList.getFirst().getStartTime())
                     .endTime(reservationList.getFirst().getEndTime())
@@ -230,14 +222,8 @@ public class ReservationServiceImpl implements ReservationService {
         Product product = reservation.getProduct();
         Member seller = product.getMember();
 
-        int totalPrice = reservation.getReservationTickets().stream()
-                .mapToInt(rt -> rt.getTicket().getPrice() * rt.getQuantity())
-                .sum();
-
-        buyer.setPoint(buyer.getPoint() + totalPrice);
-        seller.setPoint(seller.getPoint() - totalPrice);
-        product.setQuantity(product.getQuantity() + reservation.getReservationTickets().stream()
-                .mapToInt(ReservationTicket::getQuantity)
-                .sum());
+        buyer.setPoint(buyer.getPoint() + reservation.getTotalPrice());
+        seller.setPoint(seller.getPoint() - reservation.getTotalPrice());
+        product.setQuantity(product.getQuantity() + reservation.getTotalTicketCount());
     }
 }
