@@ -3,10 +3,7 @@ package com.demo.travellybe.Reservation.service;
 import com.demo.travellybe.Reservation.domain.Reservation;
 import com.demo.travellybe.Reservation.domain.ReservationStatus;
 import com.demo.travellybe.Reservation.domain.ReservationTicket;
-import com.demo.travellybe.Reservation.dto.MyReservationResponseDto;
-import com.demo.travellybe.Reservation.dto.ReservationCreateDto;
-import com.demo.travellybe.Reservation.dto.ReservationResponseDto;
-import com.demo.travellybe.Reservation.dto.ReservationTicketDto;
+import com.demo.travellybe.Reservation.dto.*;
 import com.demo.travellybe.Reservation.repository.ReservationRepository;
 import com.demo.travellybe.exception.CustomException;
 import com.demo.travellybe.exception.ErrorCode;
@@ -23,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -177,6 +175,34 @@ public class ReservationServiceImpl implements ReservationService {
         List<Reservation> reservations = reservationRepository.findByBuyerId(memberId);
 
         return new MyReservationResponseDto(product, reservations);
+    }
+
+    @Override
+    public List<PendingReservationsPerProductDto> getProductsByMemberId(Long sellerId) {
+        List<Product> productList = productRepository.findAllByMemberId(sellerId);
+
+        List<PendingReservationsPerProductDto> responseList = new ArrayList<>();
+        for (Product product : productList) {
+            List<Reservation> reservationList = product.getReservations();
+            long pendingReservationCount = reservationList.stream()
+                    .filter(r -> r.getStatus() == ReservationStatus.PENDING)
+                    .count();
+
+            PendingReservationsPerProductDto dto = PendingReservationsPerProductDto.builder()
+                    .productId(product.getId())
+                    .productName(product.getName())
+//                  .price(reservationList.getTotalPrice())
+                    // TODO: Reservation에 TotalPrice 추가 후 변경
+                    .price(10000)
+                    .date(reservationList.getFirst().getDate())
+                    .startTime(reservationList.getFirst().getStartTime())
+                    .endTime(reservationList.getFirst().getEndTime())
+                    .reservationCount(reservationList.size())
+                    .pendingReservationCount((int) pendingReservationCount)
+                    .build();
+            responseList.add(dto);
+        }
+        return responseList;
     }
 
     @Override

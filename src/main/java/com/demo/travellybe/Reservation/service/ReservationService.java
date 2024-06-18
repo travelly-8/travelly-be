@@ -1,6 +1,7 @@
 package com.demo.travellybe.Reservation.service;
 
 import com.demo.travellybe.Reservation.domain.ReservationStatus;
+import com.demo.travellybe.Reservation.dto.PendingReservationsPerProductDto;
 import com.demo.travellybe.Reservation.dto.MyReservationResponseDto;
 import com.demo.travellybe.Reservation.dto.ReservationCreateDto;
 import com.demo.travellybe.Reservation.dto.ReservationResponseDto;
@@ -21,4 +22,6 @@ public interface ReservationService {
     void rejectReservation(Long id, String rejectReason);
 
     MyReservationResponseDto getReservationsByProductId(Long id, Long productId);
+
+    List<PendingReservationsPerProductDto> getProductsByMemberId(Long sellerId);
 }

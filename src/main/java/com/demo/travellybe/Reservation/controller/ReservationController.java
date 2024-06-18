@@ -1,10 +1,7 @@
 package com.demo.travellybe.Reservation.controller;
 
 import com.demo.travellybe.Reservation.domain.ReservationStatus;
-import com.demo.travellybe.Reservation.dto.MyReservationResponseDto;
-import com.demo.travellybe.Reservation.dto.RejectReasonDto;
-import com.demo.travellybe.Reservation.dto.ReservationCreateDto;
-import com.demo.travellybe.Reservation.dto.ReservationResponseDto;
+import com.demo.travellybe.Reservation.dto.*;
 import com.demo.travellybe.Reservation.service.ReservationService;
 import com.demo.travellybe.auth.dto.PrincipalDetails;
 import com.demo.travellybe.exception.CustomException;
@@ -40,6 +37,18 @@ public class ReservationController {
             })
     public ResponseEntity<ReservationResponseDto> getReservation(@PathVariable Long id) {
         return ResponseEntity.ok(reservationService.getReservation(id));
+    }
+
+    @GetMapping("/my/products")
+    @Operation(summary = "예약 관리", description = "내가 등록한 상품 목록을 조회합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "성공"),
+                    @ApiResponse(responseCode = "401", description = "로그인이 필요합니다.",
+                            content = @Content(schema = @Schema(hidden = true)))
+            })
+    public ResponseEntity<List<PendingReservationsPerProductDto>> getMyProducts(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+        if (principalDetails == null) throw new CustomException(ErrorCode.LOGIN_REQUIRED);
+        return ResponseEntity.ok(reservationService.getProductsByMemberId(principalDetails.getMember().getId()));
     }
 
     @GetMapping("/my/{productId}")
