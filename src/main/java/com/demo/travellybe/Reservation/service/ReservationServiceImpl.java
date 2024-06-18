@@ -20,10 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -152,32 +149,28 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public List<ReservationResponseDto> getReservationsByMemberId(Long memberId) {
-        return reservationRepository.findByBuyerId(memberId).stream()
+    public List<ReservationResponseDto> getReservationsByBuyerId(Long buyerId) {
+        return reservationRepository.findByBuyerId(buyerId).stream()
                 .map(ReservationResponseDto::new)
                 .toList();
     }
 
     @Override
-    public MyReservationResponseDto getReservationsByProductId(Long memberId, Long productId) {
-
+    public MyReservationResponseDto getReservationsByProductId(Long productId) {
         // 상품 검색
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
 
-        // 예약 검색
-        List<Reservation> reservations = reservationRepository.findByBuyerId(memberId);
-
-        return new MyReservationResponseDto(product, reservations);
+        return new MyReservationResponseDto(product, product.getReservations());
     }
 
     @Override
-    public List<PendingReservationsPerProductDto> getProductsByMemberId(Long sellerId) {
+    public List<PendingReservationsPerProductDto> getProductsBySellerId(Long sellerId) {
         List<Product> productList = productRepository.findAllByMemberId(sellerId);
 
         List<PendingReservationsPerProductDto> responseList = new ArrayList<>();
         for (Product product : productList) {
-            List<Reservation> reservationList = product.getReservations();
+            List<Reservation> reservationList = reservationRepository.findByProductIdOrderByCreatedDateDescStartTimeDesc(product.getId());
             long pendingReservationCount = reservationList.stream()
                     .filter(r -> r.getStatus() == ReservationStatus.PENDING)
                     .count();
@@ -185,15 +178,18 @@ public class ReservationServiceImpl implements ReservationService {
             PendingReservationsPerProductDto dto = PendingReservationsPerProductDto.builder()
                     .productId(product.getId())
                     .productName(product.getName())
-                    .price(reservationList.getFirst().getTotalPrice())
-                    .date(reservationList.getFirst().getDate())
-                    .startTime(reservationList.getFirst().getStartTime())
-                    .endTime(reservationList.getFirst().getEndTime())
+                    .price(pendingReservationCount != 0 ? reservationList.getFirst().getTotalPrice() : 0)
+                    .date(pendingReservationCount != 0 ? reservationList.getFirst().getDate() : null)
+                    .startTime(pendingReservationCount != 0 ? reservationList.getFirst().getStartTime() : null)
+                    .endTime(pendingReservationCount != 0 ? reservationList.getFirst().getEndTime() : null)
                     .reservationCount(reservationList.size())
                     .pendingReservationCount((int) pendingReservationCount)
                     .build();
             responseList.add(dto);
         }
+        // 가장 최근에 생성된 예약이 있는 상품 순서대로 정렬
+        responseList.sort(Comparator.comparing(PendingReservationsPerProductDto::getDate, Comparator.nullsFirst(Comparator.naturalOrder())).reversed());
+
         return responseList;
     }
 
