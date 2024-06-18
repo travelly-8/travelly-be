@@ -12,5 +12,8 @@ public interface ProductRepository extends JpaRepository<Product, Long>, Product
     @Query("SELECT COUNT(r) FROM Review r WHERE r.product.id = :productId")
     int countReviewsByProductId(@Param("productId") Long productId);
 
+    List<Product> findByMemberId(Long memberId);
+
+    List<Product> findByIdIn(List<Long> productIds);
     List<Product> findAllByMemberId(Long memberId);
 }

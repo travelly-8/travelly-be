@@ -11,5 +11,4 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 
     // product id로 예약 내역을 조회, 최신순으로 정렬
     List<Reservation> findByProductIdOrderByCreatedDateDescStartTimeDesc(Long productId);
-
 }
