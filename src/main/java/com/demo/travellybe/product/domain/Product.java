@@ -29,7 +29,7 @@ public class Product extends BaseTimeEntity {
     private Member member;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    @OrderBy("date DESC")
+    @OrderBy("date ASC")
     private List<OperationDay> operationDays = new ArrayList<>();
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -16,13 +16,13 @@ public class PendingReservationsPerProductDto {
     private Long productId;
     @Schema(description = "상품 이름", example = "상품 이름")
     private String productName;
-    @Schema(description = "가장 빠른 예약 가격", example = "20000")
+    @Schema(description = "가장 빠른 예약 가격 | 예약이 없으면 0", example = "20000")
     private int price;
-    @Schema(description = "가장 빠른 예약의 date")
+    @Schema(description = "가장 빠른 예약의 date | 예약이 없으면 null")
     private LocalDate date;
-    @Schema(description = "가장 빠른 예약의 startTime")
+    @Schema(description = "가장 빠른 예약의 startTime | 예약이 없으면 null")
     private LocalTime startTime;
-    @Schema(description = "가장 빠른 예약의 endTime")
+    @Schema(description = "가장 빠른 예약의 endTime | 예약이 없으면 null")
     private LocalTime endTime;
     @Schema(description = "예약 수", example = "3")
     private int reservationCount;

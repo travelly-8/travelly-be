@@ -46,12 +46,13 @@ public class ReservationServiceImpl implements ReservationService {
         Map<Long, Ticket> tickets = ticketRepository.findAllById(ticketIds).stream()
                 .collect(Collectors.toMap(Ticket::getId, Function.identity()));
 
-        // 상품 수량이 부족하면 PRODUCT_NOT_ENOUGH_TICKET_QUANTITY 에러 발생
         int totalPrice = getTotalPrice(reservationCreateDto, tickets);
-        if (product.getQuantity() < getTotalQuantity(reservationCreateDto))
+        int totalQuantity = getTotalQuantity(reservationCreateDto);
+
+        // 상품 수량이 부족하거나 totalQuantity가 0이면 PRODUCT_NOT_ENOUGH_TICKET_QUANTITY 에러 발생
+        if (product.getQuantity() < totalPrice || totalQuantity == 0)
             throw new CustomException(ErrorCode.PRODUCT_NOT_ENOUGH_TICKET_QUANTITY);
         // 구매자의 포인트가 부족하면 MEMBER_NOT_ENOUGH_POINT 에러 발생
-        int totalQuantity = getTotalQuantity(reservationCreateDto);
         if (buyer.getPoint() < totalPrice)
             throw new CustomException(ErrorCode.MEMBER_NOT_ENOUGH_POINT);
 
