@@ -39,6 +39,8 @@ public class CommentServiceImpl implements CommentService {
                 .imageUrl(member.getImageUrl())
                 .build();
 
+        member.addComment(comment);
+
         if (commentId.equals(0L)) { // 일반 댓글
             review.addComment(comment);
         }else{ // 대댓글

@@ -1,5 +1,6 @@
 package com.demo.travellybe.comment.domain;
 
+import com.demo.travellybe.member.domain.Member;
 import com.demo.travellybe.review.domain.Review;
 import com.demo.travellybe.util.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -38,6 +39,10 @@ public class Comment extends BaseTimeEntity {
     @JoinColumn(name = "review_id")
     private Review review;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    private Member member;
+
     @Builder
     public Comment(String content, String nickname, String imageUrl) {
         this.content = content;
@@ -46,6 +51,10 @@ public class Comment extends BaseTimeEntity {
     }
     public void setReview(Review review) {
         this.review = review;
+    }
+
+    public void setMember(Member member) {
+        this.member = member;
     }
 
     public void setParentComment(Comment comment) {
