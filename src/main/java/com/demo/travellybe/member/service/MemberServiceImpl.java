@@ -23,6 +23,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -93,10 +94,10 @@ public class MemberServiceImpl implements MemberService {
 
         int reviewCount = reviews.size() - member.getReviewCount();
 
-        LocalTime now = LocalTime.now();
+        LocalDate now = LocalDate.now();
 
         int reservationCount = (int) reservations.stream()
-                .filter(reservation -> reservation.getStartTime().isAfter(now))
+                .filter(reservation -> reservation.getDate().isAfter(now))
                 .count();
 
         // 최근 본 상품

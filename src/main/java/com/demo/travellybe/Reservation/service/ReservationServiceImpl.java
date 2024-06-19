@@ -10,7 +10,6 @@ import com.demo.travellybe.exception.ErrorCode;
 import com.demo.travellybe.member.domain.Member;
 import com.demo.travellybe.member.domain.MemberRepository;
 import com.demo.travellybe.product.domain.OperationDay;
-import com.demo.travellybe.product.domain.OperationHour;
 import com.demo.travellybe.product.domain.Product;
 import com.demo.travellybe.product.domain.Ticket;
 import com.demo.travellybe.product.repository.ProductRepository;
@@ -19,7 +18,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -50,15 +48,14 @@ public class ReservationServiceImpl implements ReservationService {
         int totalQuantity = getTotalQuantity(reservationCreateDto);
 
         // 상품 수량이 부족하거나 totalQuantity가 0이면 PRODUCT_NOT_ENOUGH_TICKET_QUANTITY 에러 발생
-        if (product.getQuantity() < totalPrice || totalQuantity == 0)
+        if (product.getQuantity() < totalQuantity || totalQuantity == 0)
             throw new CustomException(ErrorCode.PRODUCT_NOT_ENOUGH_TICKET_QUANTITY);
         // 구매자의 포인트가 부족하면 MEMBER_NOT_ENOUGH_POINT 에러 발생
         if (buyer.getPoint() < totalPrice)
             throw new CustomException(ErrorCode.MEMBER_NOT_ENOUGH_POINT);
 
         Reservation reservation = Reservation.of(product, buyer, reservationCreateDto.getName(), reservationCreateDto.getPhone(),
-                reservationCreateDto.getEmail(), reservationCreateDto.getDate(),
-                reservationCreateDto.getStartTime(), reservationCreateDto.getEndTime(), totalPrice, totalQuantity);
+                reservationCreateDto.getEmail(), reservationCreateDto.getDate(), totalPrice, totalQuantity);
 
         for (ReservationTicketDto ticketDto : reservationCreateDto.getTicketDtos()) {
             Ticket ticket = tickets.get(ticketDto.getTicketId());
@@ -131,22 +128,10 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     public void checkOperationDateTime(Long productId, ReservationCreateDto reservationCreateDto) {
         Product product = findProductById(productId);
-        // 예약 시간이 없을 경우 하루 중 최대 시간으로 설정
-        if (reservationCreateDto.getStartTime() == null && reservationCreateDto.getEndTime() == null) {
-            reservationCreateDto.setStartTime(LocalTime.of(0, 1));
-            reservationCreateDto.setEndTime(LocalTime.of(23, 59));
-        }
-
         Optional<OperationDay> day = product.getOperationDays().stream()
                 .filter(operationDay -> operationDay.getDate().equals(reservationCreateDto.getDate()))
                 .findAny();
         if (day.isEmpty()) throw new CustomException(ErrorCode.PRODUCT_NOT_AVAILABLE_OPERATION_DAY);
-
-        List<OperationHour> hours = day.get().getOperationHours();
-        if (hours.stream().noneMatch(hour -> hour.getStartTime().equals(reservationCreateDto.getStartTime())
-                && hour.getEndTime().equals(reservationCreateDto.getEndTime()))) {
-            throw new CustomException(ErrorCode.PRODUCT_NOT_AVAILABLE_OPERATION_DAY);
-        }
     }
 
     @Override
@@ -171,7 +156,7 @@ public class ReservationServiceImpl implements ReservationService {
 
         List<PendingReservationsPerProductDto> responseList = new ArrayList<>();
         for (Product product : productList) {
-            List<Reservation> reservationList = reservationRepository.findByProductIdOrderByCreatedDateDescStartTimeDesc(product.getId());
+            List<Reservation> reservationList = reservationRepository.findByProductIdOrderByCreatedDateDesc(product.getId());
             long pendingReservationCount = reservationList.stream()
                     .filter(r -> r.getStatus() == ReservationStatus.PENDING)
                     .count();
@@ -181,8 +166,6 @@ public class ReservationServiceImpl implements ReservationService {
                     .productName(product.getName())
                     .price(pendingReservationCount != 0 ? reservationList.getFirst().getTotalPrice() : 0)
                     .date(pendingReservationCount != 0 ? reservationList.getFirst().getDate() : null)
-                    .startTime(pendingReservationCount != 0 ? reservationList.getFirst().getStartTime() : null)
-                    .endTime(pendingReservationCount != 0 ? reservationList.getFirst().getEndTime() : null)
                     .createdDate(pendingReservationCount != 0 ? reservationList.getFirst().getCreatedDate() : null)
                     .reservationCount(reservationList.size())
                     .pendingReservationCount((int) pendingReservationCount)

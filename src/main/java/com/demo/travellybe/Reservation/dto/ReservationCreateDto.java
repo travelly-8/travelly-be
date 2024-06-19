@@ -1,11 +1,11 @@
 package com.demo.travellybe.Reservation.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 
 @Getter
@@ -25,7 +25,4 @@ public class ReservationCreateDto {
 
     @NotNull
     private LocalDate date;
-
-    private LocalTime startTime;
-    private LocalTime endTime;
 }

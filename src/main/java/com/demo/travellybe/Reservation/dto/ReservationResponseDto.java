@@ -1,14 +1,12 @@
 package com.demo.travellybe.Reservation.dto;
 
 import com.demo.travellybe.Reservation.domain.Reservation;
-import com.demo.travellybe.product.domain.Product;
 import com.demo.travellybe.product.dto.ProductImageDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 
 @Getter
@@ -29,8 +27,6 @@ public class ReservationResponseDto {
     private String email;
 
     private LocalDate date;
-    private LocalTime startTime;
-    private LocalTime endTime;
     private List<ReservationTicketResponseDto> Tickets;
 
     @Schema(description = "예약 총 가격", example = "20000")
@@ -49,8 +45,6 @@ public class ReservationResponseDto {
         this.phone = reservation.getPhone();
         this.email = reservation.getEmail();
         this.date = reservation.getDate();
-        this.startTime = reservation.getStartTime();
-        this.endTime = reservation.getEndTime();
         this.Tickets = reservation.getReservationTickets().stream()
                 .map(ReservationTicketResponseDto::new)
                 .toList();

@@ -7,7 +7,6 @@ import lombok.Data;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 @Data
 @Builder
@@ -20,10 +19,6 @@ public class PendingReservationsPerProductDto {
     private int price;
     @Schema(description = "가장 빠른 예약의 date | 예약이 없으면 null")
     private LocalDate date;
-    @Schema(description = "가장 빠른 예약의 startTime | 예약이 없으면 null")
-    private LocalTime startTime;
-    @Schema(description = "가장 빠른 예약의 endTime | 예약이 없으면 null")
-    private LocalTime endTime;
     @Schema(description = "예약 수", example = "3")
     private int reservationCount;
     @Schema(description = "예약 대기 중인 수", example = "1")

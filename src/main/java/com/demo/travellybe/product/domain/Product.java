@@ -40,7 +40,7 @@ public class Product extends BaseTimeEntity {
     private List<Ticket> tickets = new ArrayList<>();
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    @OrderBy("date DESC, startTime DESC")
+    @OrderBy("createdDate DESC")
     private List<Reservation> reservations = new ArrayList<>();
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
