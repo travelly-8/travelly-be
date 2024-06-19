@@ -9,11 +9,15 @@ import com.demo.travellybe.member.domain.Member;
 import com.demo.travellybe.member.domain.MemberRepository;
 import com.demo.travellybe.member.domain.Role;
 import com.fasterxml.jackson.databind.JsonNode;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -26,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.security.SecureRandom;
 import java.util.Collection;
 import java.util.Optional;
 @Service
@@ -39,6 +44,7 @@ public class AuthService {
     private final JwtProvider jwtProvider;
     private final AuthenticationManager authenticationManager;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final JavaMailSender mailSender;
 
     // 회원 가입
     public void signup(SignupRequestDto signupRequestDto) {
@@ -245,5 +251,58 @@ public class AuthService {
         }else{
             throw new CustomException(ErrorCode.MEMBER_PASSWORD_MISMATCH);
         }
+    }
+
+    public void findPassword(String nickname, String email) {
+
+        // 닉네임으로 회원 찾기
+        Member nickMember = memberRepository.findByNickname(nickname)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        // 이메일로 회원 찾기
+        Member emailMember = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+
+        if (nickMember.getPassword().equals(emailMember.getPassword())) {
+            // 임시 비밀번호 생성
+            String tempPassword = generateTempPassword();
+            String encodedPassword = bCryptPasswordEncoder.encode(tempPassword);
+
+            // 임시 비밀번호를 암호화하여 저장
+            nickMember.setPassword(encodedPassword);
+
+            // 임시 비밀번호를 이메일로 전송
+            try {
+                sendTempPasswordEmail(email, tempPassword);
+            } catch (MessagingException e) {
+                throw new RuntimeException(e);
+            }
+        }else{
+            throw new CustomException(ErrorCode.MEMBER_NOT_MATCH);
+        }
+
+    }
+
+    private String generateTempPassword() {
+        // 임시 비밀번호 생성 로직 (8자리 랜덤 문자열)
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        SecureRandom random = new SecureRandom();
+        StringBuilder tempPassword = new StringBuilder();
+        for (int i = 0; i < 5; i++) {
+            tempPassword.append(characters.charAt(random.nextInt(characters.length())));
+        }
+        return tempPassword.toString();
+    }
+
+    private void sendTempPasswordEmail(String email, String tempPassword) throws MessagingException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+        helper.setTo(email);
+        helper.setSubject("임시 비밀번호 안내");
+        helper.setText("<p>안녕하세요,</p><p>임시 비밀번호는 다음과 같습니다: <strong>" + tempPassword + "</strong></p><p>로그인 후 비밀번호를 변경해 주세요.</p>", true);
+
+        mailSender.send(message);
     }
 }
