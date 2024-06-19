@@ -6,6 +6,7 @@ import com.demo.travellybe.product.dto.request.ProductCreateRequestDto;
 import com.demo.travellybe.product.dto.request.ProductsSearchRequestDto;
 import com.demo.travellybe.product.dto.response.MyProductResponseDto;
 import com.demo.travellybe.product.dto.response.ProductResponseDto;
+import com.demo.travellybe.product.dto.response.ProductWithReservationCountDto;
 import com.demo.travellybe.product.dto.response.ProductsResponseDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,4 +29,6 @@ public interface ProductService {
     List<ProductsResponseDto> getTopProducts();
 
     List<MyProductResponseDto> getMyProducts(String username);
+
+    List<ProductWithReservationCountDto> getReservations(String username);
 }

@@ -19,6 +19,7 @@ public interface ReservationService {
     void cancelReservation(Long id);
     void rejectReservation(Long id, String rejectReason);
 
+    ReservationResponseDto getReservationData(String username, Long reservationId);
     /** 구매자 ID로 예약 조회 */
     List<ReservationResponseDto> getReservationsByBuyerId(Long memberId);
     /** 상품 ID로 상품 상세 + 예약 목록 조회 */

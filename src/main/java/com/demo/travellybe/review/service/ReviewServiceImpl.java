@@ -22,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -47,7 +48,10 @@ public class ReviewServiceImpl implements ReviewService{
                 .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
 
         // 파일 저장 및 URL 생성
-        List<String> filesUrls = s3Service.uploadFiles(files, "review");
+        List<String> filesUrls = new ArrayList<>();
+        if (files != null) {
+            filesUrls = s3Service.uploadFiles(files, "review");
+        }
 
         // 리뷰 저장
         Review review = Review.builder()

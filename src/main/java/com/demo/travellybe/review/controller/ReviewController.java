@@ -33,7 +33,7 @@ public class ReviewController {
     public ResponseEntity<Long> saveReview(
             @RequestPart(value="images", required = false) List<MultipartFile> files,
             @RequestPart(value="review") ReviewRequestDto reviewRequestDto,
-            @PathVariable Long productId,
+            @PathVariable("productId") Long productId,
             @AuthenticationPrincipal PrincipalDetails userInfo
     ) {
 

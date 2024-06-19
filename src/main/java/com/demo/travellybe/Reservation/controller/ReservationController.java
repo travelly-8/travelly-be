@@ -105,6 +105,17 @@ public class ReservationController {
         return ResponseEntity.ok(reservationService.createReservation(member.getId(), productId, reservationCreateDto));
     }
 
+    @GetMapping("/reject/{reservationId}")
+    @Operation(summary = "예약 거절 사유")
+    public ResponseEntity<ReservationResponseDto> reservationData(
+            @PathVariable Long reservationId,
+            @AuthenticationPrincipal PrincipalDetails principalDetails) {
+
+        reservationService.getReservationData(principalDetails.getUsername(), reservationId);
+
+        return ResponseEntity.ok().build();
+    }
+
     @PatchMapping ("/{id}/accept")
     @Operation(summary = "예약 수락", description = "상품 판매자가 예약을 수락합니다.",
             responses = {

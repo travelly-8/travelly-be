@@ -207,4 +207,12 @@ public class ReservationServiceImpl implements ReservationService {
         seller.setPoint(seller.getPoint() - reservation.getTotalPrice());
         product.setQuantity(product.getQuantity() + reservation.getTotalTicketCount());
     }
+
+    public ReservationResponseDto getReservationData(String email, Long id) {
+
+        Reservation reservation = reservationRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.RESERVATION_NOT_FOUND));
+
+        return new ReservationResponseDto(reservation);
+    }
 }
