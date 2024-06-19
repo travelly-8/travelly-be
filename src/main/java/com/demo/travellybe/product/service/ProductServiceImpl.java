@@ -154,7 +154,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<ProductsResponseDto> getTopProducts() {
         // Redis에서 인기상품 top 10을 조회하여 반환
-        Set<String> topProducts = redisTemplate.opsForZSet().reverseRange("popular_products", 0, 9);
+        Set<String> topProducts = redisTemplate.opsForZSet().reverseRange("popular_products", 0, 19);
         if (topProducts == null) return new ArrayList<>();
 
         // 모든 상품을 조회하고 Map에 저장
@@ -166,10 +166,21 @@ public class ProductServiceImpl implements ProductService {
         // 원래 순서를 유지하면서 ProductsResponseDto 리스트를 생성
         return topProducts.stream()
                 .map(Long::parseLong)
+                .filter(productId -> {
+                    Product product = productMap.get(productId);
+                    if (product == null) {
+                        // 상품이 삭제되었으면 Redis에서 해당 상품 ID를 삭제
+                        redisTemplate.opsForZSet().remove("popular_products", String.valueOf(productId));
+                        return false;
+                    }
+                    return true;
+                })
                 .map(productMap::get)
                 .map(ProductsResponseDto::new)
+                .limit(10)
                 .collect(Collectors.toList());
     }
+
 
     @Override
     public List<MyProductResponseDto> getMyProducts(String email) {
