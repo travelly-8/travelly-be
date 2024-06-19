@@ -9,7 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,12 +47,6 @@ public class Reservation extends BaseTimeEntity {
     @Column(nullable = false)
     private LocalDate date;
 
-    @Column(nullable = false)
-    private LocalTime startTime;
-
-    @Column(nullable = false)
-    private LocalTime endTime;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ReservationStatus status = ReservationStatus.PENDING;
@@ -66,7 +59,7 @@ public class Reservation extends BaseTimeEntity {
     private int totalTicketCount;
 
     public static Reservation of(Product product, Member buyer, String name, String phone, String email,
-                                 LocalDate date, LocalTime startTime, LocalTime endTime, int totalPrice, int totalTicketCount) {
+                                 LocalDate date, int totalPrice, int totalTicketCount) {
         Reservation reservation = new Reservation();
         reservation.product = product;
         reservation.buyer = buyer;
@@ -74,8 +67,6 @@ public class Reservation extends BaseTimeEntity {
         reservation.phone = phone;
         reservation.email = email;
         reservation.date = date;
-        reservation.startTime = startTime;
-        reservation.endTime = endTime;
         reservation.totalPrice = totalPrice;
         reservation.totalTicketCount = totalTicketCount;
         return reservation;

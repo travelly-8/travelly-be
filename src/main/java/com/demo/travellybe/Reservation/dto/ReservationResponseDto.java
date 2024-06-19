@@ -1,12 +1,12 @@
 package com.demo.travellybe.Reservation.dto;
 
 import com.demo.travellybe.Reservation.domain.Reservation;
+import com.demo.travellybe.product.dto.ProductImageDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 
 @Getter
@@ -14,6 +14,11 @@ import java.util.List;
 public class ReservationResponseDto {
     @Schema(description = "예약 ID", example = "1")
     private Long id;
+    @Schema(description = "상품 ID", example = "1")
+    private Long productId;
+    @Schema(description = "상품 이름", example = "상품 이름")
+    private String productName;
+    private List<ProductImageDto> productImages;
     @Schema(description = "예약자 이름", example = "홍길동")
     private String buyerName;
     @Schema(description = "연락처", example = "01012345678")
@@ -22,8 +27,6 @@ public class ReservationResponseDto {
     private String email;
 
     private LocalDate date;
-    private LocalTime startTime;
-    private LocalTime endTime;
     private List<ReservationTicketResponseDto> Tickets;
 
     @Schema(description = "예약 총 가격", example = "20000")
@@ -35,12 +38,13 @@ public class ReservationResponseDto {
 
     public ReservationResponseDto(Reservation reservation) {
         this.id = reservation.getId();
+        this.productId = reservation.getProduct().getId();
+        this.productName = reservation.getProduct().getName();
+        this.productImages = reservation.getProduct().getImages().stream().map(ProductImageDto::new).toList();
         this.buyerName = reservation.getBuyer().getNickname();
         this.phone = reservation.getPhone();
         this.email = reservation.getEmail();
         this.date = reservation.getDate();
-        this.startTime = reservation.getStartTime();
-        this.endTime = reservation.getEndTime();
         this.Tickets = reservation.getReservationTickets().stream()
                 .map(ReservationTicketResponseDto::new)
                 .toList();

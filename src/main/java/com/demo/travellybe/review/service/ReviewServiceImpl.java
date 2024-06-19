@@ -8,6 +8,7 @@ import com.demo.travellybe.exception.ErrorCode;
 import com.demo.travellybe.member.domain.Member;
 import com.demo.travellybe.member.domain.MemberRepository;
 import com.demo.travellybe.product.domain.Product;
+import com.demo.travellybe.product.dto.response.ProductReviewResponseDto;
 import com.demo.travellybe.product.repository.ProductRepository;
 import com.demo.travellybe.review.domain.Review;
 import com.demo.travellybe.review.domain.ReviewRepository;
@@ -16,6 +17,8 @@ import com.demo.travellybe.review.dto.ReviewResponseDto;
 import com.demo.travellybe.util.S3Service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -87,5 +90,12 @@ public class ReviewServiceImpl implements ReviewService{
 
         return new ReviewResponseDto(product, review, member, commentResponseDtoList);
 
+    }
+
+    @Override
+    public Page<ProductReviewResponseDto> getProductReviews(Long productId, Pageable pageable) {
+        Page<Review> reviews = reviewRepository.findAllByProductId(productId, pageable);
+
+        return reviews.map(ProductReviewResponseDto::new);
     }
 }

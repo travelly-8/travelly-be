@@ -64,9 +64,6 @@ public class ProductResponseDto {
     @Schema(description = "수정일")
     private LocalDateTime modifiedDate;
 
-    @Schema(description = "리뷰")
-    private List<ProductReviewResponseDto> reviews;
-
     public ProductResponseDto(Product product) {
         this.id = product.getId();
         this.name = product.getName();
@@ -86,7 +83,5 @@ public class ProductResponseDto {
         this.operationDays = product.getOperationDays().stream().map(OperationDayDto::new).toList();
         this.createdDate = product.getCreatedDate();
         this.modifiedDate = product.getModifiedDate();
-
-        this.reviews = product.getReviews().stream().map(ProductReviewResponseDto::new).toList();
     }
 }
