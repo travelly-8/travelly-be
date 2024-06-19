@@ -23,12 +23,12 @@ public class ReviewController {
 
     private final ReviewService reviewService;
 
-    @PostMapping(value = "/{productId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/{productId}")
     @Operation(summary = "리뷰 등록")
     public ResponseEntity<Long> saveReview(
             @RequestPart(value="images", required = false) List<MultipartFile> files,
             @RequestPart(value="review") ReviewRequestDto reviewRequestDto,
-            @PathVariable Long productId,
+            @PathVariable("productId") Long productId,
             @AuthenticationPrincipal PrincipalDetails userInfo
     ) {
 
