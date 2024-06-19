@@ -62,8 +62,11 @@ public class Reservation extends BaseTimeEntity {
     @Column(length = 500)
     private String rejectionReason;
 
+    private int totalPrice;
+    private int totalTicketCount;
+
     public static Reservation of(Product product, Member buyer, String name, String phone, String email,
-                                 LocalDate date, LocalTime startTime, LocalTime endTime) {
+                                 LocalDate date, LocalTime startTime, LocalTime endTime, int totalPrice, int totalTicketCount) {
         Reservation reservation = new Reservation();
         reservation.product = product;
         reservation.buyer = buyer;
@@ -73,6 +76,8 @@ public class Reservation extends BaseTimeEntity {
         reservation.date = date;
         reservation.startTime = startTime;
         reservation.endTime = endTime;
+        reservation.totalPrice = totalPrice;
+        reservation.totalTicketCount = totalTicketCount;
         return reservation;
     }
 

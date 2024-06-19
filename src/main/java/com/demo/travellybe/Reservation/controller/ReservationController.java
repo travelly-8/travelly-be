@@ -1,9 +1,7 @@
 package com.demo.travellybe.Reservation.controller;
 
 import com.demo.travellybe.Reservation.domain.ReservationStatus;
-import com.demo.travellybe.Reservation.dto.MyReservationResponseDto;
-import com.demo.travellybe.Reservation.dto.ReservationCreateDto;
-import com.demo.travellybe.Reservation.dto.ReservationResponseDto;
+import com.demo.travellybe.Reservation.dto.*;
 import com.demo.travellybe.Reservation.service.ReservationService;
 import com.demo.travellybe.auth.dto.PrincipalDetails;
 import com.demo.travellybe.exception.CustomException;
@@ -41,17 +39,37 @@ public class ReservationController {
         return ResponseEntity.ok(reservationService.getReservation(id));
     }
 
+    @GetMapping("/my/products")
+    @Operation(summary = "(판매자)예약 관리", description = "상품별 대기 중인 예약 개수를 조회합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "성공"),
+                    @ApiResponse(responseCode = "401", description = "로그인이 필요합니다.",
+                            content = @Content(schema = @Schema(hidden = true)))
+            })
+    public ResponseEntity<List<PendingReservationsPerProductDto>> getMyProducts(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+        if (principalDetails == null) throw new CustomException(ErrorCode.LOGIN_REQUIRED);
+        return ResponseEntity.ok(reservationService.getProductsBySellerId(principalDetails.getMember().getId()));
+    }
+
     @GetMapping("/my/{productId}")
-    @Operation(summary = "예약 관리 상세(판매자)", description = "상품에 대한 예약을 관리")
+    @Operation(summary = "(판매자)예약 관리 상세", description = "상품의 예약 상세 목록을 조회합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "성공"),
+                    @ApiResponse(responseCode = "401", description = "로그인이 필요합니다.",
+                            content = @Content(schema = @Schema(hidden = true))),
+                    @ApiResponse(responseCode = "404", description = "해당 상품을 찾을 수 없습니다.",
+                            content = @Content(schema = @Schema(hidden = true)))
+            })
     public ResponseEntity<MyReservationResponseDto> getProductReservations(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @PathVariable Long productId
     ) {
-        return ResponseEntity.ok().body(reservationService.getReservationsByProductId(principalDetails.getMember().getId(), productId));
+        if (principalDetails == null) throw new CustomException(ErrorCode.LOGIN_REQUIRED);
+        return ResponseEntity.ok().body(reservationService.getReservationsByProductId(productId));
     }
 
     @GetMapping("/my")
-    @Operation(summary = "내 예약 조회(구매자)", description = "내 예약을 조회합니다.",
+    @Operation(summary = "(구매자)내 예약 조회", description = "내 예약 목록을 조회합니다.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "성공"),
                     @ApiResponse(responseCode = "401", description = "로그인이 필요합니다.",
@@ -59,7 +77,7 @@ public class ReservationController {
             })
     public ResponseEntity<List<ReservationResponseDto>> getMyReservations(@AuthenticationPrincipal PrincipalDetails principalDetails) {
         if (principalDetails == null) throw new CustomException(ErrorCode.LOGIN_REQUIRED);
-        return ResponseEntity.ok(reservationService.getReservationsByMemberId(principalDetails.getMember().getId()));
+        return ResponseEntity.ok(reservationService.getReservationsByBuyerId(principalDetails.getMember().getId()));
     }
 
     @PostMapping("/{productId}")
@@ -118,11 +136,11 @@ public class ReservationController {
                     @ApiResponse(responseCode = "401", description = "로그인이 필요합니다.")
             })
     public ResponseEntity<Void> rejectReservation(@PathVariable Long id,
-                                                  @RequestBody String rejectReason,
+                                                  @RequestBody RejectReasonDto rejectReasonDto,
                                                   @AuthenticationPrincipal PrincipalDetails principalDetails) {
         if (principalDetails == null) throw new CustomException(ErrorCode.LOGIN_REQUIRED);
         // TODO: 판매자만 예약 거절 가능
-        reservationService.rejectReservation(id, rejectReason);
+        reservationService.rejectReservation(id, rejectReasonDto.getRejectReason());
         return ResponseEntity.ok().build();
     }
 

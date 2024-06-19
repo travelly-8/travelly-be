@@ -184,7 +184,7 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         // 유저가 가진 상품 검색
-        List<Product> products = productRepository.findByMemberId(member.getId());
+        List<Product> products = productRepository.findAllByMemberId(member.getId());
 
 
         return products.stream()
