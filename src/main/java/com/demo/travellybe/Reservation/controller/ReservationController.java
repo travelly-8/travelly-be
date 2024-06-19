@@ -42,7 +42,7 @@ public class ReservationController {
     }
 
     @GetMapping("/my/{productId}")
-    @Operation(summary = "예약 관리 상세")
+    @Operation(summary = "예약 관리 상세(판매자)", description = "상품에 대한 예약을 관리")
     public ResponseEntity<MyReservationResponseDto> getProductReservations(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @PathVariable Long productId
@@ -85,6 +85,17 @@ public class ReservationController {
         // 예약 시간이 유효한지 확인
         reservationService.checkOperationDateTime(productId, reservationCreateDto);
         return ResponseEntity.ok(reservationService.createReservation(member.getId(), productId, reservationCreateDto));
+    }
+
+    @GetMapping("/reject/{reservationId}")
+    @Operation(summary = "예약 거절 사유")
+    public ResponseEntity<ReservationResponseDto> reservationData(
+            @PathVariable Long reservationId,
+            @AuthenticationPrincipal PrincipalDetails principalDetails) {
+
+        reservationService.getReservationData(principalDetails.getUsername(), reservationId);
+
+        return ResponseEntity.ok().build();
     }
 
     @PatchMapping ("/{id}/accept")

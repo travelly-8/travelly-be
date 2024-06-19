@@ -7,6 +7,7 @@ import com.demo.travellybe.review.service.ReviewService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +23,7 @@ public class ReviewController {
 
     private final ReviewService reviewService;
 
-    @PostMapping(value = "/{productId}")
+    @PostMapping(value = "/{productId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "리뷰 등록")
     public ResponseEntity<Long> saveReview(
             @RequestPart(value="images", required = false) List<MultipartFile> files,

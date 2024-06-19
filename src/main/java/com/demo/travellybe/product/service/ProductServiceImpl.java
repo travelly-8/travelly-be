@@ -1,6 +1,9 @@
 package com.demo.travellybe.product.service;
 
 
+import com.demo.travellybe.Reservation.domain.Reservation;
+import com.demo.travellybe.Reservation.domain.ReservationStatus;
+import com.demo.travellybe.Reservation.repository.ReservationRepository;
 import com.demo.travellybe.auth.dto.PrincipalDetails;
 import com.demo.travellybe.exception.CustomException;
 import com.demo.travellybe.exception.ErrorCode;
@@ -12,6 +15,7 @@ import com.demo.travellybe.product.dto.request.ProductCreateRequestDto;
 import com.demo.travellybe.product.dto.request.ProductsSearchRequestDto;
 import com.demo.travellybe.product.dto.response.MyProductResponseDto;
 import com.demo.travellybe.product.dto.response.ProductResponseDto;
+import com.demo.travellybe.product.dto.response.ProductWithReservationCountDto;
 import com.demo.travellybe.product.dto.response.ProductsResponseDto;
 import com.demo.travellybe.product.repository.ProductRepository;
 import jakarta.transaction.Transactional;
@@ -36,6 +40,7 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final MemberRepository memberRepository;
+    private final ReservationRepository reservationRepository;
     private final RedisTemplate<String, String> redisTemplate;
 
     @Override
@@ -184,6 +189,28 @@ public class ProductServiceImpl implements ProductService {
 
         return products.stream()
                 .map(MyProductResponseDto::new)
+                .toList();
+    }
+
+    public List<ProductWithReservationCountDto> getReservations(String email) {
+
+        // 유저 검색
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        // 유저가 가진 상품 검색
+        List<Product> products = productRepository.findByMemberId(member.getId());
+
+        return products.stream()
+                .map(product -> {
+
+                    // 상품 별 새로운 예약 수
+                    long reviewCount = reservationRepository.findByProductId(product.getId()).stream()
+                            .filter(reservation -> reservation.getStatus().equals(ReservationStatus.PENDING))
+                            .count();
+
+                    return new ProductWithReservationCountDto(product, (int) reviewCount);
+                })
                 .toList();
     }
 

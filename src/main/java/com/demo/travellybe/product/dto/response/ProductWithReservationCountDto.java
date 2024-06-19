@@ -8,30 +8,25 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
-
 @Getter
 @Setter
 @NoArgsConstructor
-public class MyProductResponseDto {
+public class ProductWithReservationCountDto {
 
     private Long id;
     private String name;
-    private String address;
-    private String detailAddress;
-    private List<ProductImageDto> images;
-
     private int price;
-    private double rating;
+    private List<ProductImageDto> images;
+    private List<OperationDayDto> operationDays;
     private int reviewCount;
 
-    public MyProductResponseDto(Product product) {
+    public ProductWithReservationCountDto(Product product, int reviewCount) {
         this.id = product.getId();
         this.name = product.getName();
-        this.images = product.getImages().stream().map(ProductImageDto::new).toList();
-        this.address = product.getAddress();
-        this.detailAddress = product.getDetailAddress();
-        this.rating = product.getRating();
         this.price = product.getMaxPrice();
-        this.reviewCount = product.getReviewCount();
+        this.images = product.getImages().stream().map(ProductImageDto::new).toList();
+        this.operationDays = product.getOperationDays().stream().map(OperationDayDto::new).toList();
+        this.reviewCount = reviewCount;
     }
 }
+

@@ -9,6 +9,7 @@ import com.demo.travellybe.product.dto.KeywordRankChangeDto;
 import com.demo.travellybe.product.dto.request.ProductCreateRequestDto;
 import com.demo.travellybe.product.dto.response.MyProductResponseDto;
 import com.demo.travellybe.product.dto.response.ProductResponseDto;
+import com.demo.travellybe.product.dto.response.ProductWithReservationCountDto;
 import com.demo.travellybe.product.dto.response.ProductsResponseDto;
 import com.demo.travellybe.product.dto.request.ProductsSearchRequestDto;
 import com.demo.travellybe.product.service.ProductService;
@@ -176,5 +177,12 @@ public class ProductController {
     public ResponseEntity<List<MyProductResponseDto>> myProduct(@AuthenticationPrincipal PrincipalDetails principalDetails) {
 
         return ResponseEntity.ok().body(productService.getMyProducts(principalDetails.getUsername()));
+    }
+
+    @GetMapping("/my/reservations")
+    @Operation(summary = "예약 관리 리스트", description = "상품 판매자가 예약을 조회")
+    public ResponseEntity<List<ProductWithReservationCountDto>> manageReservations(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+
+        return ResponseEntity.ok().body(productService.getReservations(principalDetails.getUsername()));
     }
 }

@@ -214,4 +214,12 @@ public class ReservationServiceImpl implements ReservationService {
                 .mapToInt(ReservationTicket::getQuantity)
                 .sum());
     }
+
+    public ReservationResponseDto getReservationData(String email, Long id) {
+
+        Reservation reservation = reservationRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.RESERVATION_NOT_FOUND));
+
+        return new ReservationResponseDto(reservation);
+    }
 }

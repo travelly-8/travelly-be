@@ -21,4 +21,6 @@ public interface ReservationService {
     void rejectReservation(Long id, String rejectReason);
 
     MyReservationResponseDto getReservationsByProductId(Long id, Long productId);
+
+    ReservationResponseDto getReservationData(String username, Long reservationId);
 }
