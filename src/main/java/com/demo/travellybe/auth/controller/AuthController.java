@@ -76,6 +76,15 @@ public class AuthController {
         return ResponseEntity.ok().body(new EmailResponseDto(email));
     }
 
+    @PostMapping("/login/find/password")
+    @Operation(summary = "비밀번호 찾기")
+    public ResponseEntity<PasswordResponseDto> findPassword(@RequestBody PasswordRequestDto passwordRequestDto) {
+
+        authService.findPassword(passwordRequestDto.getNickname(), passwordRequestDto.getEmail());
+
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("/signup")
     @Operation(summary = "회원가입")
     @ApiResponses({
