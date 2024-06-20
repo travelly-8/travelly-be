@@ -2,12 +2,14 @@ package com.demo.travellybe.review.controller;
 
 import com.demo.travellybe.auth.dto.PrincipalDetails;
 import com.demo.travellybe.product.dto.response.ProductReviewResponseDto;
+import com.demo.travellybe.review.dto.ReviewPageRequestDto;
 import com.demo.travellybe.review.dto.ReviewRequestDto;
 import com.demo.travellybe.review.dto.ReviewResponseDto;
 import com.demo.travellybe.review.service.ReviewService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -56,11 +58,9 @@ public class ReviewController {
     @Operation(summary = "상품 리뷰 페이지네이션")
     public ResponseEntity<Page<ProductReviewResponseDto>> getProductReviews(
             @PathVariable Long productId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false, defaultValue = "createdDate") @Parameter(description = "createdDate/rating") String sort
+            @RequestBody @Valid ReviewPageRequestDto reviewPageRequestDto
     ) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sort).descending());
+        Pageable pageable = reviewPageRequestDto.toPageable();
         return ResponseEntity.ok().body(reviewService.getProductReviews(productId, pageable));
     }
 }
