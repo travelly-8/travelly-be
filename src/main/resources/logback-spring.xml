@@ -1,0 +1,33 @@
+<configuration scan="true" scanPeriod="30 second">
+<!--    30초마다 로그 갱신 -->
+
+<!-- 콘솔 환경 로그 -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss SSS} %highlight(%-5level) %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 파일로 로그 저장 -->
+        <file>logs/application.log</file>
+        <encoder>
+            <pattern>%d{MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <!-- [시간][로그레벨][thread이름] logger이름 메시지 \n -->
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/application.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <!-- 로그 파일의 이름 패턴 -->
+            <!-- logs/application.2024-06-20.log -->
+            <maxHistory>7</maxHistory>
+            <!-- 7일간 유효 -->
+            <totalSizeCap>50MB</totalSizeCap>
+            <!-- 로그 파일 최대 보관 크기. 최대 크기를 초과하면 가장 오래된 로그 자동 제거 -->
+        </rollingPolicy>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE" />
+    </root>
+</configuration>

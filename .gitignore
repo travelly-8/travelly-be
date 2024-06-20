@@ -45,3 +45,6 @@ application.properties
 # Ignore the initdb.java file
 src/main/java/com/demo/travellybe/initdb.java
 src/main/java/com/demo/travellybe/config/P6SpyFormatter.java
+
+# Ignore the log files
+logs/
