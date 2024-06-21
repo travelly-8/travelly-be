@@ -1,10 +1,7 @@
 package com.demo.travellybe.member.controller;
 
 import com.demo.travellybe.auth.dto.PrincipalDetails;
-import com.demo.travellybe.member.dto.PasswordDto;
-import com.demo.travellybe.member.dto.ProfileDto;
-import com.demo.travellybe.member.dto.TravellerResponseDto;
-import com.demo.travellybe.member.dto.TravellyResponseDto;
+import com.demo.travellybe.member.dto.*;
 import com.demo.travellybe.member.service.MemberService;
 import com.demo.travellybe.product.dto.request.ProductRecentRequestDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -43,6 +40,14 @@ public class MemberController {
 
         return ResponseEntity.ok().body(memberService.getTravellyData(userInfo.getUsername()));
     }
+
+    @GetMapping("/my/travelly/review")
+    @Operation(summary = "판매자 후기 정보")
+    public ResponseEntity<TravellyReviewResponseDto> travellyReview(@AuthenticationPrincipal PrincipalDetails userInfo) {
+
+        return ResponseEntity.ok().body(memberService.getTravellyReview(userInfo.getUsername()));
+    }
+
 
     @GetMapping("/my/profile")
     @Operation(summary = "프로필 정보")

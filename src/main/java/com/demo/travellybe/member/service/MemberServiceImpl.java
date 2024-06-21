@@ -10,6 +10,7 @@ import com.demo.travellybe.member.domain.MemberRepository;
 import com.demo.travellybe.member.dto.ProfileDto;
 import com.demo.travellybe.member.dto.TravellerResponseDto;
 import com.demo.travellybe.member.dto.TravellyResponseDto;
+import com.demo.travellybe.member.dto.TravellyReviewResponseDto;
 import com.demo.travellybe.product.domain.Product;
 import com.demo.travellybe.product.dto.request.ProductRecentRequestDto;
 import com.demo.travellybe.product.dto.response.MyProductResponseDto;
@@ -131,5 +132,22 @@ public class MemberServiceImpl implements MemberService {
         int reviewCount = (int) reviewRepository.countReviewsWithMyComments(member.getId());
 
         return new TravellyResponseDto(member,reviewCount, reservationCount, products);
+    }
+
+    public TravellyReviewResponseDto getTravellyReview(String email) {
+
+        // 유저 검색
+        Member member = memberRepository.findByEmail(email).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        // 특정 회원의 productId 리스트
+        List<Long> productIds = productRepository.findProductIdsByMemberId(member.getId());
+
+        // 최신순으로 받은 리뷰 리스트
+        List<Review> reviews = reviewRepository.findRecentReviewsByProductIds(productIds);
+
+        // 댓글을 작성한 리뷰
+        List<Review> commentReviews = reviewRepository.findReviewsCommentedByMember(member.getId());
+
+        return new TravellyReviewResponseDto(member, reviews, commentReviews);
     }
 }
