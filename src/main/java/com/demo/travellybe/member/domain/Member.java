@@ -33,7 +33,8 @@ public class Member extends BaseTimeEntity {
 
     private int point = 100000;
 
-    private String imageUrl = "https://travelly-bucket.s3.ap-northeast-2.amazonaws.com/images/default-profile.png";
+    private String imageUrl = "https://travelly-bucket.s3.ap-northeast-2.amazonaws.com/images/profile/default-profile.png";
+
 
     private String type;
 
