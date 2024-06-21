@@ -27,7 +27,7 @@ public class MemberController {
 
     private final MemberService memberService;
 
-    @GetMapping("/my/traveller")
+    @PostMapping("/my/traveller")
     @Operation(summary = "구매자 프로필 정보")
     public ResponseEntity<TravellerResponseDto> travellerPage(
             @RequestBody List<ProductRecentRequestDto> recentProducts,
