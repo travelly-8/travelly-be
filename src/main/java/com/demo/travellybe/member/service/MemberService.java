@@ -3,6 +3,7 @@ package com.demo.travellybe.member.service;
 import com.demo.travellybe.member.dto.ProfileDto;
 import com.demo.travellybe.member.dto.TravellerResponseDto;
 import com.demo.travellybe.member.dto.TravellyResponseDto;
+import com.demo.travellybe.member.dto.TravellyReviewResponseDto;
 import com.demo.travellybe.product.dto.request.ProductRecentRequestDto;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,4 +23,6 @@ public interface MemberService {
     TravellerResponseDto getTravellerData(List<ProductRecentRequestDto> recentProducts, String username);
 
     TravellyResponseDto getTravellyData(String username);
+
+    TravellyReviewResponseDto getTravellyReview(String username);
 }

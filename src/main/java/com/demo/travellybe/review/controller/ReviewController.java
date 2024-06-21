@@ -58,7 +58,7 @@ public class ReviewController {
     @Operation(summary = "상품 리뷰 페이지네이션")
     public ResponseEntity<Page<ProductReviewResponseDto>> getProductReviews(
             @PathVariable Long productId,
-            @RequestBody @Valid ReviewPageRequestDto reviewPageRequestDto
+            @ModelAttribute @Valid ReviewPageRequestDto reviewPageRequestDto
     ) {
         Pageable pageable = reviewPageRequestDto.toPageable();
         return ResponseEntity.ok().body(reviewService.getProductReviews(productId, pageable));
