@@ -77,7 +77,7 @@ public class AuthController {
 
     @PostMapping("/login/find/password")
     @Operation(summary = "비밀번호 찾기")
-    public ResponseEntity<PasswordResponseDto> findPassword(@RequestBody PasswordRequestDto passwordRequestDto) {
+    public ResponseEntity<Void> findPassword(@RequestBody PasswordRequestDto passwordRequestDto) {
 
         authService.findPassword(passwordRequestDto.getNickname(), passwordRequestDto.getEmail());
 
