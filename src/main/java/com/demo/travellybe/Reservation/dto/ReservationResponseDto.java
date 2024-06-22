@@ -1,13 +1,16 @@
 package com.demo.travellybe.Reservation.dto;
 
 import com.demo.travellybe.Reservation.domain.Reservation;
+import com.demo.travellybe.product.domain.Ticket;
 import com.demo.travellybe.product.dto.ProductImageDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -27,7 +30,7 @@ public class ReservationResponseDto {
     private String email;
 
     private LocalDate date;
-    private List<ReservationTicketResponseDto> Tickets;
+    private List<ReservationTicketResponseDto> tickets;
 
     @Schema(description = "예약 총 가격", example = "20000")
     private int totalPrice;
@@ -45,9 +48,20 @@ public class ReservationResponseDto {
         this.phone = reservation.getPhone();
         this.email = reservation.getEmail();
         this.date = reservation.getDate();
-        this.Tickets = reservation.getReservationTickets().stream()
+        // 예약한 티켓
+        List<ReservationTicketResponseDto> reservedTicket = reservation.getReservationTickets().stream()
                 .map(ReservationTicketResponseDto::new)
                 .toList();
+        // 예약하지 않은 티켓
+        List<Ticket> unreservedTicket = reservation.getProduct().getTickets().stream()
+                .filter(t -> reservation.getReservationTickets().stream()
+                        .noneMatch(rt -> rt.getTicket().getId().equals(t.getId())))
+                .toList();
+        List<ReservationTicketResponseDto> allTickets = new ArrayList<>();
+        allTickets.addAll(reservedTicket);
+        allTickets.addAll(unreservedTicket.stream().map(ReservationTicketResponseDto::new).collect(Collectors.toList()));
+        this.tickets = allTickets;
+
         this.totalPrice = reservation.getReservationTickets().stream()
                 .mapToInt(rt -> rt.getTicket().getPrice() * rt.getQuantity())
                 .sum();
