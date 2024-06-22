@@ -71,9 +71,8 @@ public class AuthController {
             @ApiResponse(responseCode = "404", description = "해당 회원을 찾을 수 없습니다")
     })
     public ResponseEntity<EmailResponseDto> findEmail(@RequestParam("nickname") String nickname) {
-        String email = authService.findEmail(nickname);
 
-        return ResponseEntity.ok().body(new EmailResponseDto(email));
+        return ResponseEntity.ok().body(authService.findEmail(nickname));
     }
 
     @PostMapping("/login/find/password")

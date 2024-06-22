@@ -239,8 +239,13 @@ public class AuthService {
         SecurityContextHolder.getContext().setAuthentication(newAuth);
     }
 
-    public String findEmail(String nickname) {
-        return memberRepository.findByNickname(nickname).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)).getEmail();
+    public EmailResponseDto findEmail(String nickname) {
+
+        // 유저 검색
+        Member member = memberRepository.findByNickname(nickname)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        return new EmailResponseDto(member.getEmail(), member.getCreatedDate());
     }
 
     public void leave(String password, String userPassword, String email) {
