@@ -136,9 +136,11 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public List<ReservationResponseDto> getReservationsByBuyerId(Long buyerId) {
-        return reservationRepository.findByBuyerId(buyerId).stream()
+        List<ReservationResponseDto> reservationResponseDtos = new ArrayList<>(reservationRepository.findByBuyerId(buyerId).stream()
                 .map(ReservationResponseDto::new)
-                .toList();
+                .toList());
+        reservationResponseDtos.sort(Comparator.comparing(ReservationResponseDto::getDate).reversed());
+        return reservationResponseDtos;
     }
 
     @Override

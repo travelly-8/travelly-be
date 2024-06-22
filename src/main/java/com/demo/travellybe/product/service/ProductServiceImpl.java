@@ -104,7 +104,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Page<ProductsResponseDto> getSearchedProducts(ProductsSearchRequestDto requestDto) {
         // 검색 키워드를 Redis에 저장
-        if (requestDto.getKeyword() != null)
+        if (requestDto.getKeyword() != null && !requestDto.getKeyword().isEmpty())
             redisTemplate.opsForZSet().incrementScore("popular_keywords", requestDto.getKeyword(), 1);
 
         Pageable pageable = requestDto.toPageable();
