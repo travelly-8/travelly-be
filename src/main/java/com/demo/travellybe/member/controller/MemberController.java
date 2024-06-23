@@ -33,6 +33,13 @@ public class MemberController {
         return ResponseEntity.ok().body(memberService.getTravellerData(recentProducts, userInfo.getUsername()));
     }
 
+    @GetMapping("/my/traveller/review")
+    @Operation(summary = "구매자 후기 리스트")
+    public ResponseEntity<TravellerReviewResponseDto> travellerReview(@AuthenticationPrincipal PrincipalDetails userInfo) {
+
+        return ResponseEntity.ok().body(memberService.getTravellerReview(userInfo.getUsername()));
+    }
+
     @GetMapping("/my/travelly")
     @Operation(summary = "판매자 프로필 정보")
     public ResponseEntity<TravellyResponseDto> travellyPage(

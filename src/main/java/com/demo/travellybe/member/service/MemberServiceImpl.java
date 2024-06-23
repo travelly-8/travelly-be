@@ -7,10 +7,7 @@ import com.demo.travellybe.exception.CustomException;
 import com.demo.travellybe.exception.ErrorCode;
 import com.demo.travellybe.member.domain.Member;
 import com.demo.travellybe.member.domain.MemberRepository;
-import com.demo.travellybe.member.dto.ProfileDto;
-import com.demo.travellybe.member.dto.TravellerResponseDto;
-import com.demo.travellybe.member.dto.TravellyResponseDto;
-import com.demo.travellybe.member.dto.TravellyReviewResponseDto;
+import com.demo.travellybe.member.dto.*;
 import com.demo.travellybe.product.domain.Product;
 import com.demo.travellybe.product.dto.request.ProductRecentRequestDto;
 import com.demo.travellybe.product.dto.response.MyProductResponseDto;
@@ -26,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -149,5 +147,24 @@ public class MemberServiceImpl implements MemberService {
         List<Review> commentReviews = reviewRepository.findReviewsCommentedByMember(member.getId());
 
         return new TravellyReviewResponseDto(member, reviews, commentReviews);
+    }
+
+    public TravellerReviewResponseDto getTravellerReview(String email) {
+
+        // 유저 검색
+        Member member = memberRepository.findByEmail(email).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        // 유저가 체험한 상품 리스트
+        List<Reservation> reservations = reservationRepository.findByBuyerId(member.getId());
+
+        List<Product> products = reservations.stream()
+                .map(reservation -> reservationRepository.findAcceptedProductByReservationId(reservation.getId()))
+                .toList();
+
+        // 유저가 작성한 리뷰
+        List<Review> reviews = reviewRepository.findByMemberId(member.getId());
+
+        return new TravellerReviewResponseDto(member, products, reviews);
+
     }
 }

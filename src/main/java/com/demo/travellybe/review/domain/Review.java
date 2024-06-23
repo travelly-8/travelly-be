@@ -30,6 +30,7 @@ public class Review extends BaseTimeEntity {
     private int rating;
 
     private int likeCount = 0;
+    private int commentCount = 0;
 
     private List<String> imageUrls;
 
@@ -61,6 +62,7 @@ public class Review extends BaseTimeEntity {
 
     public void addComment(Comment comment) {
         comments.add(comment);
+        this.commentCount++;
         comment.setReview(this);
     }
 }
