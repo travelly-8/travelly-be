@@ -26,7 +26,7 @@ public class JwtProvider {
     // 어세스 토큰 유효시간 | 20m
     private final long accessTokenValidTime = 20 * 60 * 1000L;
     // 리프레시 토큰 유효시간 | 1h
-    private final long refreshTokenValidTime = 60 * 60 * 1000L;
+    private final long refreshTokenValidTime = 30L * 24 * 60 * 60 * 1000;
 
     @PostConstruct
     protected void init() {
