@@ -65,6 +65,6 @@ jobs:
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/travelly
             docker stop travelly
             docker rm travelly
-            docker run -d --name travelly --log-driver json-file --log-opt max-size=10m --log-opt max-file=10 -p 8080:8080 ${{ secrets.DOCKERHUB_USERNAME }}/travelly
+            docker run -d --name travelly -p 8080:8080 -v travelly-log-volume:/home/ubuntu/logs ${{ secrets.DOCKERHUB_USERNAME }}/travelly
             docker image prune -f
 
