@@ -14,6 +14,7 @@ import com.demo.travellybe.review.domain.Review;
 import com.demo.travellybe.review.domain.ReviewRepository;
 import com.demo.travellybe.review.dto.ReviewRequestDto;
 import com.demo.travellybe.review.dto.ReviewResponseDto;
+import com.demo.travellybe.review.dto.ReviewUpdateResponseDto;
 import com.demo.travellybe.util.S3Service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -97,5 +98,39 @@ public class ReviewServiceImpl implements ReviewService{
         Page<Review> reviews = reviewRepository.findAllByProductId(productId, pageable);
 
         return reviews.map(ProductReviewResponseDto::new);
+    }
+
+    public ReviewUpdateResponseDto getUpdateReview(Long reviewId) {
+
+        // 리뷰 검색
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
+
+        return new ReviewUpdateResponseDto(review);
+    }
+
+    public void updateReview(List<MultipartFile> files, ReviewRequestDto reviewRequestDto, Long reviewId) {
+
+        // 리뷰 검색
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
+
+        // 파일 저장 및 URL 생성
+        List<String> filesUrls = new ArrayList<>();
+        if (files != null) {
+            filesUrls = s3Service.uploadFiles(files, "review");
+        }
+
+        // 리뷰 수정
+        review.update(filesUrls, reviewRequestDto);
+    }
+
+    public void deleteReview(Long reviewId) {
+
+        // 리뷰 검색
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
+
+        reviewRepository.deleteById(reviewId);
     }
 }

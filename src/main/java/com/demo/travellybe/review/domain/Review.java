@@ -3,6 +3,7 @@ package com.demo.travellybe.review.domain;
 import com.demo.travellybe.comment.domain.Comment;
 import com.demo.travellybe.member.domain.Member;
 import com.demo.travellybe.product.domain.Product;
+import com.demo.travellybe.review.dto.ReviewRequestDto;
 import com.demo.travellybe.util.BaseTimeEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
@@ -64,5 +65,12 @@ public class Review extends BaseTimeEntity {
         comments.add(comment);
         this.commentCount++;
         comment.setReview(this);
+    }
+
+
+    public void update(List<String> filesUrls, ReviewRequestDto reviewRequestDto) {
+        this.content = reviewRequestDto.getContent();
+        this.rating = reviewRequestDto.getRating();
+        this.imageUrls = filesUrls;
     }
 }
