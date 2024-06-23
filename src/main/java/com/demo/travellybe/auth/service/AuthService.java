@@ -173,7 +173,10 @@ public class AuthService {
         }else{
             memberTokenDto.setToken(makeToken(new PrincipalDetails(memberEntity.get())));
             memberTokenDto.setNickname(memberEntity.get().getNickname());
-            memberTokenDto.setRole(memberEntity.get().getRole().toString().toLowerCase());
+
+            if (memberEntity.get().getRole() != null) {
+                memberTokenDto.setRole(memberEntity.get().getRole().toString().toLowerCase());
+            }
         }
 
         return memberTokenDto;
