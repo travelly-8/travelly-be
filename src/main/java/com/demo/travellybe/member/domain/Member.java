@@ -35,13 +35,9 @@ public class Member extends BaseTimeEntity {
 
     private String imageUrl = "https://travelly-bucket.s3.ap-northeast-2.amazonaws.com/images/profile/default-profile.png";
 
-
     private String type;
 
     private Role role;
-
-    // 내가 작성한 리뷰 개수
-    private int reviewCount = 0;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Product> products = new ArrayList<>();
@@ -85,7 +81,6 @@ public class Member extends BaseTimeEntity {
 
     public void addReview(Review review) {
         reviews.add(review);
-        this.reviewCount++;
         review.setMember(this);
     }
 

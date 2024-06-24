@@ -14,6 +14,8 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     @Query("SELECT COUNT(DISTINCT r) FROM Review r JOIN r.comments c WHERE c.member.id = :memberId")
     long countReviewsWithMyComments(@Param("memberId") Long memberId);
 
+    long countByMemberId(Long memberId);
+
     Page<Review> findAllByProductId(Long productId, Pageable pageable);
 
     @Query("SELECT r FROM Review r WHERE r.product.id IN :products ORDER BY r.createdDate DESC")

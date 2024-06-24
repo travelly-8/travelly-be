@@ -90,8 +90,7 @@ public class MemberServiceImpl implements MemberService {
         // 예약 검색
         List<Reservation> reservations = reservationRepository.findByBuyerId(member.getId());
 
-
-        int reviewCount = reviews.size() - member.getReviewCount();
+        int reviewCount = (int) reviewRepository.countByMemberId(member.getId());
 
         LocalDate now = LocalDate.now();
 
