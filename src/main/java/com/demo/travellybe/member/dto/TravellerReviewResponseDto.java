@@ -36,7 +36,10 @@ public class TravellerReviewResponseDto {
         this.email = member.getEmail();
         this.imageUrl = member.getImageUrl();
 
-        this.products = products.stream().map(TravellerProductResponseDto::new).toList();
+        if (!products.isEmpty()) {
+            this.products = products.stream().map(TravellerProductResponseDto::new).toList();
+        }
+
         this.reviewWithProducts = reviews.stream().map(ReviewWithProductDto::new).toList();
         this.commentWithProducts = reviews.stream().map(CommentWithProductDto::new).toList();
     }
