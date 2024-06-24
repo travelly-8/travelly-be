@@ -12,6 +12,7 @@ import com.demo.travellybe.member.domain.MemberRepository;
 import com.demo.travellybe.product.domain.OperationDay;
 import com.demo.travellybe.product.domain.Product;
 import com.demo.travellybe.product.domain.Ticket;
+import com.demo.travellybe.product.dto.ProductImageDto;
 import com.demo.travellybe.product.repository.ProductRepository;
 import com.demo.travellybe.product.repository.TicketRepository;
 import jakarta.transaction.Transactional;
@@ -166,6 +167,9 @@ public class ReservationServiceImpl implements ReservationService {
             PendingReservationsPerProductDto dto = PendingReservationsPerProductDto.builder()
                     .productId(product.getId())
                     .productName(product.getName())
+                    .productImages(product.getImages().stream()
+                            .map(ProductImageDto::new)
+                            .toList())
                     .price(pendingReservationCount != 0 ? reservationList.getFirst().getTotalPrice() : 0)
                     .date(pendingReservationCount != 0 ? reservationList.getFirst().getDate() : null)
                     .createdDate(pendingReservationCount != 0 ? reservationList.getFirst().getCreatedDate() : null)
