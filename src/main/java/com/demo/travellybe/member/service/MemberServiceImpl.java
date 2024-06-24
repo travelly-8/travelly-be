@@ -25,6 +25,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Transactional
@@ -159,6 +160,7 @@ public class MemberServiceImpl implements MemberService {
 
         List<Product> products = reservations.stream()
                 .map(reservation -> reservationRepository.findAcceptedProductByReservationId(reservation.getId()))
+                .filter(Objects::nonNull)
                 .toList();
 
         // 유저가 작성한 리뷰

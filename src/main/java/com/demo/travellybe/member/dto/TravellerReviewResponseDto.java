@@ -36,7 +36,7 @@ public class TravellerReviewResponseDto {
         this.email = member.getEmail();
         this.imageUrl = member.getImageUrl();
 
-        if (products != null) {
+        if (!products.isEmpty()) {
             this.products = products.stream().map(TravellerProductResponseDto::new).toList();
         }
 
