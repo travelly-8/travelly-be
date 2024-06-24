@@ -64,7 +64,7 @@ public class ProductResponseDto {
     @Schema(description = "수정일")
     private LocalDateTime modifiedDate;
 
-    public ProductResponseDto(Product product) {
+    public ProductResponseDto(Product product, int reviewCount) {
         this.id = product.getId();
         this.name = product.getName();
         this.sellerName = product.getMember().getNickname();
@@ -79,7 +79,7 @@ public class ProductResponseDto {
         this.quantity = product.getQuantity();
         this.ticketDto = product.getTickets().stream().map(TicketResponseDto::new).toList();
         this.rating = product.getRating();
-        this.reviewCount = product.getReviewCount();
+        this.reviewCount = reviewCount;
         this.operationDays = product.getOperationDays().stream().map(OperationDayDto::new).toList();
         this.createdDate = product.getCreatedDate();
         this.modifiedDate = product.getModifiedDate();

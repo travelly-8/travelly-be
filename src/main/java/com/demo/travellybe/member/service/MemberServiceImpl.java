@@ -25,6 +25,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -90,7 +91,7 @@ public class MemberServiceImpl implements MemberService {
         // 예약 검색
         List<Reservation> reservations = reservationRepository.findByBuyerId(member.getId());
 
-        int reviewCount = (int) reviewRepository.countByMemberId(member.getId());
+        int myReviewCount = (int) reviewRepository.countByMemberId(member.getId());
 
         LocalDate now = LocalDate.now();
 
@@ -104,10 +105,10 @@ public class MemberServiceImpl implements MemberService {
                 .toList();
 
         List<MyProductResponseDto> recentProducts = productRepository.findByIdIn(productIds).stream()
-                .map(MyProductResponseDto::new)
+                .map(product -> new MyProductResponseDto(product, (int) reviewRepository.countByProductId(product.getId())))
                 .toList();
 
-        return new TravellerResponseDto(member, reviewCount, reservationCount, recentProducts);
+        return new TravellerResponseDto(member, myReviewCount, reservationCount, recentProducts);
     }
 
     public TravellyResponseDto getTravellyData(String email) {
@@ -126,9 +127,14 @@ public class MemberServiceImpl implements MemberService {
                 .count();
 
         // 답글을 달지 않은 리뷰 개수
-        int reviewCount = (int) reviewRepository.countReviewsWithMyComments(member.getId());
+        int notResponseReviewCount = (int) reviewRepository.countReviewsWithMyComments(member.getId());
 
-        return new TravellyResponseDto(member,reviewCount, reservationCount, products);
+        // 상품별 리뷰 개수 계산
+        List<MyProductResponseDto> productDtos = products.stream()
+                .map(product -> new MyProductResponseDto(product, (int) reviewRepository.countByProductId(product.getId())))
+                .collect(Collectors.toList());
+
+        return new TravellyResponseDto(member,notResponseReviewCount, reservationCount, productDtos);
     }
 
     public TravellyReviewResponseDto getTravellyReview(String email) {

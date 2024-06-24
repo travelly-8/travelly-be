@@ -79,9 +79,6 @@ public class Product extends BaseTimeEntity {
     @Column(nullable = false)
     private double rating;
 
-    @Column(nullable = false)
-    private int reviewCount = 0;
-
     public static Product of(ProductCreateRequestDto productCreateRequestDto) {
         Product product = new Product();
         product.name = productCreateRequestDto.getName();
@@ -194,7 +191,6 @@ public class Product extends BaseTimeEntity {
     public void addReview(Review review) {
         this.reviews.add(review);
         review.setProduct(this);
-        this.reviewCount++;
 
 //        this.rating = ((this.rating * (this.reviewCount - 1)) + review.getRating()) / this.reviewCount;
         this.rating = this.reviews.stream()

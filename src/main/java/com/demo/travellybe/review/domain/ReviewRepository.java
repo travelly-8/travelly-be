@@ -15,6 +15,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     long countReviewsWithMyComments(@Param("memberId") Long memberId);
 
     long countByMemberId(Long memberId);
+    long countByProductId(Long productId);
 
     Page<Review> findAllByProductId(Long productId, Pageable pageable);
 
