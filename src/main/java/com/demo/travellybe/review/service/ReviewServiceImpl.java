@@ -70,8 +70,13 @@ public class ReviewServiceImpl implements ReviewService{
     public ReviewResponseDto getReview(Long productId, Long reviewId, String email) {
 
         // 유저 검색
-        Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        Member member;
+        if (email != null) {
+            member = memberRepository.findByEmail(email)
+                    .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        } else {
+            member = null;
+        }
 
         // 상품 검색
         Product product = productRepository.findById(productId)

@@ -52,6 +52,7 @@ public class ReviewController {
             @PathVariable(value = "reviewId") Long reviewId,
             @AuthenticationPrincipal PrincipalDetails userInfo
     ) {
+        if (userInfo == null) return ResponseEntity.ok().body(reviewService.getReview(productId, reviewId, null));
         return ResponseEntity.ok().body(reviewService.getReview(productId, reviewId, userInfo.getUsername()));
     }
 

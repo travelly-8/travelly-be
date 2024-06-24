@@ -40,8 +40,13 @@ public class ReviewResponseDto {
         this.productPrice = product.getMaxPrice();
 
         this.reviewId = review.getId();
-        this.reviewUserImage = member.getImageUrl();
-        this.reviewUserNickname = member.getNickname();
+        if (member == null) {
+            this.reviewUserImage = null;
+            this.reviewUserNickname = null;
+        } else {
+            this.reviewUserImage = member.getImageUrl();
+            this.reviewUserNickname = member.getNickname();
+        }
         this.reviewImages = review.getImageUrls();
         this.reviewContent = review.getContent();
         this.rating = review.getRating();
