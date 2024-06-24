@@ -11,6 +11,7 @@ import com.demo.travellybe.product.dto.request.ProductCreateRequestDto;
 import com.demo.travellybe.product.dto.request.ProductsSearchRequestDto;
 import com.demo.travellybe.product.dto.response.ProductResponseDto;
 import com.demo.travellybe.product.repository.ProductRepository;
+import com.demo.travellybe.review.domain.ReviewRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -39,6 +40,7 @@ class ProductServiceImplTest {
 
     @Mock private ProductRepository productRepository;
     @Mock private MemberRepository memberRepository;
+    @Mock private ReviewRepository reviewRepository;
     @Mock private RedisTemplate<String, Object> redisTemplate;
     @Mock private ZSetOperations<String, Object> zSetOperations;
     @InjectMocks private ProductServiceImpl productService;
@@ -253,6 +255,7 @@ class ProductServiceImplTest {
         when(productRepository.findById(product.getId())).thenReturn(Optional.of(product));
         when(redisTemplate.opsForZSet()).thenReturn(zSetOperations);
         when(zSetOperations.incrementScore(any(), any(), anyDouble())).thenReturn(1.0);
+        when(reviewRepository.countByProductId(product.getId())).thenReturn(0L);
 
         // when
         ProductResponseDto responseDto = productService.getProductById(product.getId());

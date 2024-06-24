@@ -18,6 +18,7 @@ import com.demo.travellybe.product.dto.response.ProductResponseDto;
 import com.demo.travellybe.product.dto.response.ProductWithReservationCountDto;
 import com.demo.travellybe.product.dto.response.ProductsResponseDto;
 import com.demo.travellybe.product.repository.ProductRepository;
+import com.demo.travellybe.review.domain.ReviewRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -41,6 +42,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final MemberRepository memberRepository;
     private final ReservationRepository reservationRepository;
+    private final ReviewRepository reviewRepository;
     private final RedisTemplate<String, String> redisTemplate;
 
     @Override
@@ -50,7 +52,7 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         product.setMember(member);
         productRepository.save(product);
-        return new ProductResponseDto(product);
+        return new ProductResponseDto(product, 0);
     }
 
     @Override
@@ -73,7 +75,8 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
         // 상품 id를 Redis에 저장
         redisTemplate.opsForZSet().incrementScore("popular_products", String.valueOf(id), 1);
-        return new ProductResponseDto(product);
+        int reviewCount = (int) reviewRepository.countByProductId(id);
+        return new ProductResponseDto(product, reviewCount);
     }
 
     @Override
@@ -95,7 +98,7 @@ public class ProductServiceImpl implements ProductService {
     public Page<ProductResponseDto> getAllProducts(Pageable pageable) {
         Page<Product> products = productRepository.findAll(pageable);
         List<ProductResponseDto> productDtos = products.stream()
-                .map(ProductResponseDto::new)
+                .map(product -> new ProductResponseDto(product, (int) reviewRepository.countByProductId(product.getId())))
                 .collect(Collectors.toList());
         return new PageImpl<>(productDtos, pageable, products.getTotalElements());
     }
@@ -111,7 +114,7 @@ public class ProductServiceImpl implements ProductService {
         Page<Product> products = productRepository.getSearchedProducts(requestDto, pageable);
 
         List<ProductsResponseDto> productDtos = products.stream()
-                .map(ProductsResponseDto::new)
+                .map(product -> new ProductsResponseDto(product, (int) reviewRepository.countByProductId(product.getId())))
                 .toList();
 
         return new PageImpl<>(productDtos, pageable, products.getTotalElements());
@@ -181,7 +184,7 @@ public class ProductServiceImpl implements ProductService {
                     return true;
                 })
                 .map(productMap::get)
-                .map(ProductsResponseDto::new)
+                .map(product -> new ProductsResponseDto(product, (int) reviewRepository.countByProductId(product.getId())))
                 .limit(10)
                 .collect(Collectors.toList());
     }
@@ -199,7 +202,7 @@ public class ProductServiceImpl implements ProductService {
 
 
         return products.stream()
-                .map(MyProductResponseDto::new)
+                .map(product -> new MyProductResponseDto(product, (int) reviewRepository.countByProductId(product.getId())))
                 .toList();
     }
 

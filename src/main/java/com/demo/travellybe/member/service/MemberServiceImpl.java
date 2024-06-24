@@ -25,6 +25,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.Objects;
 
 @Service
@@ -91,14 +92,15 @@ public class MemberServiceImpl implements MemberService {
         // 예약 검색
         List<Reservation> reservations = reservationRepository.findByBuyerId(member.getId());
 
-
-        int reviewCount = reviews.size() - member.getReviewCount();
-
         LocalDate now = LocalDate.now();
 
         int reservationCount = (int) reservations.stream()
                 .filter(reservation -> reservation.getDate().isAfter(now))
                 .count();
+
+        // 작성하지 않은 리뷰의 개수 = 예약 수 - 리뷰 수
+        // 리뷰 생성 조건을 엄격하게 하지 않아서 리뷰 수가 예약 수보다 많을 수 있음 -> 음수가 나올 수 있음
+        int reviewCount = (int) reviewRepository.countByMemberId(member.getId());
 
         // 최근 본 상품
         List<Long> productIds = productRecentRequestDtoList.stream()
@@ -106,7 +108,7 @@ public class MemberServiceImpl implements MemberService {
                 .toList();
 
         List<MyProductResponseDto> recentProducts = productRepository.findByIdIn(productIds).stream()
-                .map(MyProductResponseDto::new)
+                .map(product -> new MyProductResponseDto(product, (int) reviewRepository.countByProductId(product.getId())))
                 .toList();
 
         return new TravellerResponseDto(member, reviewCount, reservationCount, recentProducts);
@@ -127,10 +129,17 @@ public class MemberServiceImpl implements MemberService {
                 .filter(reservation -> reservation.getStatus().equals(ReservationStatus.PENDING))
                 .count();
 
-        // 답글을 달지 않은 리뷰 개수
-        int reviewCount = (int) reviewRepository.countReviewsWithMyComments(member.getId());
+        // 답글을 달지 않은 리뷰 개수: 상품에 달린 리뷰 수 - 내가 답글을 단 리뷰 수
+        int productReviewCount = (int) reviewRepository.countByProductId(member.getId());
+        int reviewsWithMyCommentsCount = (int) reviewRepository.countReviewsWithMyComments(member.getId());
+        int notResponseReviewCount = productReviewCount - reviewsWithMyCommentsCount;
 
-        return new TravellyResponseDto(member,reviewCount, reservationCount, products);
+        // 상품별 리뷰 개수 계산
+        List<MyProductResponseDto> productDtos = products.stream()
+                .map(product -> new MyProductResponseDto(product, (int) reviewRepository.countByProductId(product.getId())))
+                .collect(Collectors.toList());
+
+        return new TravellyResponseDto(member, notResponseReviewCount, reservationCount, productDtos);
     }
 
     public TravellyReviewResponseDto getTravellyReview(String email) {

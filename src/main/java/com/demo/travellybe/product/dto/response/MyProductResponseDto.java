@@ -24,7 +24,7 @@ public class MyProductResponseDto {
     private double rating;
     private int reviewCount;
 
-    public MyProductResponseDto(Product product) {
+    public MyProductResponseDto(Product product, int reviewCount) {
         this.id = product.getId();
         this.name = product.getName();
         this.images = product.getImages().stream().map(ProductImageDto::new).toList();
@@ -32,6 +32,6 @@ public class MyProductResponseDto {
         this.detailAddress = product.getDetailAddress();
         this.rating = product.getRating();
         this.price = product.getMaxPrice();
-        this.reviewCount = product.getReviewCount();
+        this.reviewCount = reviewCount;
     }
 }

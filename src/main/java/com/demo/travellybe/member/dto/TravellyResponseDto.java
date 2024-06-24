@@ -31,15 +31,13 @@ public class TravellyResponseDto {
 
     private List<MyProductResponseDto> products;
 
-    public TravellyResponseDto(Member member, int reviewCount, int reservationCount, List<Product> products) {
+    public TravellyResponseDto(Member member, int notResponseReviewCount, int reservationCount, List<MyProductResponseDto> productDtos) {
         this.nickname = member.getNickname();
         this.email = member.getEmail();
         this.point = member.getPoint();
         this.imageUrl = member.getImageUrl();
-        this.notResponseCount = reviewCount;
+        this.notResponseCount = notResponseReviewCount;
         this.newReservationCount = reservationCount;
-        this.products = products.stream()
-                .map(MyProductResponseDto::new)
-                .toList();
+        this.products = productDtos;
     }
 }
