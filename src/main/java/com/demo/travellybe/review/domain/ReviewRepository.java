@@ -11,7 +11,7 @@ import java.util.List;
 public interface ReviewRepository extends JpaRepository<Review, Long> {
     List<Review> findByMemberId(Long memberId);
 
-    @Query("SELECT COUNT(DISTINCT r) FROM Review r JOIN r.comments c WHERE c.member.id = :memberId")
+    @Query("SELECT COUNT(DISTINCT r) FROM Review r JOIN r.comments c WHERE r.product.member.id = :memberId AND c.member.id = :memberId")
     long countReviewsWithMyComments(@Param("memberId") Long memberId);
 
     long countByMemberId(Long memberId);

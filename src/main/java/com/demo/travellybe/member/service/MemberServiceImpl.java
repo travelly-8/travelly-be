@@ -129,10 +129,10 @@ public class MemberServiceImpl implements MemberService {
                 .filter(reservation -> reservation.getStatus().equals(ReservationStatus.PENDING))
                 .count();
 
-        // 답글을 달지 않은 리뷰 개수: 상품에 달린 리뷰 수 - 내가 답글을 단 리뷰 수
+        // 답글을 달지 않은 리뷰 개수 = 상품에 달린 리뷰 수 - 내가 답글을 단 리뷰 수
         int productReviewCount = (int) reviewRepository.countByProductId(member.getId());
         int reviewsWithMyCommentsCount = (int) reviewRepository.countReviewsWithMyComments(member.getId());
-        int notResponseReviewCount = productReviewCount - reviewsWithMyCommentsCount;
+        int notResponseReviewCount = Math.max(0, productReviewCount - reviewsWithMyCommentsCount);
 
         // 상품별 리뷰 개수 계산
         List<MyProductResponseDto> productDtos = products.stream()
