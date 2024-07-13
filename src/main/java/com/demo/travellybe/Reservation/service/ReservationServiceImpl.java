@@ -8,7 +8,7 @@ import com.demo.travellybe.Reservation.repository.ReservationRepository;
 import com.demo.travellybe.exception.CustomException;
 import com.demo.travellybe.exception.ErrorCode;
 import com.demo.travellybe.member.domain.Member;
-import com.demo.travellybe.member.domain.MemberRepository;
+import com.demo.travellybe.member.repository.MemberRepository;
 import com.demo.travellybe.product.domain.OperationDay;
 import com.demo.travellybe.product.domain.Product;
 import com.demo.travellybe.product.domain.Ticket;

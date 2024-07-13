@@ -1,6 +1,9 @@
 package com.demo.travellybe.auth.controller;
 
 import com.demo.travellybe.auth.dto.*;
+import com.demo.travellybe.auth.dto.request.*;
+import com.demo.travellybe.auth.dto.response.EmailResponseDto;
+import com.demo.travellybe.auth.dto.response.TokenResponseDto;
 import com.demo.travellybe.auth.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -102,7 +105,7 @@ public class AuthController {
             @ApiResponse(responseCode = "200", description = "회원탈퇴 성공"),
             @ApiResponse(responseCode = "400", description = "비밀번호가 일치하지 않습니다")
     })
-    public ResponseEntity<Void> leave(@RequestBody LeaveRequestDto leaveRequestDto,  @AuthenticationPrincipal PrincipalDetails userInfo) {
+    public ResponseEntity<Void> leave(@RequestBody LeaveRequestDto leaveRequestDto, @AuthenticationPrincipal PrincipalDetails userInfo) {
         authService.leave(leaveRequestDto.getPassword(), userInfo.getPassword(), userInfo.getUsername());
 
         return ResponseEntity.ok().build();

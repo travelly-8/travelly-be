@@ -1,17 +1,17 @@
 package com.demo.travellybe.review.service;
 
 import com.demo.travellybe.comment.domain.Comment;
-import com.demo.travellybe.comment.domain.CommentRepository;
+import com.demo.travellybe.comment.repository.CommentRepository;
 import com.demo.travellybe.comment.dto.CommentResponseDto;
 import com.demo.travellybe.exception.CustomException;
 import com.demo.travellybe.exception.ErrorCode;
 import com.demo.travellybe.member.domain.Member;
-import com.demo.travellybe.member.domain.MemberRepository;
+import com.demo.travellybe.member.repository.MemberRepository;
 import com.demo.travellybe.product.domain.Product;
 import com.demo.travellybe.product.dto.response.ProductReviewResponseDto;
 import com.demo.travellybe.product.repository.ProductRepository;
 import com.demo.travellybe.review.domain.Review;
-import com.demo.travellybe.review.domain.ReviewRepository;
+import com.demo.travellybe.review.repository.ReviewRepository;
 import com.demo.travellybe.review.dto.ReviewRequestDto;
 import com.demo.travellybe.review.dto.ReviewResponseDto;
 import com.demo.travellybe.review.dto.ReviewUpdateResponseDto;
@@ -25,7 +25,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
