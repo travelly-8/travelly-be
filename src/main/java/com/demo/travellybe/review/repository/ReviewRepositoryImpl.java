@@ -1,5 +1,6 @@
-package com.demo.travellybe.review.domain;
+package com.demo.travellybe.review.repository;
 
+import com.demo.travellybe.review.domain.Review;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

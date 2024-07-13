@@ -1,5 +1,6 @@
-package com.demo.travellybe.review.domain;
+package com.demo.travellybe.review.repository;
 
+import com.demo.travellybe.review.domain.Review;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewRepositoryCustom {

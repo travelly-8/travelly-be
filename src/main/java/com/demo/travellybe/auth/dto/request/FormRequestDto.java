@@ -1,4 +1,4 @@
-package com.demo.travellybe.auth.dto;
+package com.demo.travellybe.auth.dto.request;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

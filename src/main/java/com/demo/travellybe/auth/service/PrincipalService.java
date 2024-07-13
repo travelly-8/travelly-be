@@ -2,7 +2,7 @@ package com.demo.travellybe.auth.service;
 
 import com.demo.travellybe.auth.dto.PrincipalDetails;
 import com.demo.travellybe.member.domain.Member;
-import com.demo.travellybe.member.domain.MemberRepository;
+import com.demo.travellybe.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

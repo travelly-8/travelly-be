@@ -2,11 +2,16 @@ package com.demo.travellybe.auth.service;
 
 import com.demo.travellybe.auth.domain.MemberTokens;
 import com.demo.travellybe.auth.dto.*;
+import com.demo.travellybe.auth.dto.request.FormRequestDto;
+import com.demo.travellybe.auth.dto.request.SignupRequestDto;
+import com.demo.travellybe.auth.dto.request.TokenRequestDto;
+import com.demo.travellybe.auth.dto.response.EmailResponseDto;
+import com.demo.travellybe.auth.dto.response.TokenResponseDto;
 import com.demo.travellybe.auth.jwt.JwtProvider;
 import com.demo.travellybe.exception.CustomException;
 import com.demo.travellybe.exception.ErrorCode;
 import com.demo.travellybe.member.domain.Member;
-import com.demo.travellybe.member.domain.MemberRepository;
+import com.demo.travellybe.member.repository.MemberRepository;
 import com.demo.travellybe.member.domain.Role;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.mail.MessagingException;

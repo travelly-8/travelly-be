@@ -1,4 +1,7 @@
-package com.demo.travellybe.member.domain;
+package com.demo.travellybe.member.repository;
+import com.demo.travellybe.member.domain.Member;
+import com.demo.travellybe.member.domain.Role;
+
 import java.util.Optional;
 
 public interface MemberRepositoryCustom {

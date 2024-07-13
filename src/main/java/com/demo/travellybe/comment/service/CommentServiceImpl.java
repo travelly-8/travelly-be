@@ -1,18 +1,16 @@
 package com.demo.travellybe.comment.service;
 
 import com.demo.travellybe.comment.domain.Comment;
-import com.demo.travellybe.comment.domain.CommentRepository;
+import com.demo.travellybe.comment.repository.CommentRepository;
 import com.demo.travellybe.exception.CustomException;
 import com.demo.travellybe.exception.ErrorCode;
 import com.demo.travellybe.member.domain.Member;
-import com.demo.travellybe.member.domain.MemberRepository;
+import com.demo.travellybe.member.repository.MemberRepository;
 import com.demo.travellybe.review.domain.Review;
-import com.demo.travellybe.review.domain.ReviewRepository;
+import com.demo.travellybe.review.repository.ReviewRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.io.IOException;
 
 @Service
 @Transactional

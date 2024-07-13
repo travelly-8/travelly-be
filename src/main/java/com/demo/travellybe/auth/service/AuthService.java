@@ -1,6 +1,11 @@
 package com.demo.travellybe.auth.service;
 
 import com.demo.travellybe.auth.dto.*;
+import com.demo.travellybe.auth.dto.request.FormRequestDto;
+import com.demo.travellybe.auth.dto.request.SignupRequestDto;
+import com.demo.travellybe.auth.dto.request.TokenRequestDto;
+import com.demo.travellybe.auth.dto.response.EmailResponseDto;
+import com.demo.travellybe.auth.dto.response.TokenResponseDto;
 
 public interface AuthService {
 

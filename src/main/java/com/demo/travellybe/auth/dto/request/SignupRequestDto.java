@@ -1,4 +1,4 @@
-package com.demo.travellybe.auth.dto;
+package com.demo.travellybe.auth.dto.request;
 
 import com.demo.travellybe.member.domain.Member;
 import io.swagger.v3.oas.annotations.media.Schema;
