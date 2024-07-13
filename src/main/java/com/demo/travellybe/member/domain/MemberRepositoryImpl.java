@@ -2,12 +2,14 @@ package com.demo.travellybe.member.domain;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 import static com.demo.travellybe.member.domain.QMember.member;
 
 @RequiredArgsConstructor
+@Repository
 public class MemberRepositoryImpl implements MemberRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
